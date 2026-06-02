@@ -160,7 +160,9 @@ describe("hashing", () => {
 describe("buildProfile", () => {
   it("produces the complete deterministic verdict", () => {
     const p = buildProfile(config, archetypes, roster, high);
-    expect(p.normalized).toEqual({ a: 1, b: 1 });
+    // Percentile-normalized: of the 4 answer combos, two score a=2 and two a=0,
+    // so the top score sits at mid-rank percentile (2 below + half of 2 equal)/4.
+    expect(p.normalized).toEqual({ a: 0.75, b: 0.75 });
     expect(p.match.id).toBe("alpha");
     expect(p.match.tags).toEqual(["bold"]);
     expect(p.archetype.id).toBe("a1"); // tie -> lowest id

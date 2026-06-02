@@ -6,7 +6,13 @@
  * honest (spec §6).
  */
 
-import type { Answers, DimensionId, QuizConfig, ScoreVector } from "./types";
+import type {
+  Answers,
+  DimensionId,
+  QuizConfig,
+  QuizQuestion,
+  ScoreVector,
+} from "./types";
 
 /** Sum each selected option's weights into a raw per-dimension vector. */
 export function scoreAnswers(config: QuizConfig, answers: Answers): ScoreVector {
@@ -78,6 +84,92 @@ export function normalize(config: QuizConfig, raw: ScoreVector): ScoreVector {
       const t = (v - min) / (max - min);
       out[dim] = t < 0 ? 0 : t > 1 ? 1 : t;
     }
+  }
+  return out;
+}
+
+// --- Percentile normalization ----------------------------------------------
+//
+// Min-max normalization squashes users toward the low corner, because the
+// theoretical per-axis max requires picking that axis's best option on *every*
+// question — impossible with one tap per question. So we instead rank each raw
+// score against the realistic distribution of all answer combinations: a user's
+// normalized value becomes their percentile (≈uniform on [0,1], mean ~0.5).
+// This is what makes the roster get used evenly.
+
+/** Cap on full enumeration; larger answer spaces are stride-sampled instead. */
+const MAX_ENUMERATION = 60000;
+
+const sampleCache = new Map<string, Record<DimensionId, number[]>>();
+
+function decodeAnswers(config: QuizConfig, index: number): Answers {
+  const answers: Answers = {};
+  let n = index;
+  for (const q of config.questions) {
+    const k = q.options.length;
+    answers[q.id] = q.options[n % k].id;
+    n = Math.floor(n / k);
+  }
+  return answers;
+}
+
+/**
+ * Sorted raw-score samples per dimension across the answer space. Fully
+ * enumerated when feasible, otherwise a deterministic stride sample (no RNG, so
+ * results stay reproducible). Memoized per config id.
+ */
+export function axisSamples(config: QuizConfig): Record<DimensionId, number[]> {
+  const cached = sampleCache.get(config.id);
+  if (cached) return cached;
+
+  const total = config.questions.reduce(
+    (acc: number, q: QuizQuestion) => acc * q.options.length,
+    1,
+  );
+  const sampleCount = Math.min(total, MAX_ENUMERATION);
+
+  const acc: Record<DimensionId, number[]> = {};
+  for (const dim of config.dimensions) acc[dim] = [];
+
+  for (let i = 0; i < sampleCount; i++) {
+    // Full enumeration when small; evenly strided indices otherwise.
+    const index =
+      total <= MAX_ENUMERATION ? i : Math.floor((i * total) / sampleCount);
+    const raw = scoreAnswers(config, decodeAnswers(config, index));
+    for (const dim of config.dimensions) acc[dim].push(raw[dim] ?? 0);
+  }
+  for (const dim of config.dimensions) acc[dim].sort((a, b) => a - b);
+
+  sampleCache.set(config.id, acc);
+  return acc;
+}
+
+/** Mid-rank percentile of `value` within a sorted array, in [0,1]. */
+function percentileOf(sorted: number[], value: number): number {
+  if (sorted.length === 0) return 0.5;
+  let less = 0;
+  let equal = 0;
+  for (const s of sorted) {
+    if (s < value) less++;
+    else if (s === value) equal++;
+    else break; // sorted ascending
+  }
+  return (less + equal / 2) / sorted.length;
+}
+
+/**
+ * Normalize a raw vector to per-axis percentiles against the realistic answer
+ * distribution. This is the vector used for matching (spec §6 stays satisfied:
+ * deterministic, same answers -> same percentiles -> same verdict).
+ */
+export function percentileNormalize(
+  config: QuizConfig,
+  raw: ScoreVector,
+): ScoreVector {
+  const samples = axisSamples(config);
+  const out: ScoreVector = {};
+  for (const dim of config.dimensions) {
+    out[dim] = percentileOf(samples[dim], raw[dim] ?? 0);
   }
   return out;
 }

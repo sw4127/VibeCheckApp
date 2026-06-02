@@ -5,7 +5,7 @@
 
 import { hashAnswers } from "./hash";
 import { nearestMatch, rankMatches } from "./match";
-import { normalize, scoreAnswers } from "./score";
+import { percentileNormalize, scoreAnswers } from "./score";
 import type {
   Answers,
   CentroidSet,
@@ -46,7 +46,9 @@ export function buildProfile(
   }
 
   const raw = scoreAnswers(config, answers);
-  const normalized = normalize(config, raw);
+  // Percentile-normalized so users spread across the space and the roster gets
+  // used evenly (see score.ts). This is the vector everything matches against.
+  const normalized = percentileNormalize(config, raw);
 
   return {
     hash: hashAnswers(config, answers),
