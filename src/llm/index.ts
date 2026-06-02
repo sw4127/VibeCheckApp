@@ -10,6 +10,7 @@ export {
   buildUserMessage,
   levelOf,
   localReading,
+  themeFromHash,
   type NarrationResult,
   type ReadingSource,
 } from "./narrate";

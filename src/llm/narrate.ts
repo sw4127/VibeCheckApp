@@ -58,7 +58,7 @@ export function buildUserMessage(
 }
 
 /** Pick a theme deterministically from the profile hash (stable per result). */
-function themeFromHash(hash: string): (typeof THEMES)[number] {
+export function themeFromHash(hash: string): (typeof THEMES)[number] {
   let n = 0;
   for (const ch of hash) n = (n + ch.charCodeAt(0)) % THEMES.length;
   return THEMES[n];
