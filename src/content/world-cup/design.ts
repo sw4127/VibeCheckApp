@@ -19,15 +19,24 @@ export type Position =
   | "defender"
   | "keeper";
 
-export type Motif = "target" | "lines" | "radiate" | "weave" | "shield" | "frame";
+/**
+ * Movement-vector type drawn on the tactical-board card (attacking right):
+ *  spear    = central penetrating run to goal (striker)
+ *  flank    = jagged run down the wing, cutting into the box (winger)
+ *  hub      = passing node fanning out (playmaker)
+ *  boxtobox = sweeping S up and down the pitch (midfielder)
+ *  wall     = monolithic 90° defensive block, immovable (defender)
+ *  arc      = goal-line command arc (keeper)
+ */
+export type Motif = "spear" | "flank" | "hub" | "boxtobox" | "wall" | "arc";
 
 export const POSITION_INFO: Record<Position, { label: string; motif: Motif }> = {
-  striker: { label: "Central Striker", motif: "target" },
-  winger: { label: "Winger", motif: "lines" },
-  playmaker: { label: "Playmaker", motif: "radiate" },
-  midfielder: { label: "Midfielder", motif: "weave" },
-  defender: { label: "Defender", motif: "shield" },
-  keeper: { label: "Keeper", motif: "frame" },
+  striker: { label: "Central Striker", motif: "spear" },
+  winger: { label: "Winger", motif: "flank" },
+  playmaker: { label: "Playmaker", motif: "hub" },
+  midfielder: { label: "Midfielder", motif: "boxtobox" },
+  defender: { label: "Defender", motif: "wall" },
+  keeper: { label: "Keeper", motif: "arc" },
 };
 
 /** National COLOUR cues only (no flags). `deep` tints the dark gradient base. */

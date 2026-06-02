@@ -1,8 +1,11 @@
 /**
  * World Cup archetypes — the named "vibe type" the engine assigns by nearest
  * centroid. The LLM uses this title verbatim (spec §7: it never invents one).
- * Vectors are positions in [0,1] on the 5 axes [intensity, flair, workrate,
- * composure, teamplay].
+ *
+ * Names are drawn from real football scouting/community vocabulary that
+ * describes HOW a player plays (metronome, poacher, colossus, livewire…) — not
+ * invented nicknames. Vectors are positions in [0,1] on the 5 axes [intensity,
+ * flair, workrate, composure, teamplay].
  */
 
 import type { CentroidSet } from "@/engine";
@@ -12,13 +15,13 @@ export const worldCupArchetypes: CentroidSet = {
   centroids: [
     {
       id: "maestro",
-      label: "The Maestro",
+      label: "The Metronome",
       vector: { intensity: 0.45, flair: 0.7, workrate: 0.7, composure: 0.92, teamplay: 0.92 },
       tags: ["controls the tempo", "sees it early", "unflappable"],
     },
     {
       id: "maverick",
-      label: "The Maverick",
+      label: "The Showman",
       vector: { intensity: 0.65, flair: 0.95, workrate: 0.4, composure: 0.6, teamplay: 0.45 },
       tags: ["does the unthinkable", "high-risk", "lives for the highlight"],
     },
@@ -30,7 +33,7 @@ export const worldCupArchetypes: CentroidSet = {
     },
     {
       id: "iceman",
-      label: "The Iceman",
+      label: "The Poacher",
       vector: { intensity: 0.45, flair: 0.4, workrate: 0.45, composure: 0.95, teamplay: 0.55 },
       tags: ["picks the moment", "clinical", "zero panic"],
     },
@@ -42,19 +45,19 @@ export const worldCupArchetypes: CentroidSet = {
     },
     {
       id: "firestarter",
-      label: "The Firestarter",
+      label: "The Livewire",
       vector: { intensity: 0.9, flair: 0.85, workrate: 0.6, composure: 0.4, teamplay: 0.45 },
       tags: ["plays on the edge", "electric", "all emotion"],
     },
     {
       id: "glue",
-      label: "The Glue",
+      label: "The Anchor",
       vector: { intensity: 0.6, flair: 0.55, workrate: 0.9, composure: 0.82, teamplay: 0.95 },
       tags: ["selfless", "does the dirty work", "holds it together"],
     },
     {
       id: "rock",
-      label: "The Rock",
+      label: "The Colossus",
       vector: { intensity: 0.55, flair: 0.3, workrate: 0.65, composure: 0.95, teamplay: 0.85 },
       tags: ["commands the back", "reads everything", "immovable"],
     },
