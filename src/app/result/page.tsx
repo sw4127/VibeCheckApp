@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { buildProfile, missingAnswers, type Answers } from "@/engine";
-import { worldCup } from "@/content/world-cup";
-import { themeFromHash, type WorldCupReading } from "@/llm";
+import { worldCup, playerMeta } from "@/content/world-cup";
+import { type WorldCupReading } from "@/llm";
 import { baseUrl, cardPath } from "@/lib/site";
 import DownloadButton from "./DownloadButton";
 
@@ -40,14 +40,18 @@ export async function generateMetadata({
     worldCup.roster,
     answers,
   );
+  const meta = playerMeta[profile.match.id];
   const og =
     baseUrl() +
     cardPath({
       format: "og",
-      theme: themeFromHash(profile.hash),
       archetype: profile.archetype.label,
       player: profile.match.label,
       traits: profile.match.tags,
+      position: meta?.position,
+      nation: meta?.nation,
+      intensity: profile.normalized.intensity,
+      flair: profile.normalized.flair,
     });
   return {
     title: `You play like ${profile.match.label} — Vibe Check`,
@@ -73,15 +77,23 @@ export default async function ResultPage({
   const res = await fetch(`${baseUrl()}/api/reading?${orderedQuery(answers)}`, {
     cache: "force-cache",
   });
-  const data: { reading: WorldCupReading } = await res.json();
+  const data: {
+    match: { id: string; label: string; tags?: string[] };
+    scores: Record<string, number>;
+    reading: WorldCupReading;
+  } = await res.json();
   const r = data.reading;
 
+  const meta = playerMeta[data.match.id];
   const cardArgs = {
-    theme: r.theme,
     archetype: r.archetype,
     player: r.player,
     verdict: r.verdict,
     traits: r.shared_traits,
+    position: meta?.position,
+    nation: meta?.nation,
+    intensity: data.scores.intensity,
+    flair: data.scores.flair,
   };
   const storyUrl = cardPath({ format: "story", ...cardArgs });
   const squareUrl = cardPath({ format: "square", ...cardArgs });

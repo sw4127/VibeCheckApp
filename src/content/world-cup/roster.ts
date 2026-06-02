@@ -16,6 +16,37 @@
  */
 
 import type { CentroidSet } from "@/engine";
+import type { Position } from "./design";
+
+/**
+ * Design metadata per roster id: generic position + nationality KEY (into
+ * NATIONS). Drives the IP-safe card design (see design.ts) — factual attributes
+ * only, never club/likeness.
+ */
+export const playerMeta: Record<string, { position: Position; nation: string }> = {
+  messi: { position: "playmaker", nation: "ARG" },
+  mbappe: { position: "striker", nation: "FRA" },
+  ronaldo: { position: "striker", nation: "POR" },
+  yamal: { position: "winger", nation: "ESP" },
+  haaland: { position: "striker", nation: "NOR" },
+  bellingham: { position: "midfielder", nation: "ENG" },
+  vinicius: { position: "winger", nation: "BRA" },
+  rodri: { position: "midfielder", nation: "ESP" },
+  modric: { position: "midfielder", nation: "CRO" },
+  debruyne: { position: "playmaker", nation: "BEL" },
+  pedri: { position: "midfielder", nation: "ESP" },
+  kane: { position: "striker", nation: "ENG" },
+  saka: { position: "winger", nation: "ENG" },
+  griezmann: { position: "playmaker", nation: "FRA" },
+  rodrygo: { position: "winger", nation: "BRA" },
+  raphinha: { position: "winger", nation: "BRA" },
+  vandijk: { position: "defender", nation: "NED" },
+  valverde: { position: "midfielder", nation: "URU" },
+  cherki: { position: "playmaker", nation: "FRA" },
+  rice: { position: "midfielder", nation: "ENG" },
+  lautaro: { position: "striker", nation: "ARG" },
+  wirtz: { position: "playmaker", nation: "GER" },
+};
 
 export const worldCupRoster: CentroidSet = {
   id: "world-cup-2026-roster",

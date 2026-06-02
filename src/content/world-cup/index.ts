@@ -7,7 +7,7 @@
 import type { CentroidSet, QuizConfig } from "@/engine";
 import { worldCupArchetypes } from "./archetypes";
 import { worldCupQuiz, WC_DIMENSIONS } from "./quiz";
-import { worldCupRoster } from "./roster";
+import { worldCupRoster, playerMeta } from "./roster";
 
 export interface VariantBundle {
   quiz: QuizConfig;
@@ -21,4 +21,5 @@ export const worldCup: VariantBundle = {
   roster: worldCupRoster,
 };
 
-export { worldCupQuiz, worldCupArchetypes, worldCupRoster, WC_DIMENSIONS };
+export { worldCupQuiz, worldCupArchetypes, worldCupRoster, playerMeta, WC_DIMENSIONS };
+export * from "./design";
