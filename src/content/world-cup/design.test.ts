@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { buildCardDesign, NATIONS, POSITION_INFO } from "./design";
-import { worldCup, playerMeta } from "./index";
+import {
+  ARCHETYPE_GLYPHS,
+  archetypeGlyph,
+  buildCardDesign,
+  NATIONS,
+  POSITION_INFO,
+} from "./design";
+import { worldCup, worldCupArchetypes, playerMeta } from "./index";
 
 describe("buildCardDesign", () => {
   it("uses the nationality accent colour for a known nation", () => {
@@ -15,22 +21,30 @@ describe("buildCardDesign", () => {
     expect(d.caption).toBe("Central Striker");
   });
 
-  it("maps position to the right motif and a factual caption", () => {
-    const d = buildCardDesign({ position: "defender", nation: "NED" });
-    expect(d.motif).toBe(POSITION_INFO.defender.motif);
-    expect(d.caption).toBe("Defender · Netherlands");
-  });
-
-  it("reads louder for higher-energy players", () => {
-    const calm = buildCardDesign({ position: "keeper", intensity: 0.1, flair: 0.1 });
-    const loud = buildCardDesign({ position: "striker", intensity: 0.95, flair: 0.95 });
-    expect(loud.motifOpacity).toBeGreaterThan(calm.motifOpacity);
+  it("builds a factual position · nation caption", () => {
+    expect(buildCardDesign({ position: "defender", nation: "NED" }).caption).toBe(
+      "Defender · Netherlands",
+    );
   });
 
   it("is deterministic", () => {
-    const a = buildCardDesign({ position: "winger", nation: "BRA", intensity: 0.7, flair: 0.8 });
-    const b = buildCardDesign({ position: "winger", nation: "BRA", intensity: 0.7, flair: 0.8 });
+    const a = buildCardDesign({ position: "winger", nation: "BRA" });
+    const b = buildCardDesign({ position: "winger", nation: "BRA" });
     expect(a).toEqual(b);
+  });
+});
+
+describe("archetype glyphs", () => {
+  it("has a single-stroke path for every archetype", () => {
+    for (const c of worldCupArchetypes.centroids) {
+      expect(ARCHETYPE_GLYPHS[c.id], `missing glyph for ${c.id}`).toBeTruthy();
+      expect(archetypeGlyph(c.id).startsWith("M")).toBe(true);
+    }
+  });
+
+  it("returns a default path for an unknown archetype", () => {
+    expect(archetypeGlyph("nope")).toBe(archetypeGlyph(undefined));
+    expect(archetypeGlyph("nope").startsWith("M")).toBe(true);
   });
 });
 

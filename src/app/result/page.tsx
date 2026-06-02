@@ -46,12 +46,11 @@ export async function generateMetadata({
     cardPath({
       format: "og",
       archetype: profile.archetype.label,
+      archetypeId: profile.archetype.id,
       player: profile.match.label,
       traits: profile.match.tags,
       position: meta?.position,
       nation: meta?.nation,
-      intensity: profile.normalized.intensity,
-      flair: profile.normalized.flair,
     });
   return {
     title: `You play like ${profile.match.label} — Vibe Check`,
@@ -78,8 +77,8 @@ export default async function ResultPage({
     cache: "force-cache",
   });
   const data: {
+    archetype: { id: string; label: string };
     match: { id: string; label: string; tags?: string[] };
-    scores: Record<string, number>;
     reading: WorldCupReading;
   } = await res.json();
   const r = data.reading;
@@ -87,13 +86,12 @@ export default async function ResultPage({
   const meta = playerMeta[data.match.id];
   const cardArgs = {
     archetype: r.archetype,
+    archetypeId: data.archetype.id,
     player: r.player,
     verdict: r.verdict,
     traits: r.shared_traits,
     position: meta?.position,
     nation: meta?.nation,
-    intensity: data.scores.intensity,
-    flair: data.scores.flair,
   };
   const storyUrl = cardPath({ format: "story", ...cardArgs });
   const squareUrl = cardPath({ format: "square", ...cardArgs });

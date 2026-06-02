@@ -1,14 +1,12 @@
 /**
- * Logic-driven, IP-safe card design system.
+ * Card design system — IP-safe + premium-minimalist.
  *
- * The card's look is DERIVED from three safe attributes — never random, never
- * borrowed IP:
- *   1. Position (a generic football concept) -> layout motif + a factual caption
- *   2. Nationality COLOURS (colours aren't trademarked; we never draw the flag) -> palette
- *   3. Our own style-axes (intensity/flair) -> how loud the motif reads
- *
- * Explicitly NOT used: club crests/colours-as-brand, flag images, EA "FC/FUT"
- * card art, player likeness. (spec §3, §5.)
+ * The hero graphic is a single, continuous, ultra-thin line-art glyph keyed to
+ * the ARCHETYPE's vibe (flame = Livewire, mountain = Colossus, infinity = Engine…),
+ * floating on a clean open background. No pitch, no boxes, no heavy shapes.
+ * Accent colour comes from nationality COLOURS (never the flag), and the factual
+ * "position · nation" caption is text only. Nothing borrowed: no badges, crests,
+ * flag images, club identity, or likeness. (spec §3, §5.)
  */
 
 export type Position =
@@ -19,25 +17,44 @@ export type Position =
   | "defender"
   | "keeper";
 
-/**
- * Movement-vector type drawn on the tactical-board card (attacking right):
- *  spear    = central penetrating run to goal (striker)
- *  flank    = jagged run down the wing, cutting into the box (winger)
- *  hub      = passing node fanning out (playmaker)
- *  boxtobox = sweeping S up and down the pitch (midfielder)
- *  wall     = monolithic 90° defensive block, immovable (defender)
- *  arc      = goal-line command arc (keeper)
- */
-export type Motif = "spear" | "flank" | "hub" | "boxtobox" | "wall" | "arc";
-
-export const POSITION_INFO: Record<Position, { label: string; motif: Motif }> = {
-  striker: { label: "Central Striker", motif: "spear" },
-  winger: { label: "Winger", motif: "flank" },
-  playmaker: { label: "Playmaker", motif: "hub" },
-  midfielder: { label: "Midfielder", motif: "boxtobox" },
-  defender: { label: "Defender", motif: "wall" },
-  keeper: { label: "Keeper", motif: "arc" },
+export const POSITION_INFO: Record<Position, { label: string }> = {
+  striker: { label: "Central Striker" },
+  winger: { label: "Winger" },
+  playmaker: { label: "Playmaker" },
+  midfielder: { label: "Midfielder" },
+  defender: { label: "Defender" },
+  keeper: { label: "Keeper" },
 };
+
+/**
+ * Single-stroke SVG path per archetype id, authored in a 0–100 viewBox.
+ * Smooth bezier curves only — each is one continuous, flowing line that evokes
+ * the archetype rather than depicting anything literal.
+ */
+export const ARCHETYPE_GLYPHS: Record<string, string> = {
+  // Metronome — a calm, even rhythm wave.
+  maestro: "M 10 50 C 25 20, 37 20, 50 50 C 63 80, 75 80, 90 50",
+  // Showman — a flourish that loops back on itself.
+  maverick: "M 12 72 C 28 40, 48 28, 58 48 C 66 62, 49 71, 45 56 C 41 41, 67 33, 90 30",
+  // Engine — perpetual motion, a continuous figure-eight.
+  engine: "M 50 50 C 38 33, 17 35, 17 50 C 17 65, 38 67, 50 50 C 62 33, 83 35, 83 50 C 83 65, 62 67, 50 50",
+  // Poacher — a patient line that snaps into a hook.
+  iceman: "M 10 44 C 38 44, 58 44, 73 50 C 88 56, 88 71, 75 73 C 66 74, 62 64, 71 60",
+  // Predator — a rising stroke curling into a talon.
+  predator: "M 12 82 C 40 76, 63 57, 78 27 C 81 21, 75 18, 70 24 C 65 30, 71 35, 79 31",
+  // Livewire — a flame, drawn in one continuous line.
+  firestarter: "M 50 88 C 33 75, 35 53, 48 43 C 56 37, 52 25, 46 15 C 68 27, 75 52, 63 68 C 57 76, 49 75, 50 88 Z",
+  // Anchor — a wide, grounding cradle.
+  glue: "M 12 32 C 30 82, 70 82, 88 32",
+  // Colossus — an immovable, symmetric peak.
+  rock: "M 10 80 C 30 80, 36 26, 50 26 C 64 26, 70 80, 90 80",
+};
+
+const DEFAULT_GLYPH = ARCHETYPE_GLYPHS.maestro;
+
+export function archetypeGlyph(id: string | undefined): string {
+  return (id && ARCHETYPE_GLYPHS[id]) || DEFAULT_GLYPH;
+}
 
 /** National COLOUR cues only (no flags). `deep` tints the dark gradient base. */
 export interface Nation {
@@ -65,8 +82,6 @@ const FALLBACK: Nation = { name: "", accent: "#6ea8ff", deep: "#16203c" };
 
 export interface CardDesign {
   palette: { from: string; to: string; accent: string; text: string; sub: string };
-  motif: Motif;
-  motifOpacity: number;
   positionLabel: string;
   nationName: string;
   /** Factual caption, e.g. "Central Striker · Norway". */
@@ -77,24 +92,13 @@ export interface DesignInput {
   position?: Position;
   /** Nationality key into NATIONS (e.g. "NOR"). */
   nation?: string;
-  /** Style-axis percentiles in [0,1]; tune how loud the motif reads. */
-  intensity?: number;
-  flair?: number;
 }
 
 /** Deterministic: same attributes -> same design, every time. */
 export function buildCardDesign(input: DesignInput): CardDesign {
   const nation = (input.nation && NATIONS[input.nation]) || FALLBACK;
   const pos: Position = input.position ?? "midfielder";
-  const info = POSITION_INFO[pos];
-
-  // Louder motif for higher-intensity / higher-flair players.
-  const energy = ((input.intensity ?? 0.5) + (input.flair ?? 0.5)) / 2;
-  const motifOpacity = Math.round((0.1 + energy * 0.16) * 1000) / 1000;
-
-  const caption = nation.name
-    ? `${info.label} · ${nation.name}`
-    : info.label;
+  const label = POSITION_INFO[pos].label;
 
   return {
     palette: {
@@ -104,10 +108,8 @@ export function buildCardDesign(input: DesignInput): CardDesign {
       text: "#f6f7fb",
       sub: "#9aa3bd",
     },
-    motif: info.motif,
-    motifOpacity,
-    positionLabel: info.label,
+    positionLabel: label,
     nationName: nation.name,
-    caption,
+    caption: nation.name ? `${label} · ${nation.name}` : label,
   };
 }
