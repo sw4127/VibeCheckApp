@@ -10,3 +10,4 @@ export {
 export { distance, rankMatches, nearestMatch } from "./match";
 export { canonicalAnswers, fnv1a, hashAnswers } from "./hash";
 export { buildProfile, isComplete, missingAnswers } from "./profile";
+export { archetypeFrequencies, archetypeRarityPct } from "./rarity";

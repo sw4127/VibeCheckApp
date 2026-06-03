@@ -11,14 +11,16 @@ export function baseUrl(): string {
 export interface CardParams {
   format: "story" | "square" | "og";
   archetype: string;
-  /** Archetype id — selects the line-art glyph. */
-  archetypeId?: string;
   player: string;
   verdict?: string;
   traits?: string[];
   /** IP-safe design attributes: position (caption) + nationality colour key. */
   position?: string;
   nation?: string;
+  /** Five axis percentiles [0,1] (fixed dimension order) → vibe-signature bars. */
+  signature?: number[];
+  /** Whole-percent rarity → "X% share your vibe" spark. */
+  rarity?: number;
 }
 
 /** Build a /api/card URL (relative — works in <img> and as an absolute OG src). */
@@ -28,10 +30,11 @@ export function cardPath(p: CardParams): string {
     archetype: p.archetype,
     player: p.player,
   });
-  if (p.archetypeId) q.set("arch", p.archetypeId);
   if (p.verdict) q.set("v", p.verdict);
   if (p.traits?.length) q.set("t", p.traits.join(","));
   if (p.position) q.set("pos", p.position);
   if (p.nation) q.set("nat", p.nation);
+  if (p.signature?.length) q.set("sig", p.signature.map((v) => Math.round(v * 100)).join(","));
+  if (p.rarity !== undefined) q.set("rar", String(p.rarity));
   return `/api/card?${q.toString()}`;
 }

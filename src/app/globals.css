@@ -1,14 +1,25 @@
 @import "tailwindcss";
 
+/*
+ * One color system: neutral near-black chrome + a single brand accent.
+ * Pre-result (landing, quiz) uses --accent. The result screen "reveals" the
+ * archetype-owned accent (nationality colour) instead — the only place colour
+ * shifts. Display type is the ONE branded face (Fraunces) across every screen.
+ */
 :root {
-  --background: #0a0e1a;
-  --foreground: #f1f5ff;
+  --background: #08090d;
+  --foreground: #f4f5f8;
+  --muted: #8b91a3;
+  --accent: #7c6cff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-fraunces);
   --font-mono: var(--font-geist-mono);
 }
 

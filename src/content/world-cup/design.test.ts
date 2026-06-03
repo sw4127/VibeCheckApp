@@ -1,18 +1,14 @@
 import { describe, it, expect } from "vitest";
-import {
-  ARCHETYPE_GLYPHS,
-  archetypeGlyph,
-  buildCardDesign,
-  NATIONS,
-  POSITION_INFO,
-} from "./design";
-import { worldCup, worldCupArchetypes, playerMeta } from "./index";
+import { buildCardDesign, NATIONS, POSITION_INFO } from "./design";
+import { worldCup, playerMeta } from "./index";
 
 describe("buildCardDesign", () => {
-  it("uses the nationality accent colour for a known nation", () => {
+  it("uses the nationality accent on a neutral base (no clash)", () => {
     const d = buildCardDesign({ position: "striker", nation: "NOR" });
     expect(d.palette.accent).toBe(NATIONS.NOR.accent);
-    expect(d.palette.to).toBe(NATIONS.NOR.deep);
+    // Base is neutral chrome, not nationality-tinted, so colours never fight.
+    expect(d.palette.from).toBe("#0c0d12");
+    expect(d.palette.to).toBe("#070709");
   });
 
   it("falls back gracefully for an unknown nation", () => {
@@ -31,20 +27,6 @@ describe("buildCardDesign", () => {
     const a = buildCardDesign({ position: "winger", nation: "BRA" });
     const b = buildCardDesign({ position: "winger", nation: "BRA" });
     expect(a).toEqual(b);
-  });
-});
-
-describe("archetype glyphs", () => {
-  it("has a single-stroke path for every archetype", () => {
-    for (const c of worldCupArchetypes.centroids) {
-      expect(ARCHETYPE_GLYPHS[c.id], `missing glyph for ${c.id}`).toBeTruthy();
-      expect(archetypeGlyph(c.id).startsWith("M")).toBe(true);
-    }
-  });
-
-  it("returns a default path for an unknown archetype", () => {
-    expect(archetypeGlyph("nope")).toBe(archetypeGlyph(undefined));
-    expect(archetypeGlyph("nope").startsWith("M")).toBe(true);
   });
 });
 

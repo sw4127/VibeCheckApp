@@ -7,7 +7,7 @@
  * headers, no DB" approach (survives cold starts, costs nothing).
  */
 import type { Answers } from "@/engine";
-import { buildProfile, missingAnswers } from "@/engine";
+import { archetypeRarityPct, buildProfile, missingAnswers } from "@/engine";
 import { worldCup } from "@/content/world-cup";
 import { narrateWorldCup } from "@/llm";
 
@@ -47,6 +47,7 @@ export async function GET(request: Request) {
       archetype: profile.archetype,
       match: profile.match,
       scores: profile.normalized,
+      rarity: archetypeRarityPct(worldCup.quiz, worldCup.archetypes, profile.archetype.id),
       reading,
       source,
     },

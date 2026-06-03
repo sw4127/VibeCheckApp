@@ -70,15 +70,27 @@ export function themeFromHash(hash: string): (typeof THEMES)[number] {
  */
 export function localReading(profile: Profile): WorldCupReading {
   const tags = (profile.match.tags ?? ["instinctive", "relentless", "composed"]).slice(0, 3);
-  const padded = tags.length >= 3 ? tags : [...tags, "instinctive", "driven"].slice(0, 3);
+  const t = tags.length >= 3 ? tags : [...tags, "instinctive", "driven"].slice(0, 3);
+  const player = profile.match.label;
+
+  // Brand voice (cynical, brutally accurate) — roasts the USER, references the
+  // player's STYLE, never the player. Deterministic variant by hash so repeat
+  // results are stable but the set doesn't feel templated.
+  const variants = [
+    `You don't chase the game — you wait for it to come to you, then make it look easy. ${player} plays the way you move through a room: ${t[0]}, ${t[1]}, and quietly certain you're the best one in it.`,
+    `Everyone clocks you the second you walk in: ${t[0]}, ${t[1]}, impossible to mark. You and ${player} share the same tell — the highlight reel is loud, the consistency is a rumour.`,
+    `You'd rather do the ${t[0]} thing than the safe thing, every single time. ${player} would get it — you both make chaos look like it was the plan all along.`,
+  ];
+  let n = 0;
+  for (const ch of profile.hash) n = (n + ch.charCodeAt(0)) % variants.length;
+
   return {
     archetype: profile.archetype.label,
-    player: profile.match.label,
-    verdict: `You move like ${profile.match.label}: ${padded[0]} when it counts, never wasting a touch. ${profile.archetype.label} doesn't chase the game — the game bends to them.`,
-    shared_traits: padded,
+    player,
+    verdict: variants[n],
+    shared_traits: t,
     theme: themeFromHash(profile.hash),
-    teaser:
-      "Your football vibe is just the warm-up — your music taste says even more.",
+    teaser: "Your football vibe is the warm-up. Your music taste is the real read.",
   };
 }
 

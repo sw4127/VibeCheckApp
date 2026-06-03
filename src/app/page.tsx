@@ -1,30 +1,47 @@
 import Link from "next/link";
+import { cardPath } from "@/lib/site";
+
+// A representative card to show the artifact you get (style-only, no IP).
+const SAMPLE_CARD = cardPath({
+  format: "square",
+  archetype: "The Showman",
+  player: "Lamine Yamal",
+  verdict: "All flair, no fear — you'd rather lose with style than win boring.",
+  traits: ["fearless", "creative", "magnetic"],
+  position: "winger",
+  nation: "ESP",
+  signature: [0.72, 0.96, 0.4, 0.62, 0.55],
+  rarity: 9,
+});
 
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-      <div className="max-w-xl">
-        <p className="text-sm font-bold tracking-[0.3em] text-indigo-300">
-          VIBE CHECK
-        </p>
-        <h1 className="mt-6 text-4xl font-extrabold leading-tight sm:text-5xl">
-          Which World Cup player matches your vibe?
-        </h1>
-        <p className="mt-5 text-lg text-slate-300">
-          Seven taps. No football knowledge needed. We read how you move through
-          life and match you to a player&apos;s style — then hand you a card
-          built to share.
-        </p>
-        <Link
-          href="/quiz"
-          className="mt-10 inline-block rounded-full bg-indigo-500 px-10 py-4 text-lg font-bold text-white transition hover:bg-indigo-400"
-        >
-          Start the quiz
-        </Link>
-        <p className="mt-6 text-xs text-slate-500">
-          Free · takes ~30 seconds · no sign-up
-        </p>
+    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center px-6 py-10 text-center">
+      <p className="text-xs font-bold tracking-[0.4em] text-accent">VIBE CHECK</p>
+
+      <h1 className="mt-8 font-display text-5xl font-black leading-[0.95] tracking-tight">
+        Which World Cup player matches your vibe?
+      </h1>
+
+      <p className="mt-5 text-base leading-relaxed text-muted">
+        Seven taps. No football knowledge required. We read how you actually move
+        through life and match you to a player&apos;s style — then hand you a card
+        built to be screenshotted.
+      </p>
+
+      {/* Sample artifact — so the landing shows, not tells */}
+      <div className="mt-9 w-64 overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={SAMPLE_CARD} alt="Example Vibe Check card" className="w-full" />
       </div>
+
+      <Link
+        href="/quiz"
+        className="mt-9 inline-block rounded-full bg-accent px-10 py-4 text-lg font-bold text-white transition hover:opacity-90 active:scale-[0.98]"
+      >
+        Find my match
+      </Link>
+      <p className="mt-5 text-xs text-muted">Free · ~30 seconds · no sign-up</p>
     </main>
   );
 }

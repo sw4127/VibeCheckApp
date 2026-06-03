@@ -1,23 +1,27 @@
 /**
- * GET /api/card?format=&archetype=&arch=&player=&v=&t=a,b,c&pos=&nat=
+ * GET /api/card?format=&archetype=&arch=&player=&v=&t=a,b,c&pos=&nat=&sig=&rar=
  *
  * Server-rendered share card via Satori (next/og === @vercel/og). Pure function
  * of its query params → CDN-cacheable + reusable as the OG unfurl image.
  *
- * Premium-minimalist: a single, continuous, ultra-thin line-art glyph keyed to
- * the archetype's vibe (flame, mountain, infinity…) floats on a clean open
- * gradient — no pitch, no boxes, no heavy shapes. Accent = nationality colour,
- * drawn with a subtle opacity gradient + soft glow. No badges/flags/likeness.
+ * Editorial poster: the archetype NAME is the hero, set in the bundled branded
+ * display serif (Fraunces) — the same face the web uses. Neutral chrome base +
+ * a single nationality accent (with a soft accent glow); a vibe-signature and a
+ * rarity stat anchor the bottom. No badges/flags/likeness — type + colour only.
  */
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import {
-  archetypeGlyph,
-  buildCardDesign,
-  POSITION_INFO,
-  type Position,
-} from "@/content/world-cup/design";
+import { buildCardDesign, POSITION_INFO, type Position } from "@/content/world-cup/design";
 
 export const runtime = "nodejs";
+
+// Bundled display font (same .woff the web loads) — required for Satori (line 47).
+// Read with fs (dev Turbopack can't fetch() a file: URL); traced into the
+// function via outputFileTracingIncludes in next.config.ts.
+const FONT_DIR = join(process.cwd(), "src", "fonts");
+const fontBlack = readFileSync(join(FONT_DIR, "fraunces-900.woff"));
+const fontSemi = readFileSync(join(FONT_DIR, "fraunces-600.woff"));
 
 const SIZES = {
   story: { w: 1080, h: 1920 },
@@ -30,31 +34,11 @@ function pick<T extends string>(value: string | null, allowed: readonly T[], fal
   return value && (allowed as readonly string[]).includes(value) ? (value as T) : fallback;
 }
 
-/** The floating line-art glyph: soft glow + ultra-thin accent-gradient stroke. */
-function glyph(d: string, accent: string, size: number) {
-  const gradId = "stroke-grad";
-  return (
-    <svg width={size} height={size} viewBox="0 0 100 100">
-      <defs>
-        <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={accent} stopOpacity="0.25" />
-          <stop offset="100%" stopColor={accent} stopOpacity="1" />
-        </linearGradient>
-      </defs>
-      {/* soft glow */}
-      <path d={d} fill="none" stroke={accent} strokeWidth={4} strokeOpacity={0.1} strokeLinecap="round" strokeLinejoin="round" />
-      {/* hero hairline */}
-      <path d={d} fill="none" stroke={`url(#${gradId})`} strokeWidth={1.2} strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
   const format = pick<Format>(searchParams.get("format"), ["story", "square", "og"], "story");
   const archetype = (searchParams.get("archetype") ?? "The Unknown").slice(0, 40);
-  const archId = searchParams.get("arch") ?? undefined;
   const player = (searchParams.get("player") ?? "Your Match").slice(0, 40);
   const verdict = (searchParams.get("v") ?? "").slice(0, 240);
   const traits = (searchParams.get("t") ?? "")
@@ -62,147 +46,221 @@ export async function GET(request: Request) {
     .map((x) => x.trim())
     .filter(Boolean)
     .slice(0, 3);
+  const sig = (searchParams.get("sig") ?? "")
+    .split(",")
+    .map((x) => Math.max(0, Math.min(100, Number(x) || 0)));
+  const rarity = Math.max(1, Math.min(99, Number(searchParams.get("rar")) || 0)) || null;
 
-  const positions = Object.keys(POSITION_INFO) as Position[];
   const design = buildCardDesign({
-    position: pick<Position>(searchParams.get("pos"), positions, "midfielder"),
+    position: pick<Position>(searchParams.get("pos"), Object.keys(POSITION_INFO) as Position[], "midfielder"),
     nation: searchParams.get("nat") ?? undefined,
   });
   const p = design.palette;
-  const d = archetypeGlyph(archId);
 
   const { w, h } = SIZES[format];
   const isOg = format === "og";
-  const s = isOg ? 0.62 : format === "square" ? 0.92 : 1;
+  const s = isOg ? 0.6 : format === "square" ? 0.9 : 1;
   const px = (n: number) => Math.round(n * s);
-  const pad = px(isOg ? 56 : 80);
+  const pad = px(isOg ? 56 : 84);
+  const heroSize = archetype.length > 12 ? px(120) : px(150);
 
-  const glyphSize = isOg
-    ? Math.min((w - 2 * pad) * 0.4, h - 2 * pad)
-    : Math.round((h - 2 * pad) * (format === "square" ? 0.34 : 0.3));
+  const Label = (text: string) => (
+    <div style={{ display: "flex", fontSize: px(24), letterSpacing: px(5), color: p.sub, fontWeight: 700 }}>
+      {text}
+    </div>
+  );
 
-  const Wordmark = (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "flex", fontSize: px(32), letterSpacing: px(8), fontWeight: 800, color: p.accent }}>
-        VIBE CHECK
-      </div>
-      {!isOg ? (
-        <div style={{ display: "flex", fontSize: px(23), color: p.sub, marginTop: px(6) }}>
-          Which World Cup player matches your vibe?
+  // Vibe-signature: five thin bars of the user's axis percentiles.
+  const Signature = sig.length === 5 ? (
+    <div style={{ display: "flex", alignItems: "flex-end", gap: px(10), height: px(72) }}>
+      {sig.map((v, i) => (
+        <div key={i} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: px(20), height: "100%" }}>
+          <div style={{ display: "flex", width: "100%", height: `${Math.max(8, v)}%`, background: p.accent, borderRadius: px(4) }} />
         </div>
-      ) : null}
+      ))}
     </div>
-  );
+  ) : null;
 
-  const Graphic = (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
-      {glyph(d, p.accent, glyphSize)}
+  const Rarity = rarity ? (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+      <div style={{ display: "flex", fontSize: px(56), fontFamily: "Fraunces", fontWeight: 900, color: p.accent, lineHeight: 1 }}>
+        {rarity}%
+      </div>
+      <div style={{ display: "flex", fontSize: px(20), letterSpacing: px(3), color: p.sub, fontWeight: 700, marginTop: px(4) }}>
+        SHARE YOUR VIBE
+      </div>
     </div>
-  );
+  ) : null;
 
-  const Identity = (
+  const Hero = (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "flex", fontSize: px(24), letterSpacing: px(4), color: p.sub }}>YOUR VIBE IS</div>
-      <div style={{ display: "flex", fontSize: px(isOg ? 72 : 86), fontWeight: 800, lineHeight: 1.02, marginTop: px(6) }}>
+      {Label("YOUR VIBE IS")}
+      <div
+        style={{
+          display: "flex",
+          fontFamily: "Fraunces",
+          fontWeight: 900,
+          fontSize: heroSize,
+          lineHeight: 0.92,
+          letterSpacing: px(-2),
+          color: p.text,
+          marginTop: px(10),
+        }}
+      >
         {archetype}
       </div>
-      <div style={{ display: "flex", fontSize: px(24), letterSpacing: px(4), color: p.sub, marginTop: px(24) }}>
-        YOU PLAY LIKE
-      </div>
-      <div style={{ display: "flex", fontSize: px(isOg ? 48 : 60), fontWeight: 800, color: p.accent, marginTop: px(4) }}>
+    </div>
+  );
+
+  const PlayerBlock = (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      {Label("YOU PLAY LIKE")}
+      <div style={{ display: "flex", fontFamily: "Fraunces", fontWeight: 600, fontSize: px(56), color: p.accent, marginTop: px(4) }}>
         {player}
       </div>
       {design.caption ? (
-        <div style={{ display: "flex", fontSize: px(23), color: p.sub, marginTop: px(10), letterSpacing: px(2) }}>
+        <div style={{ display: "flex", fontSize: px(23), color: p.sub, marginTop: px(8), letterSpacing: px(1) }}>
           {design.caption}
         </div>
       ) : null}
     </div>
   );
 
-  const TraitsAndVerdict = !isOg ? (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      {verdict ? (
-        <div style={{ display: "flex", fontSize: px(33), lineHeight: 1.32, color: p.text }}>{verdict}</div>
-      ) : null}
-      {traits.length > 0 ? (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: px(14), marginTop: px(28) }}>
-          {traits.map((t) => (
-            <div
-              key={t}
-              style={{
-                display: "flex",
-                fontSize: px(27),
-                fontWeight: 700,
-                color: p.text,
-                border: `${px(2)}px solid ${p.accent}`,
-                borderRadius: px(999),
-                padding: `${px(9)}px ${px(24)}px`,
-              }}
-            >
-              {t}
-            </div>
-          ))}
+  const Verdict = verdict ? (
+    <div style={{ display: "flex", fontSize: px(34), lineHeight: 1.34, color: p.text }}>{verdict}</div>
+  ) : null;
+
+  const Traits = traits.length > 0 ? (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: px(14) }}>
+      {traits.map((t) => (
+        <div
+          key={t}
+          style={{
+            display: "flex",
+            fontSize: px(26),
+            fontWeight: 700,
+            color: p.text,
+            border: `${px(2)}px solid ${p.accent}55`,
+            borderRadius: px(999),
+            padding: `${px(9)}px ${px(24)}px`,
+          }}
+        >
+          {t}
         </div>
-      ) : null}
+      ))}
+    </div>
+  ) : null;
+
+  const Stats = (Signature || Rarity) ? (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-end",
+        borderTop: `${px(1)}px solid ${p.accent}26`,
+        paddingTop: px(28),
+      }}
+    >
+      {Signature ?? <div style={{ display: "flex" }} />}
+      {Rarity ?? <div style={{ display: "flex" }} />}
     </div>
   ) : null;
 
   const Footer = (
-    <div style={{ display: "flex", fontSize: px(26), fontWeight: 700, color: p.sub, letterSpacing: px(2) }}>
+    <div style={{ display: "flex", fontSize: px(24), fontWeight: 700, color: p.sub, letterSpacing: px(2) }}>
       vibecheck.app
     </div>
+  );
+
+  const Wordmark = (
+    <div style={{ display: "flex", fontSize: px(28), letterSpacing: px(8), fontWeight: 800, color: p.accent }}>
+      VIBE CHECK
+    </div>
+  );
+
+  const AccentGlow = (
+    <div
+      style={{
+        position: "absolute",
+        top: px(-160),
+        left: px(-160),
+        width: px(720),
+        height: px(720),
+        backgroundImage: `radial-gradient(closest-side, ${p.accent}33, transparent)`,
+        display: "flex",
+      }}
+    />
   );
 
   const root = isOg ? (
     <div
       style={{
+        position: "relative",
         width: w,
         height: h,
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
-        gap: px(40),
+        gap: px(48),
         padding: pad,
-        backgroundImage: `linear-gradient(150deg, ${p.from}, ${p.to})`,
+        backgroundImage: `linear-gradient(160deg, ${p.from}, ${p.to})`,
         color: p.text,
         fontFamily: "sans-serif",
+        overflow: "hidden",
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: px(24) }}>
+      {AccentGlow}
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: px(22) }}>
         {Wordmark}
-        {Identity}
-        {Footer}
+        {Hero}
+        {PlayerBlock}
       </div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        {glyph(d, p.accent, glyphSize)}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: px(20) }}>
+        {Rarity}
+        {Signature}
       </div>
     </div>
   ) : (
     <div
       style={{
+        position: "relative",
         width: w,
         height: h,
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
         padding: pad,
-        backgroundImage: `linear-gradient(150deg, ${p.from}, ${p.to})`,
+        backgroundImage: `linear-gradient(160deg, ${p.from}, ${p.to})`,
         color: p.text,
         fontFamily: "sans-serif",
+        overflow: "hidden",
+        justifyContent: "space-between",
       }}
     >
-      {Wordmark}
-      {Graphic}
-      {Identity}
-      {TraitsAndVerdict}
-      {Footer}
+      {AccentGlow}
+      {/* Three balanced zones fill the height — no dead middle. */}
+      <div style={{ display: "flex", flexDirection: "column", gap: px(22) }}>
+        {Wordmark}
+        {Hero}
+        {PlayerBlock}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: px(24) }}>
+        {Verdict}
+        {Traits}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: px(26) }}>
+        {Stats}
+        {Footer}
+      </div>
     </div>
   );
 
   return new ImageResponse(root, {
     width: w,
     height: h,
+    fonts: [
+      { name: "Fraunces", data: fontBlack, weight: 900, style: "normal" },
+      { name: "Fraunces", data: fontSemi, weight: 600, style: "normal" },
+    ],
     headers: {
       "Cache-Control": "public, s-maxage=31536000, stale-while-revalidate=86400",
     },

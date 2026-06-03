@@ -1,12 +1,11 @@
 /**
  * Card design system — IP-safe + premium-minimalist.
  *
- * The hero graphic is a single, continuous, ultra-thin line-art glyph keyed to
- * the ARCHETYPE's vibe (flame = Livewire, mountain = Colossus, infinity = Engine…),
- * floating on a clean open background. No pitch, no boxes, no heavy shapes.
- * Accent colour comes from nationality COLOURS (never the flag), and the factual
- * "position · nation" caption is text only. Nothing borrowed: no badges, crests,
- * flag images, club identity, or likeness. (spec §3, §5.)
+ * The hero is the archetype NAME set in the branded display serif (the card is
+ * typographic). This module supplies the supporting design tokens: the single
+ * accent comes from nationality COLOURS (never the flag) over a neutral chrome
+ * base, plus a factual "position · nation" caption (text only). Nothing
+ * borrowed: no badges, crests, flag images, club identity, or likeness. (§3, §5)
  */
 
 export type Position =
@@ -26,37 +25,7 @@ export const POSITION_INFO: Record<Position, { label: string }> = {
   keeper: { label: "Keeper" },
 };
 
-/**
- * Single-stroke SVG path per archetype id, authored in a 0–100 viewBox.
- * Smooth bezier curves only — each is one continuous, flowing line that evokes
- * the archetype rather than depicting anything literal.
- */
-export const ARCHETYPE_GLYPHS: Record<string, string> = {
-  // Metronome — a calm, even rhythm wave.
-  maestro: "M 10 50 C 25 20, 37 20, 50 50 C 63 80, 75 80, 90 50",
-  // Showman — a flourish that loops back on itself.
-  maverick: "M 12 72 C 28 40, 48 28, 58 48 C 66 62, 49 71, 45 56 C 41 41, 67 33, 90 30",
-  // Engine — perpetual motion, a continuous figure-eight.
-  engine: "M 50 50 C 38 33, 17 35, 17 50 C 17 65, 38 67, 50 50 C 62 33, 83 35, 83 50 C 83 65, 62 67, 50 50",
-  // Poacher — a patient line that snaps into a hook.
-  iceman: "M 10 44 C 38 44, 58 44, 73 50 C 88 56, 88 71, 75 73 C 66 74, 62 64, 71 60",
-  // Predator — a rising stroke curling into a talon.
-  predator: "M 12 82 C 40 76, 63 57, 78 27 C 81 21, 75 18, 70 24 C 65 30, 71 35, 79 31",
-  // Livewire — a flame, drawn in one continuous line.
-  firestarter: "M 50 88 C 33 75, 35 53, 48 43 C 56 37, 52 25, 46 15 C 68 27, 75 52, 63 68 C 57 76, 49 75, 50 88 Z",
-  // Anchor — a wide, grounding cradle.
-  glue: "M 12 32 C 30 82, 70 82, 88 32",
-  // Colossus — an immovable, symmetric peak.
-  rock: "M 10 80 C 30 80, 36 26, 50 26 C 64 26, 70 80, 90 80",
-};
-
-const DEFAULT_GLYPH = ARCHETYPE_GLYPHS.maestro;
-
-export function archetypeGlyph(id: string | undefined): string {
-  return (id && ARCHETYPE_GLYPHS[id]) || DEFAULT_GLYPH;
-}
-
-/** National COLOUR cues only (no flags). `deep` tints the dark gradient base. */
+/** National COLOUR cues only (no flags). `deep` is a reserved dark-tint slot. */
 export interface Nation {
   name: string;
   accent: string;
@@ -102,11 +71,13 @@ export function buildCardDesign(input: DesignInput): CardDesign {
 
   return {
     palette: {
-      from: "#0a0d16",
-      to: nation.deep,
+      // Neutral chrome base everywhere — the nationality colour is the only
+      // accent, so a red player can't clash with a green background.
+      from: "#0c0d12",
+      to: "#070709",
       accent: nation.accent,
-      text: "#f6f7fb",
-      sub: "#9aa3bd",
+      text: "#f4f5f8",
+      sub: "#8b91a3",
     },
     positionLabel: label,
     nationName: nation.name,
