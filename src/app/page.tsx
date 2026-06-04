@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cardPath } from "@/lib/site";
+import Track from "@/components/Track";
 
 // A representative card to show the artifact you get (style-only, no IP).
 const SAMPLE_CARD = cardPath({
@@ -17,6 +18,7 @@ const SAMPLE_CARD = cardPath({
 export default function Home() {
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center px-6 py-10 text-center">
+      <Track event="landing_view" />
       <p className="text-xs font-bold tracking-[0.4em] text-accent">VIBE CHECK</p>
 
       <h1 className="mt-8 font-display text-5xl font-black leading-[0.95] tracking-tight">

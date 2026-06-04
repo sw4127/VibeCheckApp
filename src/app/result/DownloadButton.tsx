@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@/lib/analytics";
 
 /**
  * Downloads the card PNG. In normal browsers this triggers a file save; in
@@ -22,6 +23,7 @@ export default function DownloadButton({
   async function download() {
     try {
       setBusy(true);
+      track("share_download", { kind: filename });
       const res = await fetch(url);
       const blob = await res.blob();
       const href = URL.createObjectURL(blob);

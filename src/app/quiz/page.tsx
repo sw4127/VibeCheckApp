@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { worldCup } from "@/content/world-cup";
-import type { Answers } from "@/engine";
+import { buildProfile, type Answers } from "@/engine";
+import { track } from "@/lib/analytics";
 
 const quiz = worldCup.quiz;
 
@@ -15,6 +16,12 @@ export default function QuizPage() {
 
   const question = quiz.questions[step];
   const total = quiz.questions.length;
+
+  // Funnel entry.
+  useEffect(() => {
+    track("quiz_start");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function choose(optionId: string) {
     if (selected) return; // ignore taps during the confirm beat
@@ -28,6 +35,10 @@ export default function QuizPage() {
         setStep(step + 1);
         setSelected(null);
       } else {
+        // Tag completion with the computed archetype (same deterministic engine
+        // the result page uses) so we can see which results spread.
+        const profile = buildProfile(quiz, worldCup.archetypes, worldCup.roster, next);
+        track("quiz_complete", { archetype: profile.archetype.id, player: profile.match.id });
         const qs = new URLSearchParams();
         for (const q of quiz.questions) qs.set(q.id, next[q.id]);
         router.push(`/result?${qs.toString()}`);

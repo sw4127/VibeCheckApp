@@ -11,6 +11,7 @@ import { worldCup, playerMeta, buildCardDesign } from "@/content/world-cup";
 import { type WorldCupReading } from "@/llm";
 import { baseUrl, cardPath } from "@/lib/site";
 import DownloadButton from "./DownloadButton";
+import Track from "@/components/Track";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -73,6 +74,7 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
     match: { id: string; label: string; tags?: string[] };
     scores: Record<string, number>;
     rarity: number;
+    source: string;
     reading: WorldCupReading;
   } = await res.json();
   const r = data.reading;
@@ -97,6 +99,10 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-6 py-8">
+      <Track
+        event="result_view"
+        props={{ archetype: data.archetype.id, player: data.match.id, rarity: data.rarity, source: data.source }}
+      />
       <p className="text-xs font-bold tracking-[0.4em]" style={{ color: accent }}>
         VIBE CHECK
       </p>
