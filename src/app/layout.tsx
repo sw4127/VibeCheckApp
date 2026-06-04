@@ -26,9 +26,9 @@ const fraunces = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Vibe Check — Which World Cup player matches your vibe?",
+  title: "Vibe Check — Which footballer matches your vibe?",
   description:
-    "A 7-tap quiz reads your vibe and matches you to a World Cup player's style. Free, shareable.",
+    "A 7-tap quiz reads your vibe and matches you to a footballer's style. Free, shareable.",
 };
 
 export default function RootLayout({

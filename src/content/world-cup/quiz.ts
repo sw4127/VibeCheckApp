@@ -25,7 +25,7 @@ export const WC_DIMENSIONS = [
 
 export const worldCupQuiz: QuizConfig = {
   id: "world-cup-2026",
-  title: "Which World Cup player matches your vibe?",
+  title: "Which footballer matches your vibe?",
   dimensions: [...WC_DIMENSIONS],
   questions: [
     {

@@ -167,8 +167,9 @@ export async function GET(request: Request) {
   ) : null;
 
   const Footer = (
-    <div style={{ display: "flex", fontSize: px(24), fontWeight: 700, color: p.sub, letterSpacing: px(2) }}>
-      vibecheck.app
+    <div style={{ display: "flex", alignItems: "baseline", gap: px(12), fontSize: px(28), fontWeight: 800, letterSpacing: px(1) }}>
+      <span style={{ display: "flex", color: p.sub }}>Find yours →</span>
+      <span style={{ display: "flex", color: p.accent }}>vibecheck.app</span>
     </div>
   );
 

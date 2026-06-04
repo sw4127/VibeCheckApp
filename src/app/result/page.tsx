@@ -10,7 +10,9 @@ import {
 import { worldCup, playerMeta, buildCardDesign } from "@/content/world-cup";
 import { type WorldCupReading } from "@/llm";
 import { baseUrl, cardPath } from "@/lib/site";
+import { encodeChallenger } from "@/lib/vs";
 import DownloadButton from "./DownloadButton";
+import ShareButton from "./ShareButton";
 import Track from "@/components/Track";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -58,15 +60,17 @@ export async function generateMetadata({
     });
   return {
     title: `You play like ${profile.match.label} — Vibe Check`,
-    description: `Your vibe is ${profile.archetype.label}. Take the quiz and find your World Cup match.`,
+    description: `Your vibe is ${profile.archetype.label}. Take the quiz and find your match.`,
     openGraph: { title: `You play like ${profile.match.label}`, images: [{ url: og, width: 1200, height: 630 }] },
     twitter: { card: "summary_large_image", images: [og] },
   };
 }
 
 export default async function ResultPage({ searchParams }: { searchParams: SearchParams }) {
-  const answers = answersFrom(await searchParams);
+  const sp = await searchParams;
+  const answers = answersFrom(sp);
   if (missingAnswers(worldCup.quiz, answers).length > 0) redirect("/quiz");
+  const referred = typeof sp.ref === "string" ? sp.ref : undefined;
 
   const res = await fetch(`${baseUrl()}/api/reading?${orderedQuery(answers)}`, { cache: "force-cache" });
   const data: {
@@ -97,6 +101,18 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
   const storyUrl = cardPath({ format: "story", ...cardArgs });
   const squareUrl = cardPath({ format: "square", ...cardArgs });
 
+  // Share = a tappable LINK (unfurls the OG card); challenge = the /vs loop.
+  const origin = baseUrl();
+  const meToken = encodeChallenger({
+    archetypeId: data.archetype.id,
+    playerId: data.match.id,
+    signature,
+  });
+  const shareUrl = `${origin}/result?${orderedQuery(answers)}&ref=card&from=${data.archetype.id}`;
+  const challengeUrl = `${origin}/vs?them=${meToken}&ref=vs`;
+  const shareText = `I'm ${r.archetype} — I play like ${r.player}. Which footballer are you?`;
+  const challengeText = `I'm ${r.archetype}. Bet you can't out-vibe me 😤`;
+
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-6 py-8">
       <Track
@@ -106,6 +122,17 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
       <p className="text-xs font-bold tracking-[0.4em]" style={{ color: accent }}>
         VIBE CHECK
       </p>
+
+      {/* Referred visitor (arrived from a shared card/challenge) — push to their own */}
+      {referred ? (
+        <Link
+          href="/quiz"
+          className="mt-5 block rounded-2xl border border-white/10 p-4 text-center text-sm font-semibold"
+          style={{ background: `${accent}14` }}
+        >
+          👀 This is your friend&apos;s vibe — <span style={{ color: accent }}>find yours →</span>
+        </Link>
+      ) : null}
 
       {/* The reveal */}
       <div className="mt-8">
@@ -163,9 +190,28 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
         <img src={storyUrl} alt="Your shareable Vibe Check card" className="w-full" />
       </div>
 
-      <div className="mt-4 flex flex-wrap justify-center gap-3">
-        <DownloadButton url={storyUrl} label="Download (Story)" filename="vibe-check-story.png" />
-        <DownloadButton url={squareUrl} label="Download (Square)" filename="vibe-check-square.png" />
+      {/* Actions — link-first share + the challenge loop, image downloads below */}
+      <div className="mt-5 flex flex-col items-center gap-3">
+        <div className="flex flex-wrap justify-center gap-3">
+          <ShareButton
+            url={shareUrl}
+            text={shareText}
+            label="Share my card"
+            event="share_native"
+            accent={accent}
+            primary
+          />
+          <ShareButton
+            url={challengeUrl}
+            text={challengeText}
+            label="Challenge a friend"
+            event="share_challenge"
+          />
+        </div>
+        <div className="flex flex-wrap justify-center gap-3">
+          <DownloadButton url={storyUrl} label="Download (Story)" filename="vibe-check-story.png" />
+          <DownloadButton url={squareUrl} label="Download (Square)" filename="vibe-check-square.png" />
+        </div>
       </div>
 
       {/* CTA toward the Stage 2 music product */}

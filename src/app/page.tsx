@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cardPath } from "@/lib/site";
+import { worldCup } from "@/content/world-cup";
 import Track from "@/components/Track";
 
 // A representative card to show the artifact you get (style-only, no IP).
@@ -15,14 +16,31 @@ const SAMPLE_CARD = cardPath({
   rarity: 9,
 });
 
-export default function Home() {
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export default async function Home({ searchParams }: { searchParams: SearchParams }) {
+  // Personalized referred landing: a shared link carries ?from=<archetypeId>,
+  // so a friend's arrival greets them with the sharer's result (stateless).
+  const sp = await searchParams;
+  const fromId = typeof sp.from === "string" ? sp.from : undefined;
+  const friendArchetype = fromId
+    ? worldCup.archetypes.centroids.find((c) => c.id === fromId)?.label
+    : undefined;
+
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center px-6 py-10 text-center">
       <Track event="landing_view" />
       <p className="text-xs font-bold tracking-[0.4em] text-accent">VIBE CHECK</p>
 
+      {friendArchetype ? (
+        <p className="mt-6 rounded-full border border-white/10 px-4 py-1.5 text-sm text-muted">
+          Your friend is <span className="font-semibold text-accent">{friendArchetype}</span>. What
+          are you?
+        </p>
+      ) : null}
+
       <h1 className="mt-8 font-display text-5xl font-black leading-[0.95] tracking-tight">
-        Which World Cup player matches your vibe?
+        Which footballer matches your vibe?
       </h1>
 
       <p className="mt-5 text-base leading-relaxed text-muted">
@@ -43,7 +61,7 @@ export default function Home() {
       >
         Find my match
       </Link>
-      <p className="mt-5 text-xs text-muted">Free · ~30 seconds · no sign-up</p>
+      <p className="mt-6 text-xs text-muted">Free · ~30 seconds · no sign-up</p>
     </main>
   );
 }

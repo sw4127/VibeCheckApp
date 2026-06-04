@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { worldCup } from "@/content/world-cup";
 import { buildProfile, type Answers } from "@/engine";
 import { track } from "@/lib/analytics";
+import { encodeChallenger } from "@/lib/vs";
 
 const quiz = worldCup.quiz;
 
@@ -13,13 +14,16 @@ export default function QuizPage() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [selected, setSelected] = useState<string | null>(null);
+  const [vsToken, setVsToken] = useState<string | null>(null);
 
   const question = quiz.questions[step];
   const total = quiz.questions.length;
 
-  // Funnel entry.
+  // Funnel entry + capture a challenge token (?vs=) if we arrived from a /vs link.
   useEffect(() => {
     track("quiz_start");
+    const vs = new URLSearchParams(window.location.search).get("vs");
+    if (vs) setVsToken(vs);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -39,9 +43,20 @@ export default function QuizPage() {
         // the result page uses) so we can see which results spread.
         const profile = buildProfile(quiz, worldCup.archetypes, worldCup.roster, next);
         track("quiz_complete", { archetype: profile.archetype.id, player: profile.match.id });
-        const qs = new URLSearchParams();
-        for (const q of quiz.questions) qs.set(q.id, next[q.id]);
-        router.push(`/result?${qs.toString()}`);
+
+        // In challenge mode, route to the head-to-head; otherwise the solo result.
+        if (vsToken) {
+          const me = encodeChallenger({
+            archetypeId: profile.archetype.id,
+            playerId: profile.match.id,
+            signature: quiz.dimensions.map((d) => profile.normalized[d] ?? 0.5),
+          });
+          router.push(`/vs?them=${encodeURIComponent(vsToken)}&me=${me}&ref=vs`);
+        } else {
+          const qs = new URLSearchParams();
+          for (const q of quiz.questions) qs.set(q.id, next[q.id]);
+          router.push(`/result?${qs.toString()}`);
+        }
       }
     }, 240);
   }
