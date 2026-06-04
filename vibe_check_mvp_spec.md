@@ -248,3 +248,66 @@ Tap-based, 3–4 options each, mapped to a MUSIC dimension or personality/emotio
 1. Name + wordmark (drives card design and domain).
 2. Blurred-preview paywall copy — the exact unlock-screen words are a conversion lever worth A/B testing.
 3. Final palette + card layout for the five `theme` values.
+
+---
+
+## 12. Monetization findings & decisions (Stage 2 $2.99 paywall)
+
+*Strategy review of the $2.99 paywall, analyzed as TWO separate problems: (A) willingness to pay — do they want it enough to pay at all? and (B) payment friction — given they want it, how many still bounce at checkout? No payment code yet; these are spec decisions.*
+*(Note: sections "10" and "11" both appear above as duplicated "Open questions" headers — flagging rather than renumbering, per the "don't rewrite existing sections" rule. This new section is numbered 12 to avoid collision.)*
+
+### Single most fragile point
+
+**We're charging $2.99 for an AI essay about the user that they can regenerate for free in the same chatbot they already have open — the report has no moat, so the only thing we're really selling is the *impulse at the reveal*, and nothing in the current spec is engineered to convert that impulse before it cools.**
+
+### The leaking bucket (funnel)
+
+Base: 10,000 IG/TikTok story-link opens, viral **low-intent** traffic (they came to see a friend's result, not to buy). Ranges are industry-typical; point estimates are ours. **E = estimate, A = asserted/benchmarked.**
+
+| Step | Survives | Remaining | Note |
+|---|---|---|---|
+| Story-link open → landing | 100% | 10,000 | — |
+| Landing → start quiz | 50–65% (E) | ~5,500 | recipients half-bounce; curiosity carries the rest |
+| Quiz → completes 7 taps | 65–80% (E) | ~3,960 | lean tap quiz, no signup; tap-quiz completion ~50–85% (A) |
+| Complete → free reveal seen | ~97% (A) | ~3,840 | it's the payoff |
+| **Free reveal → reaches paywall** | **35–55% (E)** | **~1,730** | **WTP LEAK #2** — screenshot the free card and dip |
+| **Paywall → taps "unlock" ("I'll pay")** | **2–6% (E)** | **~69** | **WTP LEAK #1** — desire gap; cold-impulse digital upsell ~1–4% (E) |
+| Unlock → payment received | 45–75% (E) | ~41 | **FRICTION (Part B)** — in-app webview drag |
+
+**Blended visitor→pay ≈ 0.4% (pessimistic) to ~1% (optimized)** ≈ $107–$260 net per 10k opens at $2.99. **Revenue is a function of share volume, not report quality.** Stage 1's only honest job is proving the share loop; if the card doesn't spread, the paywall is irrelevant.
+
+Top 3 WTP drop-offs (desire, not friction): ① paywall→unlock, ② free-reveal→paywall, ③ landing→start.
+
+### PART A — Willingness to pay
+
+- **A2 Valuation gap:** the premium report (Diagnosis / Red Flags / Prescription, §7) is trivially DIY-able in ChatGPT/Claude — **the content is not the product.** Defensible value, ranked: (1) **the moment** (peak self-curiosity right after the reveal — temporal, not informational; ~70% of the moat); (2) **a second shareable artifact** (the unlock also produces a "deep-read" card → vanity object + viral loop, not just text); (3) the "computed, not vibes" credibility veneer (§6/§9) — marginal; (4) zero prompt-craft / instant / formatted — weak. **Accuracy does not create WTP; packaging + the moment + a paid share-artifact do.**
+- **A3 Price:** $2.99 one-time is defensible but likely **underpriced**, because of the **fixed Stripe fee** (2.9% + $0.30 → ~13% of $2.99; ~33% of $0.99 — **never price below $2.99**). Impulse-novelty buyers are price-insensitive in the ~$3–6 band (E). To beat $2.99 net, $3.99 need only retain ~73% of buyers, $4.99 ~52%. **Decision: A/B `$2.99 / $3.99 / $4.99`; expectation is $3.99 maximizes net.** Reject subscription (one-shot novelty + churn + chargeback risk). A "unlock + send a friend a free pass" bundle is worth testing (raises AOV + referral).
+
+### PART B — Payment friction (assume desire already exists)
+
+- **B4 Checkout autopsy (in-app-browser-first):** most traffic opens inside the IG/TikTok webview, where checkout quietly dies — **Apple Pay/Google Pay are often unavailable/broken in webviews (A)**; **no browser autofill** → forced manual card entry (A); **popup/redirect/3DS-SCA breakage** (A); **account creation is fatal — must be guest (A)**; low domain trust at the money moment (A); USD shown to global traffic adds FX friction + cross-border declines (A).
+- **B5 Lowest-friction viable checkout:** **Stripe hosted Checkout (or Payment Link), guest mode, Apple Pay + Google Pay + especially Stripe Link, localized currency (adaptive pricing).** **Stripe Link is the single biggest webview mitigation** (email → OTP → card-on-file across Stripe's network — one of the few autofill paths that survives in-app browsers). Use hosted Checkout, not custom Elements. Add webview detection + an "Open in browser" last-resort fallback for Apple Pay.
+
+### Cross-cutting
+
+- **WTP strengtheners (durable levers, netted vs friction):** (1) **paid unlock generates its own shareable "deep-read" card** — pure win, no checkout friction; (2) **blurred preview shows a specific, true, slightly-blurred line using their typed artists** — raises desire, pushes weight onto the optional artist field (pre-payment), net positive; (3) **localized currency + framing** ("less than your coffee") — reduces friction, net positive. Lean on the legitimate `world_cup_pairing` timeliness.
+- **Dark patterns — do not ship:** fake countdown timers, "3 left," pre-checked add-ons, hidden subscription, confirmshaming. On a product whose entire engine is **sharing and trust**, a screenshot of a scummy timer becomes the viral artifact instead of the card — **backfire risk is existential.** The honest "computed/science" positioning (§9) is the brand asset; dark patterns torch it.
+- **The central tension:** the free card must be share-worthy (traffic engine) but if it's *complete*, no one upgrades. **Decision (firewall): free = identity** (archetype + vibe + card → the shareable "who am I"); **paid = the analysis** (the *why* + red flags + prescription → the payable "tell me more"). Spend the personalization budget on the paid side; keep the quiz lean (7 forced taps) and checkout zero-personalization (guest + Link).
+
+### Fixes ranked by impact ÷ effort
+
+| # | Fix | Impact | Effort | Spec § to edit |
+|---|---|---|---|---|
+| 1 | Price A/B $2.99/$3.99/$4.99 (likely $3.99 wins net) | High | Trivial | §1/§2/§4 |
+| 2 | Firewall free=identity / paid=analysis (free must not cannibalize) | High | Low | §1, §7 |
+| 3 | Reposition paid as a vanity object, not a report + paid share-card | High | Med | §1, §5, §7 |
+| 4 | Specific blurred-preview line using their artists | High | Low | §7, §10 |
+| 5 | Checkout: hosted Stripe + Link + wallets + guest + adaptive currency | High (friction) | Med | §4 |
+| 6 | In-app-browser detection + "open in browser" fallback | Med | Low–Med | §4 |
+| 7 | Localized price framing ("less than your coffee") | Med | Trivial | §4 |
+
+### Bottom-line decisions
+
+- The paid content is a commodity — **stop defending it on accuracy.**
+- **Win on:** price (we're underpriced → test up), the free/paid firewall (don't give the upgrade away free), repositioning the unlock as a shareable vanity object delivered at peak curiosity, and a webview-survivable **Stripe Link** checkout.
+- **Validate the Stage 1 share loop before polishing the paywall.** At sub-1% blended conversion, this only prints money if the card actually spreads.
