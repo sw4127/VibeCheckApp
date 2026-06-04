@@ -52,7 +52,15 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
       {/* Sample artifact — so the landing shows, not tells */}
       <div className="mt-9 w-64 overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={SAMPLE_CARD} alt="Example Vibe Check card" className="w-full" />
+        <img
+          src={SAMPLE_CARD}
+          alt="Example Vibe Check card"
+          width={512}
+          height={512}
+          loading="lazy"
+          decoding="async"
+          className="w-full"
+        />
       </div>
 
       <Link
