@@ -311,3 +311,86 @@ Top 3 WTP drop-offs (desire, not friction): ① paywall→unlock, ② free-revea
 - The paid content is a commodity — **stop defending it on accuracy.**
 - **Win on:** price (we're underpriced → test up), the free/paid firewall (don't give the upgrade away free), repositioning the unlock as a shareable vanity object delivered at peak curiosity, and a webview-survivable **Stripe Link** checkout.
 - **Validate the Stage 1 share loop before polishing the paywall.** At sub-1% blended conversion, this only prints money if the card actually spreads.
+
+---
+
+## 13. Stage 1 growth build & decisions (launch)
+
+*Records the growth-engineering build slice + locked decisions from the Stage 1 launch review. Where noted these SUPERSEDE earlier inline values; appended (originals left intact for history) per the keep-intact rule. (E) = estimate.*
+
+### Shipped — loop measurement (redline → add an "Analytics" row to §4)
+
+**Vercel Web Analytics** (free tier), client-side, **no-DB, no PII**. Events: `landing_view`, `quiz_start`, `quiz_complete` (props: archetype, player), `result_view` (archetype, player, rarity, source), `share_download`. **Referral attribution** (`ref` / `src` / `from` / `utm_*`) is captured once per session from the entry URL and auto-attached to every event (lives in the URL + per-client `sessionStorage` — stateless). PostHog can be added as a second sink later. Verified firing locally.
+
+### Go / scale-vs-kill thresholds (redline → quantify the §3 kill criterion). (E)
+
+- **Gate 0 (funnel sane):** completion ≥ 55–60% — else fix funnel before judging the loop.
+- **Share rate** (`share / result_view`): ≥15% good · 8–15% marginal · <8% weak.
+- **K_obs** (`referred_completes / sharing_completes`): ≥0.5 scale · 0.2–0.5 iterate the loop mechanic · **<0.2 by end of week → execute kill, move to Stage 2.**
+- **Shape:** each seeding burst must throw a secondary referred wave; spike→flat = K≈0 = kill.
+- **Volume sanity:** ~1–2k completions in the week, or the content isn't resonating.
+
+### Trademark safety (redline → §1, §3, all public copy)
+
+"World Cup" / "FIFA" are FIFA trademarks. **Rename public-facing copy** (landing, quiz, card, seed posts) to generic — "the tournament," "football's biggest summer," "Summer XI." Player **names** stay (nominative, playing-style only — already guarded in §3). Must-fix before public seeding.
+
+### Card-to-app bridge (redline → §5)
+
+- **Native share-sheet** (`navigator.share` with the real link + image) is the primary share action; PNG download is the desktop fallback. Screenshots aren't tappable — the share-sheet link, a **prominent on-card URL**, and a **viewer CTA ("Find yours →")** are the only paths back to the app.
+- **Personalized referred landing:** share links carry `?from=<archetypeId>`; the landing greets the viewer with the sharer's result ("Your friend is The Poacher — what are you?"). Stateless.
+
+### Stage-1 loop scope (redline → §2/§3)
+
+Permit a minimal, **stateless, URL-encoded** challenge/compare loop in Stage 1 *for loop validation* (e.g. `/vs?them=<archetypeId>.<playerId>.<sig>`), distinct from the *paid* friend-compatibility feature deferred in §2. No server storage.
+
+### PRICING DECISION — supersedes the $2.99 in §1, §4, and §12
+
+**Decision (delegated to engineering): the Stage 2 unlock anchors at `$3.99`, A/B-tested against `$4.99`, with `$2.99` retained only as the conservative control. Hard floor: never below $2.99. Gated behind Stage 1 proving the share loop.**
+
+Justification — comparable business cases + fee math:
+- **AI Yearbook (Epik)** — viral, impulse, one-time unlock of an AI-generated *personal artifact* (our exact shape): **$5.99 / $9.99**, est. ~$250k/day at peak. Closest analog; the category clearly bears >$2.99.
+- **Co-Star** one-time detailed readings **$8.99**/category; astrology one-offs ~$8.99, add-ons $0.99, subs $3.99–4.99. Co-Star users describe $2.99 as "cheap" — i.e., **$2.99 is underpriced for the category.**
+- **Fixed Stripe fee** (2.9% + $0.30): ~13% of $2.99 vs ~33% of $0.99 → **never price below $2.99.** To beat $2.99 *net*, $3.99 need only retain ~73% of buyers and $4.99 ~52%.
+- **Net per sale:** $2.99 ≈ $2.60 · $3.99 ≈ $3.57 · $4.99 ≈ $4.55.
+- The category supports $5.99–$8.99, but our artifact is **text** (lower perceived production value than AI photos) and our traffic is **colder** than App-Store installers, so we anchor conservatively at **$3.99** and let the live A/B push toward $4.99/$5.99 if elasticity allows. Implement as a price-experiment flag — measure, don't guess.
+
+---
+
+## 13. Stage-1 launch revisions (redlines & decisions)
+
+*Append-only. These supersede the referenced lines; originals are left intact per the "don't overwrite existing sections" rule. Each item is a proposed redline to an existing section plus the decision behind it.*
+
+### A. PRICING DECISION — Stage 2 launch price: **$3.99 one-time** (was $2.99)
+
+Grounded in comparable one-time self-insight unlocks: **Co-Star $4.99**, **Sanctuary intro $4.99**, **The Pattern $3.99 / $9.99** — the proven one-time-unlock band is **$3.99–$4.99**. We launch at the **low end** ($3.99), not below it, because we're an unestablished, lower-trust brand with DIY-able content.
+
+- **Rationale (builds on §12):** Stripe's fixed fee makes sub-$3 inefficient; the $3–6 impulse band is price-insensitive; $3.99 nets ≈ $3.58 vs $2.60 at $2.99 (**+38%/sale**) and would have to shed **>27% of buyers** to be net-negative — implausible.
+- **Test plan:** once volume supports it, A/B **$3.99 (control) vs $4.99 (ceiling)**. $2.99 is retired as the default.
+- **Redline §1 / §2 / §4:** every "$2.99" → **"$3.99 (launch; A/B vs $4.99)"**. (Stage 2 only — Stage 1 ships free, no paywall.)
+
+### B. §3 BUILD SEQUENCE — quantify the kill criterion
+
+Append to the §3 Stage-1 kill criterion these go/scale/kill thresholds for the ~1-week test *(estimates / judgment calls, not asserted benchmarks)*:
+- **Funnel gate:** quiz completion ≥ **55–60%** (else fix funnel before judging the loop).
+- **Share rate** (share action ÷ result views): ≥ **15%** good · 8–15% marginal · **<8% weak**.
+- **Observed K** (referred completions ÷ sharing completions): ≥ **0.5 → scale**; 0.2–0.5 → fix the loop mechanic and re-test; **<0.2 by end of week → kill** (move to Stage 2, no sunk-cost).
+- **Shape:** each seeding burst must throw a *secondary wave* of referred traffic; spike→flat = K≈0 = kill.
+- **Volume sanity:** if a week of seeding can't produce ~1–2k completions, the content isn't resonating regardless of K.
+
+### C. §4 TECH STACK — add analytics (loop measurement is not optional)
+
+Add a row to the §4 stack table:
+
+| Layer | Choice | Cost |
+|---|---|---|
+| **Analytics & loop measurement** | **Vercel Web Analytics** (free) for pageviews/referrers + a thin client-side `track()` wrapper for custom events (`quiz_start`, `quiz_complete`, `result_view`, `share_native`, `share_download`); **PostHog free cloud** optional (drop-in, for funnels). URL `ref`/`utm`/`from` params for attribution; OG-image origin fetches as a *weak* impression proxy (CDN-cached → undercounts). | Free |
+
+Preserves the no-DB/stateless rule: events fire client-side, attribution lives in the URL + `sessionStorage` (per-client, not a server store).
+
+### D. TRADEMARK SAFETY — extend the §3 real-people guardrail
+
+"**World Cup**" and "**FIFA**" are FIFA trademarks. Extend the §3 guardrail: player **names** stay (nominative, playing-style-only, already guarded), but **drop "World Cup"/"FIFA" from the product name, headline, and all seed copy** — use generic framing ("the tournament," "this summer's tournament," "Summer XI"). No implied official affiliation anywhere public-facing.
+
+### E. §2 / §3 SCOPE — permit a stateless challenge loop in Stage 1
+
+§2 defers "friend-compatibility" as a *paid* add-on. Clarification (not a contradiction): a **lightweight, stateless, URL-encoded challenge/compare link** ("what's yours?", head-to-head) is a Stage-1 **growth loop**, distinct from the deferred *paid* compatibility product, and is **in-scope for Stage-1 loop validation**. State lives entirely in the share link (no server storage). §8 guardrails apply — any roast targets taste/playing-style, never protected attributes, never the real player.
