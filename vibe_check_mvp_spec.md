@@ -394,3 +394,68 @@ Preserves the no-DB/stateless rule: events fire client-side, attribution lives i
 ### E. §2 / §3 SCOPE — permit a stateless challenge loop in Stage 1
 
 §2 defers "friend-compatibility" as a *paid* add-on. Clarification (not a contradiction): a **lightweight, stateless, URL-encoded challenge/compare link** ("what's yours?", head-to-head) is a Stage-1 **growth loop**, distinct from the deferred *paid* compatibility product, and is **in-scope for Stage-1 loop validation**. State lives entirely in the share link (no server storage). §8 guardrails apply — any roast targets taste/playing-style, never protected attributes, never the real player.
+
+---
+
+## 14. Seeding playbook (Stage 1, zero-budget)
+
+*Execution plan, not code. Paid acquisition is dead at $2.99 CAC, so we live or die on the organic share loop. Ethical + ToS-safe: maker-disclosed, entertainment-first, no fake accounts, no undisclosed shilling, no vote manipulation, follow each community's rules. Trademark-safe per §13.D (no "World Cup"/"FIFA", player names OK).*
+
+### Calendar (sequence against the match schedule; tournament opens ~Jun 11)
+- **Pre-tournament (now → opener):** soft-seed 2–3 friendly communities; gather feedback, fix the funnel, warm up. Ride squad-announcement / "who are you most excited to watch" discourse.
+- **Opener day:** peak attention — biggest push, match-day threads, post your own result on football TikTok/X.
+- **Marquee group games:** seed a team's sub/Discord *when their player surfaces* in results.
+- **Knockouts:** re-angle ("which knockout hero are you") — higher stakes = more sharing.
+
+### Where it's welcome (+ the rule that governs each)
+- **Reddit:** r/InternetIsBeautiful (free, no-signup web toys — one clean post), r/EAFC & r/FIFA (player-style crowd), team subs **only when their player appears** (per-sub self-promo policy); r/soccer is strict (≈10% self-promo rule) — use its designated threads, never spam.
+- **Discord:** FPL/fantasy servers, team Discords, watch-party servers — post in #offtopic/#memes as the maker.
+- **X / football-Twitter:** quote-tweet/reply in live match threads with **your own** card; tactics/fan-account niches.
+- **Group chats / iMessage (highest ROI):** seed football-loving friends directly — dark-social is where real spread ignites and where the share-sheet link path works best.
+
+### Angle (transparent, entertainment-first)
+> "I built a dumb-fun thing for the tournament — it reads your vibe and matches you to a player's *style*. I'm [The Poacher] apparently 💀 what are you? [link]"
+
+Lead with the result + curiosity, disclose you're the maker, link the share URL (unfurls the OG card). The honesty *is* the strategy on a trust-and-share-dependent brand.
+
+### Kill/scale gate
+Judge against §13.B thresholds (completion ≥55–60%, share rate ≥15%, K_obs ≥0.5 scale / <0.2 kill). If seeding bursts don't throw a secondary referred wave within the week, execute the §3 kill criterion and move to Stage 2 — no sunk-cost.
+
+---
+
+## 15. Phase 7 — launch / deploy checklist (Stage 1)
+
+*The first surface that touches paid usage + a public deploy. Everything below the line needs PM approval per §Safety guardrails; nothing here spends without the key being pasted and deploy approved.*
+
+### Environment variables (set in Vercel project settings; never commit)
+- `ANTHROPIC_API_KEY` — server-only; the free reading runs on it. **PM pastes.**
+- `ANTHROPIC_MODEL_NARRATION` — defaults to `claude-sonnet-4-6` (quality drives shares; see §4 note). Set `claude-haiku-4-5` only if free-volume cost spikes.
+- `NEXT_PUBLIC_BASE_URL` — the real origin (e.g. `https://vibecheck.app`), so share links + OG image URLs are absolute-correct (currently falls back to `localhost`). **Required before sharing works.**
+
+### Pre-deploy (no cost)
+1. `npm run build` + `npm test` green locally (currently: build clean, 43 tests).
+2. Confirm `.env*` is git-ignored and no key is committed.
+3. Decide the domain; set `NEXT_PUBLIC_BASE_URL`.
+
+### Paid smoke test (gated — first real API spend, ~fractions of a cent)
+4. With the key set, run **one** `/api/reading` call and confirm `source: "model"` (not `fallback`/`local`) and the reading reads well. Stop and review before opening traffic.
+
+### Deploy (gated — Vercel)
+5. Connect repo to Vercel, free/Hobby tier; add the env vars above (Production scope).
+6. Deploy. Enable **Vercel Web Analytics** in the project (required for the loop events to collect).
+7. Point the domain; verify HTTPS.
+
+### Post-deploy verification (on the live URL)
+8. Full flow: landing → 7-tap quiz → result reveal (real model narration).
+9. **OG unfurl:** paste a `/result?...` link into iMessage/Slack/X — the card image must render.
+10. **Share-sheet:** on a phone, "Share my card" opens the native sheet with a tappable link.
+11. **Challenge loop:** "Challenge a friend" → `/vs` challenge screen → take quiz → head-to-head renders.
+12. **Personalized landing:** open a `/?from=<archetypeId>` link → greeting shows.
+13. **Analytics:** confirm `landing_view` / `quiz_start` / `quiz_complete` / `result_view` / `share_*` events arrive in the Vercel dashboard, with `ref`/`from` attribution.
+
+### Go-live + watch
+14. Begin the §14 seeding sequence; watch the §13.B go/scale/kill dashboard daily.
+15. **Rollback:** Vercel instant rollback to the prior deployment if anything breaks; the app is stateless so there's no data migration risk.
+
+### Explicitly NOT in Phase 7
+Stripe / payments / the premium report (all Stage 2, gated on the loop proving out), plus the deferred growth items ("roast my friend", SEO).
