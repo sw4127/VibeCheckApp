@@ -12,9 +12,10 @@ import type { Profile, ScoreVector } from "@/engine";
 import { THEMES, worldCupReadingSchema, type WorldCupReading } from "./schema";
 import { SYSTEM_PROMPT } from "./systemPrompt";
 
-/** Pinned snapshot for the free reading tier (spec §4 — Sonnet for quality). */
+/** Pinned snapshot for the free tier. Recalibration (§16): Haiku + aggressive
+ *  caching (finite verdict space → ~$0); stronger model reserved for the paid report. */
 const NARRATION_MODEL =
-  process.env.ANTHROPIC_MODEL_NARRATION ?? "claude-sonnet-4-6";
+  process.env.ANTHROPIC_MODEL_NARRATION ?? "claude-haiku-4-5";
 
 export type ReadingSource = "model" | "fallback" | "local";
 
