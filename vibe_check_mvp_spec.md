@@ -531,3 +531,38 @@ The file has duplicate headers — two "Open questions" (`## 11` + `## 10`) and 
 ### Open issues (flagged; PM-resolved this session)
 1. **Durable-input sufficiency** — resolved by §C (+2 taps); placement per §18. Friction tradeoff accepted.
 2. **Defensibility is positioning, not a technical lock** — accepted; the moat is experience + voice.
+
+---
+
+## 18. Quiz completion & friction reduction (free-funnel ignition)
+
+*Completion is the multiplier on the entire funnel — it outranks downstream tweaks. Core principle: convert self-ANALYSIS ("what is my taste?") into RECOGNITION ("which is me?") — recognition is instant; analysis freezes. Non-leading rule: every option must be equally cool to pick (symmetric desirability) — then fast = honest. These are copy/UX decisions; the **full per-option §10 rewrite is folded into the Slice-1 build**, reading from this section.*
+
+### A. The Unconscious Anchor (redlines §10 option copy)
+- **Ask what they DID, not who they ARE** (behavior is recallable; identity-claims freeze people). e.g. Q1 header → "What's actually in your ears lately?"
+- **Situational anchors** in each option — a felt scene, not a label: "Calm stuff — the slow-Sunday kind" / "Bright + loud — main-character energy" / etc.
+- **Neutral axis-cue** (grey subtext) names the dimension's ends without picking a side: Q3 cue → *"the words · the beat · the feeling — whichever's truest, not coolest."*
+- **Permission + speed line** under the progress bar: *"No wrong answers. First instinct is the real data."* (kills performance-freeze; gut/System-1 answers are higher-validity for preference data.)
+
+### B. Unblocking the text field (redlines §10 Q8) — artists are flavor-only (§6), so it must NEVER block completion
+- **Optional + loudly skippable:** *"Skip — I'll still get read"*; incentive *"the more you name, the more this reads like your diary."*
+- **Two tiny labeled zones** (= the recent/durable split feeding §17.B): "On repeat right now" (up to 3; cue *"your last week of plays"*) · "Ride-or-die" (1; cue *"the one you'd defend in an argument"*).
+- **Categorical retrieval triggers** — neutral *contexts*, never example artists (naming artists biases): `most-played this month` · `shower anthem` · `your 2 a.m. artist` · `defend-to-the-death`.
+- **Spelling-only autocomplete** (iTunes Search / MusicBrainz, §4 — free, no key): type → tap → chip. A speller, not a recommender (no bias).
+- **Rotating contextual placeholder** (*"start typing — we'll find them"*); **voice input** option (*"…or tap 🎤 and say their names"*).
+
+### C. Progression flow (a self-discovery game, not a clinical test)
+- **Open on the easiest, most vivid question** (instant win); one question per screen; **auto-advance on tap** (no Next button) = thumb-fast momentum.
+- **The quiz talks back:** the §17.A reverb makes it a conversation reacting to you — the biggest "game not test" lever.
+- **Live "forming" signature:** the vibe-signature bars assemble a little with each answer — users watch themselves take shape — with **no labels / archetype / verdict until the reveal** (firewall intact).
+- **Game-framed system copy:** intro *"This isn't a test — there are no wrong answers, only tells."*; loading state *"Reading you…"* (not "Calculating results").
+- **Curiosity ramp:** *"Last one. Then we read you."* → the §17.A P3 crystallizer → reveal.
+
+### D. Data-quality guardrails (completion WITHOUT degrading validity)
+- **Symmetric desirability:** no option is the trap or the trophy (e.g. "dead-center mainstream" = confident, "nobody's-heard-of-it" = a stance).
+- **Cues name the axis, never a side;** situational anchors attach to *every* option symmetrically.
+- **Gut-speed = higher validity** for preference data; the verdict lane is tap-driven (§17.B).
+- **Autocomplete is spelling-only** — no recommendation/anchoring.
+
+### E. Refines §17.C — durable-trait taps move to the PAID flow
+The two durable-trait taps (§17.C: +C Conscientiousness, +A Agreeableness, +Neuroticism micro-proxy) are collected in the **paid/premium flow**, not the free quiz. The free quiz stays at its minimal fast set → maximum completion; the richer trait input is gathered only from users with demonstrated paid intent, exactly where the 5-factor Diagnosis is delivered. Serves completion + data quality + monetization at once.
