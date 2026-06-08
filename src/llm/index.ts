@@ -14,3 +14,12 @@ export {
   type NarrationResult,
   type ReadingSource,
 } from "./narrate";
+export { LEVELS, premiumReportSchema, type Level, type PremiumReport } from "./premiumSchema";
+export {
+  narratePremium,
+  buildPremiumUserMessage,
+  localPremiumReport,
+  premiumHash,
+  type PremiumResult,
+  type PremiumSource,
+} from "./premium";
