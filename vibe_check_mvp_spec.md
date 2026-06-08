@@ -496,3 +496,38 @@ Live public copy uses "Which footballer matches your vibe?" (trademark-safe per 
 
 ### J. Doc-hygiene flag (NOT fixed here — needs separate approval to overwrite)
 The file has duplicate headers — two "Open questions" (`## 11` + `## 10`) and TWO `## 13` sections (≈line 317 + ≈line 359) that overlap and cite conflicting pricing comps. Left intact per the no-overwrite rule. Recommend a one-time consolidation pass (with explicit approval) so Stage 2 reads a single canonical pricing/threshold block.
+
+---
+
+## 17. Behavioral strategy — cognitive reverb, P4 routing, paywall valuation
+
+*Embeds §9 (P1–P4) operationally; reconciles with §6 (engine), §7 (premium_report), §12 (monetization). Copy + routing decisions, no code. Locked decisions preserved: artists are flavor-only (§6); free=identity / paid=analysis firewall + no dark patterns (§12).*
+
+### A. Cognitive reverb — land P3 ("you can't read your own pattern") DURING the quiz
+- Extend the per-tap confirm beat to ~900 ms and render a **deterministic, per-option reverb line** (copy stored beside each option; no LLM, no classification). It echoes the answer back with an implication and plants the recent/durable split (P4). Reverb lines are *questions about the self*, never verdicts (so they can't be "wrong").
+- Samples: Q1 calm → "Mellow on purpose. Peace — or avoidance?"; Q1 intense → "Loud **right now** — that's a state, not a personality. We'll separate them."; Q2 change-mood → "You use music to **fix** your mood, not match it. That's a tell."; Q6 sit-in-it → "You marinate. Most skip. Noted."
+- **P3 crystallizer** (one transition before the reveal): "You answered those in seconds. The catch: you can't read your own pattern from the inside. That's the whole point. Reading you now…"
+
+### B. P4 in the engine — two-lane routing (preserves §6 anchoring)
+- Score vector has two lanes: **`state_*`** (recent/mood) and **`trait_*`** (durable), routed in code from the TAP answers (which §10 already tags), before any LLM call.
+- **state lane** ← §10 Q1 (current rotation), Q2 (emotion-regulation), Q6 (sad-song) → feeds **Red Flags / current emotion**.
+- **trait lane** ← §10 Q3, Q4+Q5 (Openness), Q7 (Extraversion) [+ the durable taps in §C] → feeds **Diagnosis / Big Five**.
+- Profile carries `state_levels` + `trait_levels` separately; the system prompt narrates each lane; the LLM never decides lane membership.
+- **Artists stay flavor-only (§6):** passed as `ARTISTS_RECENT` / `ARTISTS_DURABLE` for callout flavor on the matching lane only — never entering the score. (Reconciles §10 Q8's "recent=state / durable=trait. Flavor only.")
+
+### C. Minimal input change — durable-trait coverage (redline §10)
+- Tap-derived trait signal currently covers Openness + Extraversion only; Conscientiousness/Agreeableness uncaptured, Neuroticism only via a state question → a 5-factor Diagnosis (§7) would be padded filler (the §8 horoscope-filler risk that undermines the price).
+- **Add two durable-trait taps** (PM-approved): **+C** "Your music lives as… meticulous playlists / a few trusted go-tos / total shuffle chaos / whatever the algorithm serves"; **+A** "Someone hands you the aux, then talks over your song. You… laugh it off / quietly note it / never give up the aux again." Plus a Neuroticism micro-proxy on Q5 ("…and when a song you love blows up: still love it / a little betrayed").
+- *(Placement refined in §18: collected in the paid/premium flow to protect free-quiz completion.)*
+
+### D. Paywall valuation — blurred preview that makes the unlock essential (extends §7 + §12)
+- **Self-verification hook (un-blurred, data-specific):** one exact line from their engine output + a typed artist — e.g. "You scored High Openness / Low Conscientiousness — which is why [artist] is in your rotation and your life runs on tape."
+- **Skeleton, blurred (curiosity gap):** show the structure + that a specific answer exists — "The Diagnosis ▓▓ · Red Flag #1: ▓▓, fires every time you ▓▓ (Q2) · The Prescription: 3 fixes ▓▓."
+- **Effort/IKEA effect:** "You already built this profile. Don't read half of yourself."
+- **Choice architecture:** one CTA — *Unlock the full read · $3.99* ("less than your coffee," localized §12.7). Free path visibly complete; no timers / fake scarcity (§12).
+- **(b) Shareable at peak curiosity:** a "send the blur" dare-a-friend affordance; the blurred preview is itself postable; unlock yields the deep-read share card (§12 second artifact).
+- **(c) Defeat "I'd just ask ChatGPT":** it's **scored, not vibed** (§6 determinism); it **splits mood from personality** (P4) — you won't prompt that without knowing the model; **voice is the moat** — "ChatGPT flatters you; this is built to be right." Defensibility = packaging + the P4 split + brutal-accuracy voice + the share artifact at peak curiosity (§12.A2), not algorithmic secrecy.
+
+### Open issues (flagged; PM-resolved this session)
+1. **Durable-input sufficiency** — resolved by §C (+2 taps); placement per §18. Friction tradeoff accepted.
+2. **Defensibility is positioning, not a technical lock** — accepted; the moat is experience + voice.
