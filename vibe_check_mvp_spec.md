@@ -459,3 +459,40 @@ Judge against §13.B thresholds (completion ≥55–60%, share rate ≥15%, K_ob
 
 ### Explicitly NOT in Phase 7
 Stripe / payments / the premium report (all Stage 2, gated on the loop proving out), plus the deferred growth items ("roast my friend", SEO).
+
+---
+
+## 16. Recalibration & consolidation — revenue-first (supersessions noted inline)
+
+### A. THE RECALIBRATION (captured verbatim)
+- Stage 2 — the monetizable core (premium report + paywall) — is now the PRIORITY, not Stage 1.
+- The share loop is NOT a standalone launch; it's our only acquisition channel (paid ads are dead at $2.99 CAC). The World Cup card becomes the free viral FRONT-DOOR that funnels into the paid music report. We launch ONE integrated product during the World Cup window, where every shared card points at something that can take money.
+- Funnel: free WC/vibe card (spreads) → "want the full read on what your taste reveals?" → $3.99 premium report (price per §13; revisit upward via A/B).
+- Stage 1 free tier uses Haiku + aggressive caching: the tap-only quiz has a finite verdict space, so generate each result's narration once, cache by input hash, and serve it statically — driving free-tier API cost toward ~0. Reserve the stronger model for the PAID report only.
+
+### B. Redline §3 (Build plan) — integrated funnel, Stage 2 first
+The Stage1-then-Stage2 sequence is replaced by ONE integrated launch. Build the PAID path first (premium report + paywall + Stripe Link checkout + blurred-preview firewall), then the free top-of-funnel that feeds it (music quiz → engine → free card → share loop), with the WC card as the free front-door. The §3 "kill criterion" is recontextualized: the §13.B thresholds now measure whether the free front-door spreads AND feeds the paid report — not whether to build Stage 2 (we build it first).
+
+### C. Redline §4 + §6 — free tier = Haiku + aggressive caching (supersedes §4 line ~59)
+Free/WC narration runs on **`claude-haiku-4-5`**, not Sonnet. Because the narration INPUT collapses to (archetype, player, level-bucketed scores), distinct prompts are far fewer than the 16,384 answer combinations: generate once, cache by input hash (already a §6 stabilizer), serve statically → free-tier API cost ≈ $0. The stronger model (Sonnet/Opus) is reserved for the PAID report. (`.env` default flips to Haiku.)
+
+### D. Redline §4 row + §5 — share card library is `@vercel/og`, not `html-to-image`
+The card is built with **`@vercel/og` (Satori)** — server-rendered SVG→PNG, keyed by deterministic query params, CDN-cacheable, doubling as the OG unfurl. `html-to-image` (named primary in §4 row "Share card image" + §5 "Library") was **rejected** (unreliable in-app-webview downloads; we need server render for saves + unfurls). §4 row → `@vercel/og (Satori, server-side) | Free (Vercel)`; §5's `toPng(node)` description is superseded by Satori-constrained inline-style JSX.
+
+### E. Card design contract as built (supersedes §5 layout; clarifies §7 `theme`)
+Editorial-poster, **typographic** card: archetype NAME is the hero (display serif), "you play like {player}", a factual "position · nation" caption, the verdict line, three trait pills, a **vibe-signature** (5 bars = the user's axis percentiles), a **rarity %** ("X% share your vibe", from the finite answer space), and a **"Find yours → vibecheck.app"** CTA. Palette = **neutral chrome + one accent**; Stage-1 accent = the player's nationality colour. The §7 `theme` (ember|midnight|neon|bloom|static) enum is NOT used for the WC card — reserve it for the Stage-2 music card. Sizes 1080×1920 / 1080×1080 / 1200×630. No badges/flags/IP.
+
+### F. Reusable engine architecture (the contract Stage 2 must follow)
+Engine is content-agnostic; a variant supplies **{ quiz (option weights over named axes), archetype centroids, match-target centroids (roster), per-target design metadata }** and the engine code never changes. Pipeline: answers → summed vector → **percentile-normalized per axis** (min-max squashed users low and funnelled ~68% to one match; percentiles over the finite answer space fixed it) → **nearest-centroid** match (same primitive for archetype AND target) → profile. **Rarity** = exact fraction of the enumerable answer space per archetype. Stage-1 axes = intensity/flair/workrate/composure/teamplay; **Stage 2 swaps in MUSIC/Big-Five axes (§6/§9) — same engine.**
+
+### G. Branded display font: **Fraunces** (locks CLAUDE.md Design-Bar "ONE display font")
+The single display face across all screens AND the Satori card is **Fraunces** (OFL serif), bundled as static `.woff` (600/900) in `src/fonts/`. Body uses a neutral sans. Stage 2 must reuse Fraunces — no second display font. (§4 "fonts" row says "Google Fonts"; Fraunces is loaded via `next/font/local` from a bundled file so Satori can embed it.)
+
+### H. Color system: neutral chrome + reveal-owned accent
+One system: neutral near-black chrome + a single accent. Landing/quiz use a fixed brand accent; the result/card "reveal" switches to the archetype-owned accent (Stage-1 = nationality colour) — the only place colour shifts.
+
+### I. Public framing locked: "footballer" (Stage 1)
+Live public copy uses "Which footballer matches your vibe?" (trademark-safe per §13.D). Working name stays "Vibe Check"; final wordmark/domain (§11.1) still open.
+
+### J. Doc-hygiene flag (NOT fixed here — needs separate approval to overwrite)
+The file has duplicate headers — two "Open questions" (`## 11` + `## 10`) and TWO `## 13` sections (≈line 317 + ≈line 359) that overlap and cite conflicting pricing comps. Left intact per the no-overwrite rule. Recommend a one-time consolidation pass (with explicit approval) so Stage 2 reads a single canonical pricing/threshold block.

@@ -49,3 +49,11 @@ No UI is "done" until it passes all of these. On any UI work, audit each item ex
 ## Keeping this file intact
 - Do **not** delete, trim, or rewrite existing sections of `CLAUDE.md` or `vibe_check_mvp_spec.md` without my explicit approval. Append, or propose an edit and wait — never silently overwrite. (The Design Quality Bar was lost once in a regeneration; don't let it happen again.)
 - If you believe a section is outdated, flag it to me rather than removing it.
+
+## Recalibration — revenue-first (supersedes "Build sequence" above + the $2.99 mentions)
+- **One integrated product; Stage 2 (the paid core) is the PRIORITY.** The World Cup card is the free viral FRONT-DOOR that funnels into the paid music report — not a standalone launch. We ship ONE product during the tournament window where every shared card points at something that can take money.
+- **Funnel:** free WC/vibe card (spreads) → "want the full read on what your taste reveals?" → premium report unlock.
+- **Acquisition:** the organic share loop is our ONLY channel (paid ads are dead at this price point).
+- **Pricing:** the unlock is **$3.99 (launch; A/B vs $4.99)** — see spec §13. The "$2.99" in §"What we're building" and §Stack above is superseded.
+- **Free-tier model + cost:** free/WC narration runs on **Haiku + aggressive caching** — the tap-only quiz has a finite verdict space, so generate each narration once, cache by input hash, serve it statically → free-tier API cost ≈ $0. The **stronger model (Sonnet/Opus) is reserved for the PAID report.** Supersedes any "free tier on Sonnet" note in the spec.
+- **Build order:** PAID path first (premium report + paywall + webview-survivable Stripe Link checkout + blurred-preview firewall), then the free top-of-funnel that feeds it (music quiz → deterministic engine → free card → share loop), reusing the Stage-1 @vercel/og card + engine.
