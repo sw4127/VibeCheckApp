@@ -243,18 +243,10 @@ Tap-based, 3–4 options each, mapped to a MUSIC dimension or personality/emotio
 
 ---
 
-## 10. Open questions for next session
-
-1. Name + wordmark (drives card design and domain).
-2. Blurred-preview paywall copy — the exact unlock-screen words are a conversion lever worth A/B testing.
-3. Final palette + card layout for the five `theme` values.
-
----
-
 ## 12. Monetization findings & decisions (Stage 2 $2.99 paywall)
 
 *Strategy review of the $2.99 paywall, analyzed as TWO separate problems: (A) willingness to pay — do they want it enough to pay at all? and (B) payment friction — given they want it, how many still bounce at checkout? No payment code yet; these are spec decisions.*
-*(Note: sections "10" and "11" both appear above as duplicated "Open questions" headers — flagging rather than renumbering, per the "don't rewrite existing sections" rule. This new section is numbered 12 to avoid collision.)*
+*(Numbering note: a duplicated "Open questions" header previously sat above; removed in the PM-approved §16.J consolidation.)*
 
 ### Single most fragile point
 
@@ -356,9 +348,9 @@ Justification — comparable business cases + fee math:
 
 ---
 
-## 13. Stage-1 launch revisions (redlines & decisions)
+## 13b. Stage-1 launch revisions (historical appendix — canonical pricing lives in §13's PRICING DECISION)
 
-*Append-only. These supersede the referenced lines; originals are left intact per the "don't overwrite existing sections" rule. Each item is a proposed redline to an existing section plus the decision behind it.*
+*Append-only at the time; retitled §13b in the PM-approved §16.J consolidation to resolve the duplicate "§13" header. Where this appendix's pricing comps differ from §13, §13 is canonical.*
 
 ### A. PRICING DECISION — Stage 2 launch price: **$3.99 one-time** (was $2.99)
 
@@ -494,8 +486,8 @@ One system: neutral near-black chrome + a single accent. Landing/quiz use a fixe
 ### I. Public framing locked: "footballer" (Stage 1)
 Live public copy uses "Which footballer matches your vibe?" (trademark-safe per §13.D). Working name stays "Vibe Check"; final wordmark/domain (§11.1) still open.
 
-### J. Doc-hygiene flag (NOT fixed here — needs separate approval to overwrite)
-The file has duplicate headers — two "Open questions" (`## 11` + `## 10`) and TWO `## 13` sections (≈line 317 + ≈line 359) that overlap and cite conflicting pricing comps. Left intact per the no-overwrite rule. Recommend a one-time consolidation pass (with explicit approval) so Stage 2 reads a single canonical pricing/threshold block.
+### J. Doc-hygiene flag — RESOLVED (PM-approved overwrite)
+The file had duplicate headers — two "Open questions" (`## 11` + `## 10`) and two `## 13` sections with conflicting pricing comps. Consolidated with explicit PM approval: the duplicate `## 10` block (a strict subset of §11) was removed, and the second `## 13` was retitled **§13b (historical appendix)**. §13's PRICING DECISION is the single canonical pricing record.
 
 ---
 
@@ -585,7 +577,7 @@ No hardcoded domain anywhere user-visible. The card footer CTA derives its host 
 
 ### D. Doc corrections (supersessions, append-only)
 - §15's env-var note ("narration defaults to claude-sonnet-4-6") is superseded by §16.C: default is `claude-haiku-4-5`; `ANTHROPIC_MODEL_PREMIUM` (default `claude-sonnet-4-6`) covers the paid report.
-- §13 appears twice with differing pricing comps; the canonical pricing record is the §13 "Stage 1 growth build & decisions" → PRICING DECISION ($3.99 anchor / A/B $4.99 / floor $2.99). The second §13's comp set is historical color, not the source of truth.
+- The former duplicate §13 (now §13b, historical appendix) cited differing pricing comps; the canonical pricing record is §13 "Stage 1 growth build & decisions" → PRICING DECISION ($3.99 anchor / A/B $4.99 / floor $2.99).
 - §10 Q2's "drowning out the world" is the lone negative-valence option in its set — re-word in the Slice-1 rewrite per §18.D symmetric desirability.
 - §15 addendum: on first Vercel deploy, explicitly verify the card route's font loading (fs read + `outputFileTracingIncludes`) — serverless path resolution is a known deploy-time risk.
 - The single-stroke glyph system referenced in older design notes is retired; the locked card design is the typographic hero (§16.E). Premium screens (`/premium/*`) still owe a formal Design-Bar pass before launch.
