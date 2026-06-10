@@ -16,6 +16,14 @@ export {
 } from "./narrate";
 export { LEVELS, premiumReportSchema, type Level, type PremiumReport } from "./premiumSchema";
 export {
+  narrateMusic,
+  localMusicReading,
+  buildMusicUserMessage,
+  musicReadingSchema,
+  type MusicReading,
+  type MusicNarrationResult,
+} from "./musicNarrate";
+export {
   narratePremium,
   buildPremiumUserMessage,
   localPremiumReport,

@@ -31,6 +31,15 @@ const SIZES = {
 } as const;
 type Format = keyof typeof SIZES;
 
+/** §16.E: the §5/§7 theme enum drives the MUSIC card accent (per-archetype, designed). */
+const THEME_ACCENTS: Record<string, string> = {
+  ember: "#ff7a45",
+  midnight: "#6ea8ff",
+  neon: "#c04dff",
+  bloom: "#ff5fa2",
+  static: "#e8e8ea",
+};
+
 function pick<T extends string>(value: string | null, allowed: readonly T[], fallback: T): T {
   return value && (allowed as readonly string[]).includes(value) ? (value as T) : fallback;
 }
@@ -51,12 +60,19 @@ export async function GET(request: Request) {
     .split(",")
     .map((x) => Math.max(0, Math.min(100, Number(x) || 0)));
   const rarity = Math.max(1, Math.min(99, Number(searchParams.get("rar")) || 0)) || null;
+  const isMusic = searchParams.get("mode") === "music";
+  const theme = searchParams.get("theme");
 
   const design = buildCardDesign({
     position: pick<Position>(searchParams.get("pos"), Object.keys(POSITION_INFO) as Position[], "midfielder"),
     nation: searchParams.get("nat") ?? undefined,
   });
-  const p = design.palette;
+  // Music mode: accent comes from the archetype's designed theme (§16.E), on
+  // the same neutral chrome; WC mode keeps the nationality accent.
+  const p =
+    isMusic && theme && THEME_ACCENTS[theme]
+      ? { ...design.palette, accent: THEME_ACCENTS[theme] }
+      : design.palette;
 
   const { w, h } = SIZES[format];
   const isOg = format === "og";
@@ -72,7 +88,7 @@ export async function GET(request: Request) {
   );
 
   // Vibe-signature: five thin bars of the user's axis percentiles.
-  const Signature = sig.length === 5 ? (
+  const Signature = sig.length >= 3 ? (
     <div style={{ display: "flex", alignItems: "flex-end", gap: px(10), height: px(72) }}>
       {sig.map((v, i) => (
         <div key={i} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: px(20), height: "100%" }}>
@@ -113,7 +129,7 @@ export async function GET(request: Request) {
     </div>
   );
 
-  const PlayerBlock = (
+  const PlayerBlock = isMusic ? null : (
     <div style={{ display: "flex", flexDirection: "column" }}>
       {Label("YOU PLAY LIKE")}
       <div style={{ display: "flex", fontFamily: "Fraunces", fontWeight: 600, fontSize: px(56), color: p.accent, marginTop: px(4) }}>
@@ -185,8 +201,15 @@ export async function GET(request: Request) {
   );
 
   const Wordmark = (
-    <div style={{ display: "flex", fontSize: px(28), letterSpacing: px(8), fontWeight: 800, color: p.accent }}>
-      VIBE CHECK
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", fontSize: px(28), letterSpacing: px(8), fontWeight: 800, color: p.accent }}>
+        VIBE CHECK
+      </div>
+      {isMusic ? (
+        <div style={{ display: "flex", fontSize: px(22), color: p.sub, marginTop: px(6) }}>
+          What does your taste say about you?
+        </div>
+      ) : null}
     </div>
   );
 

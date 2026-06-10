@@ -3,6 +3,7 @@ import Link from "next/link";
 import Stripe from "stripe";
 import { narratePremium } from "@/llm";
 import { SAMPLE_PROFILES, DEFAULT_SAMPLE } from "@/content/sample-profile";
+import { decodePremiumToken } from "@/lib/premiumToken";
 import PurchaseTrack from "./PurchaseTrack";
 
 export const runtime = "nodejs";
@@ -22,24 +23,29 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
   const devUnlock = param(sp, "dev") === "1" && process.env.NODE_ENV !== "production";
 
   let paid = false;
-  let profileId = "velvet_cynic";
+  let profileRef = "velvet_cynic";
 
   if (sessionId && process.env.STRIPE_SECRET_KEY) {
     try {
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
       const s = await stripe.checkout.sessions.retrieve(sessionId);
       paid = s.payment_status === "paid";
-      if (typeof s.metadata?.profile === "string") profileId = s.metadata.profile;
+      if (typeof s.metadata?.profile === "string") profileRef = s.metadata.profile;
     } catch {
       paid = false;
     }
   } else if (devUnlock) {
     paid = true;
+    const t = param(sp, "t");
+    if (t) profileRef = t;
   }
 
   if (!paid) redirect("/premium/preview");
 
-  const profile = SAMPLE_PROFILES[profileId] ?? DEFAULT_SAMPLE;
+  // profileRef is either a stateless premium token (real user, from the music
+  // result) or a Slice-0 sample id; malformed anything falls back to the sample.
+  const profile =
+    decodePremiumToken(profileRef) ?? SAMPLE_PROFILES[profileRef] ?? DEFAULT_SAMPLE;
   const { report, source } = await narratePremium(profile);
 
   return (

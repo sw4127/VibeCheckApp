@@ -23,7 +23,10 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const profile = typeof body?.profile === "string" ? body.profile : "velvet_cynic";
+  // Either a sample-profile id (Slice 0) or a stateless premium token from the
+  // music result (§19.B4 pattern) — opaque string either way; Stripe metadata
+  // values cap at 500 chars.
+  const profile = (typeof body?.profile === "string" ? body.profile : "velvet_cynic").slice(0, 490);
 
   const stripe = new Stripe(key);
   const origin = baseUrl();

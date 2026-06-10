@@ -11,7 +11,11 @@ export function baseUrl(): string {
 export interface CardParams {
   format: "story" | "square" | "og";
   archetype: string;
-  player: string;
+  /** "music" hides the player block and uses the theme accent (§16.E). */
+  mode?: "music";
+  /** Music theme (ember|midnight|neon|bloom|static) → accent colour. */
+  theme?: string;
+  player?: string;
   verdict?: string;
   traits?: string[];
   /** IP-safe design attributes: position (caption) + nationality colour key. */
@@ -28,8 +32,10 @@ export function cardPath(p: CardParams): string {
   const q = new URLSearchParams({
     format: p.format,
     archetype: p.archetype,
-    player: p.player,
   });
+  if (p.player) q.set("player", p.player);
+  if (p.mode) q.set("mode", p.mode);
+  if (p.theme) q.set("theme", p.theme);
   if (p.verdict) q.set("v", p.verdict);
   if (p.traits?.length) q.set("t", p.traits.join(","));
   if (p.position) q.set("pos", p.position);

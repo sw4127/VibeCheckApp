@@ -214,18 +214,20 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
         </div>
       </div>
 
-      {/* CTA toward the Stage 2 music product */}
-      <div className="mt-10 rounded-2xl p-6 text-center" style={{ background: `${accent}14` }}>
+      {/* The funnel (§16.A): WC card is the front-door; this CTA feeds the paid music read */}
+      <Link
+        href="/music/quiz"
+        className="mt-10 block rounded-2xl p-6 text-center transition hover:opacity-95"
+        style={{ background: `${accent}14`, border: `1px solid ${accent}40` }}
+      >
         <p className="text-lg font-bold">{r.teaser}</p>
-        <button
-          type="button"
-          disabled
-          className="mt-4 cursor-not-allowed rounded-full px-6 py-3 text-sm font-bold text-white/70"
-          style={{ background: `${accent}55` }}
+        <span
+          className="mt-4 inline-block rounded-full px-8 py-3.5 text-sm font-bold text-white"
+          style={{ background: accent }}
         >
-          Read my music taste — coming soon
-        </button>
-      </div>
+          Read my music taste →
+        </span>
+      </Link>
 
       <div className="mt-8 mb-2 text-center">
         <Link href="/quiz" className="text-sm text-muted underline">
