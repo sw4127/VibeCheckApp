@@ -200,7 +200,7 @@ Return nothing but the JSON object.
 **Slogan (default):** *"Taste isn't in the music. It's in you — and it's been taking notes."*
 (Alt: *"Your taste was trained by everything you've heard. Let's read what it learned about you."*)
 
-**The Hume bit (About-page copy).** In *Of the Standard of Taste* (1757), Hume argued that judgments of beauty come from sentiment in the listener, not a property of the object — yet taste is not arbitrary: it can be refined through exposure, comparison, and practice. So your taste is both *yours alone* and *trained by everything you've heard* — which is exactly why it's readable. That dual claim (subjective **and** learnable) is the philosophical spine of the product.
+**The Hume bit (About-page copy — corrected per §20; PM-approved overwrite).** In *Of the Standard of Taste* (1757), Hume starts from the popular view that beauty is mere sentiment — and then **rejects that view's lazy conclusion**: he does NOT hold that all sentiment is equally right. Judgments of beauty come from sentiment in the listener, not a property of the object — yet a *standard* of taste survives, because flawed judgment traces to removable **defects** (prejudice, inexperience, want of practice and delicacy), and a **cultivated ear perceives truer**. So your taste is both *yours alone* and *trained by everything you've heard* — readable because it's trained, refinable because its defects are removable. That qualified claim (subjective, **standard-bearing**, learnable) is the positioning spine. Honesty line unchanged: a grounded, evidence-based **mirror** — never "your authentic self revealed," never a clinical verdict. *(This is the onboarding/positioning narrative layer ONLY — the thesis bullets below ["P1–P4"] remain the engine's empirical logic, untouched.)*
 
 **The science (real, cite it honestly).** The reading is grounded in published research on music preferences and personality, not vibes:
 - Rentfrow & Gosling (2003), *JPSP* — the Short Test of Music Preferences (STOMP), built from 3,500+ people, found a small set of underlying preference dimensions.
@@ -581,3 +581,112 @@ No hardcoded domain anywhere user-visible. The card footer CTA derives its host 
 - §10 Q2's "drowning out the world" is the lone negative-valence option in its set — re-word in the Slice-1 rewrite per §18.D symmetric desirability.
 - §15 addendum: on first Vercel deploy, explicitly verify the card route's font loading (fs read + `outputFileTracingIncludes`) — serverless path resolution is a known deploy-time risk.
 - The single-stroke glyph system referenced in older design notes is retired; the locked card design is the typographic hero (§16.E). Premium screens (`/premium/*`) still owe a formal Design-Bar pass before launch.
+
+---
+
+## 20. Conversion revision — WTP depth + friction rebalance (paired proposals)
+
+*PM evaluation: neither quiz convincingly converts free → paid. Two failures: (1) WTP — not enough deep, defensible value; (2) friction — input-effort vs output-reward still off. This section is the paired fix. Locked decisions preserved: engine classifies / LLM writes (§6), P4 timescale split (§9 thesis, §17.B), stateless/no-DB, Satori subset (cards only — quiz UI is normal CSS). The Hume layer is POSITIONING ONLY (§9, corrected by approved overwrite); the §9 thesis bullets ("P1–P4", in order) remain the engine's empirical logic, untouched.*
+
+### A. Onboarding hook — prime "subjective-yet-refinable" at ~zero friction
+
+**Rejected baseline (recorded):** an explicit "is taste subjective or objective?" screen walking Hume's argument — too heavy, taxes completion before the first tap.
+
+**A1 (default, ZERO added taps): the claim-then-quiz.** The hook is carried by existing copy slots, not a new screen:
+- Landing sub-line (replaces current body copy): **"Your taste is yours — and it was trained by everything you've ever heard. Trained things can be read."**
+- Pre-Q1 framing (one line above the first question, no interaction): **"This isn't a test of what you like. It's a read of what your ears learned."**
+- Permission line (kept from §18.A): "No wrong answers. First instinct is the real data."
+- §17.A crystallizer gains the refinement clause: **"You answered in seconds — that's sentiment. The pattern in those answers is the training. Reading you now…"**
+
+**A2 (A/B variant, ONE unscored tap): the calibration decoy.** A warm-up tap disguised as Q0: **"Quick calibration: do you trust your own taste?"** → `Completely / Mostly / It's complicated` → reverb: **"Right answer either way. Taste is a feeling — but it's a trained one. Let's see what trained yours."**
+- ⚠️ FLAG: this is a deliberate, marked **exception to §18.D's every-option-maps rule** — Q0 is explicitly UNSCORED (never enters the vector; cannot pollute GIGO). It buys the easiest-possible first win (§18.C easy-first) + the hook in one beat. Needs PM sign-off as an exception.
+
+**Pair:** value = WTP priming ("refinable taste" makes a paid 'cultivated read' coherent) ↔ friction = zero (A1) or one trivial tap (A2). Beats the baseline on both sides.
+
+### B. WTP content — premium report v2 ("depth = receipts, not paragraphs")
+
+**Why v1 fails WTP (§12.A2 restated):** generic prose is DIY-able in ChatGPT. What ChatGPT cannot fake: (1) the **lane scores** (P4 split, §17.B — currently invisible plumbing with no product surface = the missed value), (2) **receipts** (which answer triggered which claim), (3) a **deterministic protocol** chosen by the engine. v2 makes all three visible.
+
+**Length decision:** total read ≈ **60–90 seconds**. Justification: impulse buyers consume immediately; >2 min reads as padding (and padding is precisely what ChatGPT does free). Value-per-second beats word count, and shorter = harder to replicate convincingly (cut > pad).
+
+**v2 structure (supersedes §7's `premium_report` schema; v1 kept above as history):**
+
+```
+{"archetype":"…",
+ "split":{                                   ← THE CENTERPIECE (new)
+   "lately":{"headline":"1 line naming the current weather",
+             "lines":["2-3 short lines tied to STATE scores — each one CHECKABLE
+                       against the user's actual recent life"]},
+   "always":{"headline":"1 line naming the baseline",
+             "lines":["2-3 short lines tied to TRAIT scores"]},
+   "verdict":"1 line on the gap between LATELY and ALWAYS — the insight neither
+              column gives alone"},
+ "diagnosis":{
+   "summary":"max 2 sentences",
+   "traits":[ONLY traits with real engine signal get a line {trait,level,line};
+             remaining traits collapse into ONE honest line, e.g. "the rest of
+             you reads steady — nothing diagnostic there"],
+   "attachment_style":{"style","line"}},
+ "red_flags":[3 × {"flag":"…","receipt":"the answer that triggered it —
+              'you told us in Q2: you fix moods, you don't feel them'"}],
+ "prescription":{
+   "intro":"1 line",
+   "picks":[3 × {"pick","why"}],
+   "protocol":{"title":"The 7-Day Recalibration",
+               "days":[7 × one-line daily listening instruction]},
+   "pairing":"1 line (tournament pairing while the window lasts)"},
+ "closer":"the mirror line, screenshottable"}
+```
+
+- **B1 THE SPLIT (the self-verifiable emotional read):** LATELY = state lane (recent inputs → engine percentiles, §17.B), ALWAYS = trait lane. The narration MUST tie LATELY to checkable life-texture (e.g. *"volume up, lyric-attention down — that's a stretch of life louder than you'd like"*), so the user verifies it against their own recent weeks and converts on recognition. The LLM narrates pre-computed lane levels; it never judges (§6). **Pair:** +~15s reading friction ↔ counterbalanced by B2's cut, net length flat.
+- **B2 SIGNAL-ONLY DIAGNOSIS:** render full lines only for traits the engine actually measured (fixes the current C/A/N Medium-padding — the Slice-1 red-team #1); the collapse line turns honesty into voice. Upgrades automatically when §18.E's paid taps land. **Pair:** value = credibility (no horoscope filler, §8) ↔ friction = negative (shorter).
+- **B3 RECEIPTS on Red Flags:** every flag cites its triggering answer ("you told us in Q2"). Engine-side: a deterministic flag→questionId map in content. Proprietary-feel ChatGPT can't mimic without the quiz. **Pair:** no input friction; tiny content cost.
+- **B4 THE 7-DAY RECALIBRATION (the Hume layer productized):** "defects are removable; a cultivated ear perceives truer" becomes a concrete protocol — engine picks the most extreme STATE axis (deterministic rule: max |percentile − 0.5| among state axes, tie → fixed axis order) and serves the matching hand-written 7-day track (6 tracks: 3 axes × 2 directions, 7 one-liners each; pure content, no DB). Day 7 line invites the re-take (see B6). A protocol feels like a *product*, not a paragraph. **Pair:** +~20s read ↔ collapsible on web (Day 1 visible, rest expandable); on any card/PNG surface only the title appears.
+- **B5 DEEP-READ COLLECTOR CARD (already decided, §12 — now placed):** the paid share-card renders the sigil (C2) + rarity + archetype in premium styling, delivered at the top of the report. **Pair:** zero input friction; it's the §12 second vanity artifact.
+- **B6 THE SECOND LISTEN (retention, stateless):** report footer line: **"Retake in a month. LATELY should change. ALWAYS shouldn't. If it does — we should talk."** Drives honest re-engagement with zero storage. **Pair:** zero friction.
+
+### C. Friction — push (cut effort) and pull (make finishing magnetic)
+
+**C1 PUSH — relocate the artist field (biggest input cut):** the free path becomes **7 taps → reveal, zero typing, period.** The §18.B bonus round moves OFF the pre-reveal path onto the **result page** as an inline module — **"Name names. Sharpen the read."** (same two zones/chips/triggers; adding artists updates the URL statelessly and re-renders the free read + sharpens the §17.D paywall hook). Effort is now asked only of the already-hooked — mirroring the §18.E principle — and it doubles as pre-purchase IKEA commitment. The paywall keeps its no-artist fallback hook. **Pair:** value = faster reveal AND better-placed effort ↔ risk = fewer artists captured overall; accepted — artists are flavor-only (§6), and capture quality rises with intent.
+
+**C2 PULL — THE FORMING SIGIL (PM seed, expanded):** one persistent visual anchor replacing the §18.C bars (restraint: swap, not add):
+- **Form:** a single ring of 7 arc-segments (one per question). Each answer fills its arc; fill hue blends step-by-step toward the (undisclosed) archetype theme colour — a deterministic function of the partial raw vector. Shape carries temperament: arc caps sharpen with high running energy, round with calm. **No labels, no names mid-quiz** — the firewall holds; the hue trajectory teases, never tells.
+- **Pull mechanics:** every tap visibly changes it (sunk cost: abandoning kills *your* mark); Q4 progress line: **"Halfway. It's already taking shape."**; at completion the ring **closes and locks** to the theme accent on the crystallizer screen ("Reading you now…") — the curiosity gap is literal: *what colour am I?*
+- **Surfaces:** in-quiz animation is normal web CSS (Satori constrains only cards); the **locked sigil** then prints on the share card beside the rarity (~64px, plain divs/SVG — Satori-safe) → collectible identity ("mine's a jagged ember, yours is a smooth midnight") that feeds the §13 compare/challenge loop.
+- **Pair:** value = completion pull + a new shareable identity mark ↔ friction = none for users (visual only); cost is build effort + one design-bar pass.
+
+**C3 PULL — tap-through reverb:** the §17.A beat becomes skippable (tap anywhere advances immediately). Savorers keep the talk-back; speedrunners lose ~6s of forced wait. **Pair:** protects completion without deleting the reverb's value.
+
+**C4 PULL — the pre-paywall aha, sequenced:** reveal order on the result page: sigil locks → archetype name → the free read → **one un-blurred LATELY line** (the §17.D hook, now state-anchored: *"this isn't just taste — your last few weeks are in here"*) → paywall. The emotional proof appears BEFORE the ask. **Pair:** value = conviction at the moment of the ask ↔ friction = none (re-ordering).
+
+### D. Golden-rule ledger (every value add ↔ its counterweight)
+
+| Value feature | Friction it creates | Counterweight |
+|---|---|---|
+| A1/A2 hook | zero / one unscored tap | carried by existing copy slots |
+| B1 Split | +15s read | B2 cuts the Diagnosis; net flat |
+| B3 Receipts | none (engine data) | — |
+| B4 Protocol | +20s read | collapsible; Day-1-only visible |
+| B5 Collector card | none | — |
+| C1 Artist relocation | risk: fewer artists | asked post-hook; IKEA effect; flavor-only anyway |
+| C2 Sigil | build cost only | replaces bars (no added clutter) |
+
+### E. Ranked backlog (impact ÷ effort)
+
+1. **B1 Split** — the WTP core; surfaces the P4 plumbing as the product. (High / Med)
+2. **C1 Artist relocation** — push + pull in one move. (High / Low-Med)
+3. **A1 hook copy** — trivial, reframes everything. (Med-High / Trivial)
+4. **B3 Receipts** — proprietary-feel per line. (Med-High / Low)
+5. **B2 Signal-only Diagnosis** — fixes Medium-padding honestly. (Med / Low)
+6. **C2 Sigil** — completion pull + collectible. (High / Med-High)
+7. **B4 Protocol** — product-feel + retention. (Med / Med)
+8. **C3 tap-through reverb** — completion guard. (Low-Med / Trivial)
+9. **B6 Second Listen** — free retention. (Low-Med / Trivial)
+10. **A2 calibration decoy** — A/B only, behind the §18.D-exception sign-off. (Med / Low)
+
+### F. Flags (not invented — needing PM confirmation)
+
+1. "P1–P4": §9's thesis bullets are unlabeled in the file; this section treats the four bullets, in order, as P1–P4. Confirm the mapping.
+2. A2's unscored Q0 is an explicit exception to §18.D ("every option maps to a dimension") — exception is safe (never enters the vector) but needs sign-off.
+3. B2 means the paid report's trait count varies by available signal until §18.E lands — accepted as honesty-by-design?
+4. The §9 Hume paragraph was amended in place under this revision's explicit overwrite approval; v1 `premium_report` (§7) is superseded by §20.B, not deleted.
