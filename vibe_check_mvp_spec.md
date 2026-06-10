@@ -566,3 +566,26 @@ The file has duplicate headers — two "Open questions" (`## 11` + `## 10`) and 
 
 ### E. Refines §17.C — durable-trait taps move to the PAID flow
 The two durable-trait taps (§17.C: +C Conscientiousness, +A Agreeableness, +Neuroticism micro-proxy) are collected in the **paid/premium flow**, not the free quiz. The free quiz stays at its minimal fast set → maximum completion; the richer trait input is gathered only from users with demonstrated paid intent, exactly where the 5-factor Diagnosis is delivered. Serves completion + data quality + monetization at once.
+
+---
+
+## 19. Systemic health audit — corrections & locked mechanisms (pre-payment-launch)
+
+### A. Cache durability — the exact mechanism (closes §6/§16.C's unspecified "cache by input hash")
+Free tier: narration (`/api/reading`) and card (`/api/card`) are deterministic GETs keyed by their query string, served with `Cache-Control: public, s-maxage=31536000, stale-while-revalidate=86400` → Vercel CDN is the cache; **determinism is the correctness guarantee, the CDN is only a cost optimization** (eviction/cold start merely re-derives an identical verdict at Haiku cost). No KV/DB. PAID report: narration is cached per-instance by `premiumHash(profile)` so refreshes of a purchased report re-serve the SAME text instead of re-calling Sonnet per view; cold-start loss is acceptable (cheap regeneration; verdict fields anchored regardless).
+
+### B. Paid-path anchoring corrections (landed before live Stripe keys)
+1. `narratePremium` anchors `big_five[].level` and `attachment_style.style` (not just `archetype`) back to the engine profile — the model writes lines, never levels (§6). Implemented as `anchorReport()` + tests.
+2. Premium temperature = 0.3 (§6's 0.2–0.3 band; 0.4 was out of spec — fixed).
+3. The `purchase` analytics event fires ONCE per unlock (sessionStorage guard keyed by Stripe session id), not per page view.
+4. ACCEPTED DECISION (recorded): the post-payment report URL (`session_id`) is shareable; anyone with the buyer's link sees the buyer's own report. Stateless trade-off accepted — it spreads a paid vanity artifact, which serves the funnel.
+
+### C. Domain rule (landed before seeding)
+No hardcoded domain anywhere user-visible. The card footer CTA derives its host from `NEXT_PUBLIC_BASE_URL`. "vibecheck.app" was a placeholder, not an owned asset; the real wordmark/domain remains §11.1-open and must be secured before launch.
+
+### D. Doc corrections (supersessions, append-only)
+- §15's env-var note ("narration defaults to claude-sonnet-4-6") is superseded by §16.C: default is `claude-haiku-4-5`; `ANTHROPIC_MODEL_PREMIUM` (default `claude-sonnet-4-6`) covers the paid report.
+- §13 appears twice with differing pricing comps; the canonical pricing record is the §13 "Stage 1 growth build & decisions" → PRICING DECISION ($3.99 anchor / A/B $4.99 / floor $2.99). The second §13's comp set is historical color, not the source of truth.
+- §10 Q2's "drowning out the world" is the lone negative-valence option in its set — re-word in the Slice-1 rewrite per §18.D symmetric desirability.
+- §15 addendum: on first Vercel deploy, explicitly verify the card route's font loading (fs read + `outputFileTracingIncludes`) — serverless path resolution is a known deploy-time risk.
+- The single-stroke glyph system referenced in older design notes is retired; the locked card design is the typographic hero (§16.E). Premium screens (`/premium/*`) still owe a formal Design-Bar pass before launch.
