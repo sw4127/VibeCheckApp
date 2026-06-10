@@ -13,6 +13,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { buildCardDesign, POSITION_INFO, type Position } from "@/content/world-cup/design";
+import { baseUrl } from "@/lib/site";
 
 export const runtime = "nodejs";
 
@@ -166,10 +167,20 @@ export async function GET(request: Request) {
     </div>
   ) : null;
 
+  // Domain derived from env (§19.C): never print a hardcoded, unowned domain
+  // on a viral artifact. Falls back to the dev host locally.
+  const host = (() => {
+    try {
+      return new URL(baseUrl()).host;
+    } catch {
+      return "localhost:3000";
+    }
+  })();
+
   const Footer = (
     <div style={{ display: "flex", alignItems: "baseline", gap: px(12), fontSize: px(28), fontWeight: 800, letterSpacing: px(1) }}>
       <span style={{ display: "flex", color: p.sub }}>Find yours →</span>
-      <span style={{ display: "flex", color: p.accent }}>vibecheck.app</span>
+      <span style={{ display: "flex", color: p.accent }}>{host}</span>
     </div>
   );
 

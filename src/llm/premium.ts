@@ -138,29 +138,71 @@ export function localPremiumReport(p: PremiumProfile): PremiumReport {
   };
 }
 
-function force(raw: PremiumReport, p: PremiumProfile): PremiumReport {
-  return { ...raw, archetype: p.archetype }; // engine decides the type; model writes
+/**
+ * Anchor every engine-decided field onto the model's output (§6: the LLM writes
+ * lines, never levels). Exported for tests.
+ */
+export function anchorReport(raw: PremiumReport, p: PremiumProfile): PremiumReport {
+  return {
+    ...raw,
+    archetype: p.archetype,
+    diagnosis: {
+      ...raw.diagnosis,
+      big_five: p.bigFive.map((b) => {
+        const written = raw.diagnosis.big_five.find((x) => x.trait === b.trait);
+        return {
+          trait: b.trait,
+          level: b.level, // engine's level wins, always
+          line: written?.line ?? TRAIT_LINES[b.trait]?.[b.level] ?? `${b.trait} reads ${b.level}.`,
+        };
+      }),
+      attachment_style: {
+        style: p.attachmentStyle, // engine's style wins
+        line: raw.diagnosis.attachment_style.line,
+      },
+    },
+  };
 }
 
+/**
+ * Per-instance cache keyed by premiumHash: a purchased report re-serves the
+ * SAME text on refresh instead of re-calling Sonnet per view (§19.A). Lost on
+ * cold start — acceptable: regeneration is cheap and the verdict fields are
+ * anchored either way. No DB (locked rule).
+ */
+const reportCache = new Map<string, PremiumResult>();
+
 export async function narratePremium(p: PremiumProfile): Promise<PremiumResult> {
+  const key = premiumHash(p);
+  const cached = reportCache.get(key);
+  if (cached) return cached;
+
   if (!process.env.ANTHROPIC_API_KEY) {
-    return { report: localPremiumReport(p), source: "local" };
+    const result: PremiumResult = { report: localPremiumReport(p), source: "local" };
+    reportCache.set(key, result); // deterministic — safe to cache
+    return result;
   }
   try {
     const client = new Anthropic();
     const response = await client.messages.parse({
       model: PREMIUM_MODEL,
       max_tokens: 1600,
-      temperature: 0.4,
+      temperature: 0.3, // §6 stabilizer band (0.2–0.3)
       thinking: { type: "disabled" },
       system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
       messages: [{ role: "user", content: buildPremiumUserMessage(p) }],
       output_config: { format: zodOutputFormat(premiumReportSchema) },
     });
     if (response.stop_reason === "refusal" || !response.parsed_output) {
+      // Transient failure — do NOT cache, so the next view can retry the model.
       return { report: localPremiumReport(p), source: "fallback" };
     }
-    return { report: force(response.parsed_output, p), source: "model" };
+    const result: PremiumResult = {
+      report: anchorReport(response.parsed_output, p),
+      source: "model",
+    };
+    reportCache.set(key, result);
+    return result;
   } catch {
     return { report: localPremiumReport(p), source: "fallback" };
   }

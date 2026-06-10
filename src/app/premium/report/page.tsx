@@ -3,7 +3,7 @@ import Link from "next/link";
 import Stripe from "stripe";
 import { narratePremium } from "@/llm";
 import { SAMPLE_PROFILES, DEFAULT_SAMPLE } from "@/content/sample-profile";
-import Track from "@/components/Track";
+import PurchaseTrack from "./PurchaseTrack";
 
 export const runtime = "nodejs";
 
@@ -44,7 +44,10 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-6 py-10">
-      <Track event="purchase" props={{ profile: profile.id, source, dev: devUnlock }} />
+      <PurchaseTrack
+        unlockKey={sessionId ?? "dev"}
+        props={{ profile: profile.id, source, dev: devUnlock }}
+      />
 
       <p className="text-xs font-bold tracking-[0.4em] text-accent">VIBE CHECK · THE FULL READ</p>
       <h1 className="mt-6 font-display text-5xl font-black leading-[0.95]">{report.archetype}</h1>

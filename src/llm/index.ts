@@ -20,6 +20,7 @@ export {
   buildPremiumUserMessage,
   localPremiumReport,
   premiumHash,
+  anchorReport,
   type PremiumResult,
   type PremiumSource,
 } from "./premium";
