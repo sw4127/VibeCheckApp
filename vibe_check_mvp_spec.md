@@ -690,3 +690,58 @@ No hardcoded domain anywhere user-visible. The card footer CTA derives its host 
 2. A2's unscored Q0 is an explicit exception to §18.D ("every option maps to a dimension") — exception is safe (never enters the vector) but needs sign-off.
 3. B2 means the paid report's trait count varies by available signal until §18.E lands — accepted as honesty-by-design?
 4. The §9 Hume paragraph was amended in place under this revision's explicit overwrite approval; v1 `premium_report` (§7) is superseded by §20.B, not deleted.
+
+---
+
+## 21. The Voice Bible — copy guidelines for being "seen" (PM + copywriter + behavioral psych)
+
+*Governs ALL generated reading text (free + paid) and the deterministic fallbacks. Extends §7's VOICE and §8's rails; implements §20.B's depth-not-length. The empathy claim stays honest per §9 (corrected): a trained read of trained taste — never clinical, never "your authentic self revealed."*
+
+### A. The psychology of feeling seen (framing techniques)
+
+1. **Specificity is the anti-Barnum.** A line lands only if it could be WRONG about someone else. Test for every sentence: would this miss for a random stranger? If not, cut. ("You preview songs before adding them" ✓ · "you love music deeply" ✗)
+2. **Observation → motive ("the reveal").** Describe recognizable behavior first, then gently name what it's *for*. Pattern: *"You do X. That's not Y — that's Z."* The motive-reveal is the empathy hit.
+3. **Validation before exposure (the therapist's one-two).** Never roast cold. Per block: **SEE** (mirror the behavior) → **NORMALIZE** ("of course you do — it works") → **EXPOSE** (the cost/tell) → **DIGNIFY** (reframe as strength-with-a-shadow). This is the tonal arc: warm → precise → sharp → warm.
+4. **Declarative certainty.** Second person, present tense, zero hedges ("might," "perhaps," "maybe" = horoscope tells; §7 already bans them — enforced here per sentence). Confidence is read as insight.
+5. **The "caught" moment.** One line per section that implies we *watched* them ("you skip the bridge when it gets too honest"). §20.B3 receipts are the engine-backed version — receipts beat invention; never fabricate a receipt the engine can't back.
+6. **Costly honesty (two-sided messaging).** Include one mildly unflattering-but-safe truth they'd admit ("you've recommended a song to seem interesting, not to share it"). Admitted flaws make the flattering lines credible.
+7. **Name the unnamed (P3 at sentence level).** The highest-empathy move articulates something felt but never phrased: *"nostalgia isn't your comfort — it's your proof you used to feel more."* Target ≥1 per paid report.
+8. **The tense IS the P4 split.** LATELY copy = present-continuous + temporal markers ("you've been… these weeks") → feels like being *checked on*. ALWAYS copy = timeless present ("you are… you've always") → feels like being *known*. Grammar carries the architecture; the LLM is told this explicitly.
+
+### B. Tonal register map (per §20.B block)
+
+| Block | Register | One-line direction |
+|---|---|---|
+| Split·LATELY | the friend who noticed | soft, specific, slightly worried |
+| Split·ALWAYS | the biographer | settled, unarguable |
+| Diagnosis | the specialist, amused | precise, a little entertained by you |
+| Red Flags | the roast with receipts | sharp, cites the answer, never cruel (§8) |
+| Prescription | the coach | imperative, kind, concrete |
+| Closer | the mirror | quiet, final, screenshottable |
+
+### C. PM delivery rules (depth without bloat)
+
+- **One idea per line; line breaks are pacing.** Short declaratives — §7's "darts."
+- **The 70/30 rule:** ~70% mirror (they nod) / ~30% reveal (they flinch). More reveal = defensive; more mirror = boring.
+- **Word budgets (enforced in prompt + schema descriptions; fits §20.B's 60–90s):** Split lines ≤14 words · Diagnosis trait lines ≤16 · Red Flag ≤20 + receipt ≤10 · Prescription picks ≤14 · closer ≤25.
+- **Verbs over adjectives.** Describe what they DO, never rate what they ARE ("you curate," not "you're thoughtful"). No worth-adjectives, period.
+- **Banned list:** "journey," "unique," "special," "eclectic," "music lover," "vibe with," "soundtrack of your life," therapy-speak ("holding space," "doing the work"), any clinical noun as a verdict ("you have anxiety" ✗ → "you treat silence like a problem to fix" ✓).
+- **Closer formula:** callback + concession + dare. (*"Still re-reading this? Of course you are. Screenshot it and prove it wrong."*)
+
+### D. Sample framework (the standard to hit)
+
+**Free read (2 sentences, vibe_check):**
+> "You don't play music — you administer it: the right dose, the right room, nobody else's hands on the queue. Phoebe Bridgers on rotation while Radiohead never leaves isn't taste, it's a filing system for feelings you won't say out loud."
+*(SEE+EXPOSE compressed; artist receipts; zero hedges; 41 words.)*
+
+**Paid Split (the conversion block):**
+> **LATELY** — *"The volume's been up and the lyrics have been off. (SEE) That's not a phase, it's insulation — it works. (NORMALIZE) But you've been drowning the narrator, not the noise. (EXPOSE)"*
+> **ALWAYS** — *"You've always listened alone first. New things enter your life on probation. Trust, for you, has a tracklist. (biographer register)"*
+> **VERDICT** — *"The baseline is a watcher; the last few weeks are a wall. When the wall comes down you'll need the watcher — keep him fed. (DIGNIFY)"*
+
+**Red Flag with receipt:**
+> 🚩 "You fix moods instead of feeling them — you told us yourself in Q2. Efficient. Also a way to never find out what the mood was for."
+
+### E. Implementation note (Slice 2)
+
+These rules are injected into `SYSTEM_PROMPT` (VOICE section v2 + per-block registers + budgets + banned list), into the v2 report schema's field descriptions, and the deterministic fallbacks get a manual pass to the same standard. The §21.A1 specificity test and §C budgets become review criteria in the Design Bar's "Voice" item.
