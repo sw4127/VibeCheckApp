@@ -15,6 +15,37 @@ describe("premium token", () => {
     expect(decoded!.artistsDurable).toEqual(p.artistsDurable);
   });
 
+  it("p2 round-trips the state lane (§20.B1)", () => {
+    const p = SAMPLE_PROFILES.velvet_cynic;
+    const decoded = decodePremiumToken(encodePremiumToken(p));
+    expect(decoded!.stateLevels).toEqual({ energy: "Low", regulation: "Low", rumination: "High" });
+  });
+
+  it("still decodes legacy p1 tokens (no state lane)", () => {
+    const p1 = Buffer.from(
+      JSON.stringify({
+        v: "p1",
+        a: "The Easy Listener",
+        b: "LMLMM",
+        s: "coasting on calm",
+        t: "Secure",
+        ar: ["A"],
+        ad: ["B"],
+      }),
+    ).toString("base64url");
+    const decoded = decodePremiumToken(p1);
+    expect(decoded).not.toBeNull();
+    expect(decoded!.archetype).toBe("The Easy Listener");
+    expect(decoded!.stateLevels).toBeUndefined();
+  });
+
+  it("rejects a malformed state-lane field", () => {
+    const bad = Buffer.from(
+      JSON.stringify({ v: "p2", a: "X", b: "HHHHH", st: "HX", s: "s", t: "t", ar: [], ad: [] }),
+    ).toString("base64url");
+    expect(decodePremiumToken(bad)).toBeNull();
+  });
+
   it("rejects malformed tokens (falls back to null, never throws)", () => {
     expect(decodePremiumToken(undefined)).toBeNull();
     expect(decodePremiumToken("")).toBeNull();

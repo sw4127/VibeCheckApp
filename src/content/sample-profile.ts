@@ -1,12 +1,18 @@
 /**
- * Hardcoded sample profiles for Slice 0 (the paid pipeline is built/proven
- * against these until the Stage-2 music engine lands in Slice 1).
+ * Premium-report input profiles. SAMPLE_PROFILES remain the Slice-0 fallback /
+ * direct-visit path; real users arrive via the stateless premium token built
+ * from the music engine (§17.B).
  *
- * Shape mirrors what the real music engine will emit per spec §17.B: an
- * archetype, the trait lane (Big Five levels → Diagnosis) and a state line
- * (recent/mood → Red Flags), plus flavor-only artists split recent/durable (§6).
+ * v2 (§20.B): `stateLevels` carries the STATE lane (recent/mood) so the Split's
+ * LATELY column narrates engine-computed levels — never LLM judgment.
  */
 import type { Level } from "@/llm/premiumSchema";
+
+export type StateLevels = {
+  energy: Level;
+  regulation: Level;
+  rumination: Level;
+};
 
 export interface PremiumProfile {
   /** Stable key for caching the narration by input. */
@@ -14,8 +20,10 @@ export interface PremiumProfile {
   archetype: string;
   bigFive: { trait: string; level: Level }[];
   attachmentStyle: string;
-  /** Current-emotion descriptor from the state lane (feeds Red Flags). */
+  /** Current-emotion descriptor from the state lane (legacy/back-compat line). */
   stateLine: string;
+  /** STATE-lane levels (§17.B). Optional: p1 tokens / legacy callers omit it. */
+  stateLevels?: StateLevels;
   artistsRecent: string[];
   artistsDurable: string[];
 }
@@ -33,6 +41,7 @@ export const SAMPLE_PROFILES: Record<string, PremiumProfile> = {
     ],
     attachmentStyle: "Anxious-Preoccupied",
     stateLine: "running on low-grade dread and 1am replays",
+    stateLevels: { energy: "Low", regulation: "Low", rumination: "High" },
     artistsRecent: ["Phoebe Bridgers", "Frank Ocean", "Steely Dan"],
     artistsDurable: ["Radiohead"],
   },
@@ -48,6 +57,7 @@ export const SAMPLE_PROFILES: Record<string, PremiumProfile> = {
     ],
     attachmentStyle: "Secure",
     stateLine: "riding a hype high, soundtracking the group chat",
+    stateLevels: { energy: "High", regulation: "Medium", rumination: "Low" },
     artistsRecent: ["Taylor Swift", "Drake", "Dua Lipa"],
     artistsDurable: ["Beyonce"],
   },
@@ -63,6 +73,7 @@ export const SAMPLE_PROFILES: Record<string, PremiumProfile> = {
     ],
     attachmentStyle: "Dismissive-Avoidant",
     stateLine: "deep in a rabbit hole, alphabetizing feelings",
+    stateLevels: { energy: "Medium", regulation: "Low", rumination: "High" },
     artistsRecent: ["Aphex Twin", "Bon Iver", "black midi"],
     artistsDurable: ["Radiohead"],
   },

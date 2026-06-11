@@ -29,6 +29,7 @@ export {
   localPremiumReport,
   premiumHash,
   anchorReport,
+  receiptFacts,
   type PremiumResult,
   type PremiumSource,
 } from "./premium";

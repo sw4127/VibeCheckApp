@@ -56,9 +56,19 @@ export default async function PreviewPage({ searchParams }: { searchParams: Sear
       {/* Un-blurred self-verification hook */}
       <p className="mt-6 text-lg leading-relaxed">{hook(profile)}</p>
 
-      {/* The blurred analysis (curiosity gap) */}
+      {/* The blurred analysis (curiosity gap) — v2 blocks (§20.B) */}
       <div className="relative mt-8">
         <div className="flex flex-col gap-5">
+          <section>
+            <p className="text-xs font-bold tracking-[0.3em] text-accent">LATELY vs ALWAYS · the split</p>
+            <p className="mt-1 text-xs text-muted">what the last few weeks say · what never changes</p>
+            <Blur>
+              <p className="mt-2 leading-relaxed">
+                {report.split.lately.headline} {report.split.lately.lines[0]}
+              </p>
+              <p className="mt-1 leading-relaxed">{report.split.verdict}</p>
+            </Blur>
+          </section>
           <section>
             <p className="text-xs font-bold tracking-[0.3em] text-accent">THE DIAGNOSIS</p>
             <Blur>
@@ -66,11 +76,13 @@ export default async function PreviewPage({ searchParams }: { searchParams: Sear
             </Blur>
           </section>
           <section>
-            <p className="text-xs font-bold tracking-[0.3em] text-accent">RED FLAGS</p>
+            <p className="text-xs font-bold tracking-[0.3em] text-accent">RED FLAGS · with receipts</p>
             <Blur>
               <ul className="mt-2 flex flex-col gap-1">
                 {report.red_flags.map((f) => (
-                  <li key={f}>• {f}</li>
+                  <li key={f.flag}>
+                    • {f.flag} <span className="text-xs">({f.receipt})</span>
+                  </li>
                 ))}
               </ul>
             </Blur>

@@ -7,19 +7,21 @@
  * Kept compact for Stripe's 500-char metadata value limit: artists are capped
  * and trimmed.
  */
-import type { PremiumProfile } from "@/content/sample-profile";
+import type { PremiumProfile, StateLevels } from "@/content/sample-profile";
 import type { Level } from "@/llm/premiumSchema";
 import { fnv1a } from "@/engine";
 
-const VERSION = "p1";
+const VERSION = "p2"; // p2 adds `st` (state-lane levels); p1 still decodes.
 const LEVEL_CHARS: Record<string, Level> = { H: "High", M: "Medium", L: "Low" };
 const CHAR_OF: Record<Level, string> = { High: "H", Medium: "M", Low: "L" };
 const TRAITS = ["Openness", "Conscientiousness", "Extraversion", "Agreeableness", "Neuroticism"];
+const STATE_ORDER = ["energy", "regulation", "rumination"] as const;
 
 interface TokenPayload {
   v: string;
   a: string; // archetype label
   b: string; // 5 level chars, OCEAN order
+  st?: string; // 3 level chars, [energy, regulation, rumination] (p2+)
   s: string; // stateLine
   t: string; // attachment style
   ar: string[]; // recent artists
@@ -43,6 +45,9 @@ export function encodePremiumToken(p: PremiumProfile): string {
     ar: p.artistsRecent.slice(0, 3).map((x) => x.slice(0, 30)),
     ad: p.artistsDurable.slice(0, 1).map((x) => x.slice(0, 30)),
   };
+  if (p.stateLevels) {
+    payload.st = STATE_ORDER.map((k) => CHAR_OF[p.stateLevels![k]] ?? "M").join("");
+  }
   return b64urlEncode(JSON.stringify(payload));
 }
 
@@ -50,9 +55,19 @@ export function decodePremiumToken(token: string | undefined | null): PremiumPro
   if (!token) return null;
   try {
     const raw = JSON.parse(b64urlDecode(token)) as TokenPayload;
-    if (raw.v !== VERSION || typeof raw.a !== "string" || typeof raw.b !== "string") return null;
+    if ((raw.v !== "p1" && raw.v !== "p2") || typeof raw.a !== "string" || typeof raw.b !== "string") return null;
     if (raw.b.length !== 5 || [...raw.b].some((c) => !LEVEL_CHARS[c])) return null;
+    let stateLevels: StateLevels | undefined;
+    if (typeof raw.st === "string") {
+      if (raw.st.length !== 3 || [...raw.st].some((c) => !LEVEL_CHARS[c])) return null;
+      stateLevels = {
+        energy: LEVEL_CHARS[raw.st[0]],
+        regulation: LEVEL_CHARS[raw.st[1]],
+        rumination: LEVEL_CHARS[raw.st[2]],
+      };
+    }
     return {
+      stateLevels,
       id: fnv1a(`token|${token}`),
       archetype: raw.a,
       bigFive: TRAITS.map((trait, i) => ({ trait, level: LEVEL_CHARS[raw.b[i]] })),

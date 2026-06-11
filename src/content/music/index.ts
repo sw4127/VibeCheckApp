@@ -96,6 +96,11 @@ export function musicPremiumProfile(
   return {
     id: fnv1a(`music|${profile.hash}|${artistsRecent.join(",")}|${artistsDurable.join(",")}`),
     archetype: profile.archetype.label,
+    stateLevels: {
+      energy: lanes.state.energy,
+      regulation: lanes.state.regulation,
+      rumination: lanes.state.rumination,
+    },
     bigFive: [
       { trait: "Openness", level: lanes.trait.openness },
       { trait: "Conscientiousness", level: "Medium" },
