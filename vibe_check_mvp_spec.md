@@ -745,3 +745,10 @@ No hardcoded domain anywhere user-visible. The card footer CTA derives its host 
 ### E. Implementation note (Slice 2)
 
 These rules are injected into `SYSTEM_PROMPT` (VOICE section v2 + per-block registers + budgets + banned list), into the v2 report schema's field descriptions, and the deterministic fallbacks get a manual pass to the same standard. The §21.A1 specificity test and §C budgets become review criteria in the Design Bar's "Voice" item.
+
+---
+
+## 22. Post-test revisions (PM walkthrough feedback)
+
+- **§20.C2 revised — bars stay, ring relocates.** PM testing preferred the moving FORMING BARS over the small in-quiz ring. Decision: the in-quiz visual is the bars, now **tinted with the sigil's hue-drift** (the "what colour am I becoming?" tease survives); the ring renders only where it reads well — the **crystallizer lock** and the **card footer mark**. Pull mechanic intact, motion the test liked restored.
+- **Completion-pull audio (PM seed, shipped opt-in).** A synthesized pentatonic note climbs one step per answer and **resolves** at the crystallizer (the audio mirror of the lock). **OFF by default** — most traffic is muted in-app webviews and sound-on-by-default is hostile; one-tap 🔇/🔊 opt-in, remembered per session. Synth-only (WebAudio oscillator): **no playback of any recording, §2's no-music-playback scope intact.**

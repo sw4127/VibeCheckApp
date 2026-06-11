@@ -11,6 +11,13 @@ const quiz = musicQuiz;
 const REVERB_MS = 900; // §17.A beat — tap anywhere to skip (§20.C3)
 const CRYSTALLIZER_MS = 1800;
 
+/** §22 — completion-pull notes: a pentatonic climb, one step per answer, and a
+ *  resolve at the lock. Synthesized (no playback of any recording — §2 stays
+ *  intact) and OFF by default: most traffic is muted in-app webviews, and
+ *  sound-on-by-default is hostile. One-tap opt-in, remembered per session. */
+const SCALE = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33]; // C maj pentatonic ↑
+const RESOLVE = [523.25, 659.25, 783.99]; // C5–E5–G5
+
 /**
  * Free path = 7 taps → reveal, zero typing (§20.C1 — the artist field lives on
  * the result page as "sharpen the read"). The quiz talks back per tap (§17.A),
@@ -24,34 +31,80 @@ export default function MusicQuizPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [reverb, setReverb] = useState<string | null>(null);
   const [phase, setPhase] = useState<"taps" | "crystallizer">("taps");
+  const [soundOn, setSoundOn] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingAnswers = useRef<Answers>({});
+  const audioCtx = useRef<AudioContext | null>(null);
+
+  /** Soft synth note (sine + quick decay). Never throws; silent when off. */
+  function note(freq: number, delay = 0, dur = 0.22) {
+    if (!soundOnRef.current) return;
+    try {
+      const ctx = (audioCtx.current ??= new AudioContext());
+      const t = ctx.currentTime + delay;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.12, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start(t);
+      o.stop(t + dur + 0.05);
+    } catch {
+      /* audio is garnish — never break the quiz */
+    }
+  }
+  const soundOnRef = useRef(soundOn);
+  soundOnRef.current = soundOn;
+
+  function toggleSound() {
+    const next = !soundOn;
+    setSoundOn(next);
+    try {
+      sessionStorage.setItem("vc_sound", next ? "1" : "0");
+    } catch {}
+    if (next) {
+      soundOnRef.current = true; // play the confirm note inside this gesture
+      note(SCALE[Math.min(step, SCALE.length - 1)]);
+    }
+  }
 
   const total = quiz.questions.length;
   const question = quiz.questions[step];
 
   useEffect(() => {
     track("quiz_start", { variant: "music" });
+    try {
+      if (sessionStorage.getItem("vc_sound") === "1") setSoundOn(true);
+    } catch {}
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // §20.C2 THE FORMING SIGIL — one arc fills per answer; the hue drifts toward
-  // the (undisclosed) leading archetype's theme. Deterministic, no labels, no
-  // verdict — the trajectory teases, never tells.
-  const sigil = useMemo(() => {
+  // §20.C2 revised (PM test feedback, §22): the FORMING BARS stay as the
+  // in-quiz visual — heights move per answer (the motion the test liked) and
+  // the BAR COLOR carries the sigil's hue-drift toward the (undisclosed)
+  // leading archetype's theme. The ring itself lives at the crystallizer lock
+  // and on the card. No labels, no verdict — the trajectory teases, never tells.
+  const forming = useMemo(() => {
     const answered = Object.keys(answers).length;
-    if (answered === 0) return { filled: 0, colors: [] as string[], lockHue: 250 };
+    const raw = scoreAnswers(quiz, answers);
+    const values = quiz.dimensions.map((d) => raw[d] ?? 0);
+    const max = Math.max(1, ...values);
+    if (answered === 0) {
+      return { bars: values.map(() => 0), color: "hsl(250 35% 62%)", lockHue: 250 };
+    }
     const norm = percentileNormalize(quiz, scoreAnswers(quiz, answers));
     const leader = rankMatches(norm, musicArchetypes.centroids)[0];
     const targetHue = THEME_HUES[ARCHETYPE_THEMES[leader.id] ?? "midnight"];
-    const colors = Array.from({ length: answered }, (_, i) => {
-      const t = ((i + 1) / quiz.questions.length) * 0.85;
-      return `hsl(${Math.round(driftHue(targetHue, t))} ${Math.round(35 + t * 45)}% 62%)`;
-    });
-    return { filled: answered, colors, lockHue: targetHue };
+    const t = (answered / quiz.questions.length) * 0.85;
+    const color = `hsl(${Math.round(driftHue(targetHue, t))} ${Math.round(35 + t * 45)}% 62%)`;
+    return { bars: values.map((v) => v / max), color, lockHue: targetHue };
   }, [answers]);
 
   function goToResult(finalAnswers: Answers) {
@@ -79,12 +132,15 @@ export default function MusicQuizPage() {
       setStep(step + 1);
     } else {
       setPhase("crystallizer");
+      // §22 — the resolve: the climb lands (audio mirror of the sigil lock).
+      RESOLVE.forEach((f, i) => note(f, i * 0.14, 0.5));
       timer.current = setTimeout(() => goToResult(pendingAnswers.current), CRYSTALLIZER_MS);
     }
   }
 
   function choose(optionId: string) {
     if (!question || selected || phase !== "taps") return;
+    note(SCALE[step] ?? SCALE[SCALE.length - 1]); // §22 — one step up per answer
     setSelected(optionId);
     setReverb(REVERB[question.id]?.[optionId] ?? null);
     const next: Answers = { ...answers, [question.id]: optionId };
@@ -108,7 +164,7 @@ export default function MusicQuizPage() {
           <Sigil
             size={96}
             filled={7}
-            colors={`hsl(${Math.round(sigil.lockHue)} 80% 62%)`}
+            colors={`hsl(${Math.round(forming.lockHue)} 80% 62%)`}
           />
         </div>
         {/* §17.A P3 crystallizer + §20.A1 Hume clause */}
@@ -133,26 +189,39 @@ export default function MusicQuizPage() {
     >
       {/* Progress + §18.A permission line */}
       <div className="mb-8">
-        <div className="flex justify-between text-xs font-medium text-muted">
-          <span>
-            {step + 1} of {total}
+        <div className="flex items-center justify-between text-xs font-medium text-muted">
+          <span className="shrink-0">
+            {step + 1} / {total}
           </span>
-          <span>No wrong answers. First instinct is the real data.</span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleSound();
+            }}
+            aria-label={soundOn ? "Sound on" : "Sound off"}
+            title={soundOn ? "Sound on" : "Sound off"}
+            className="shrink-0 rounded-full border border-white/15 px-2 py-0.5 transition hover:border-accent/50"
+          >
+            {soundOn ? "🔊" : "🔇"}
+          </button>
         </div>
+        <p className="mt-1.5 text-xs text-muted">No wrong answers. First instinct is the real data.</p>
         <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/10">
           <div
             className="h-full rounded-full bg-accent transition-all duration-300"
             style={{ width: `${((step + 1) / total) * 100}%` }}
           />
         </div>
-        <div className="mt-3" aria-hidden>
-          {/* §20.C2 — the forming sigil replaces the bars (restraint: swap, not add) */}
-          <Sigil
-            size={44}
-            filled={sigil.filled}
-            colors={sigil.colors}
-            trackColor="rgba(255,255,255,0.08)"
-          />
+        <div className="mt-3 flex h-6 items-end gap-1.5" aria-hidden>
+          {forming.bars.map((v, i) => (
+            <div key={i} className="flex w-2 items-end" style={{ height: "100%" }}>
+              <div
+                className="w-full rounded-sm transition-all duration-500"
+                style={{ height: `${Math.max(8, v * 100)}%`, background: forming.color }}
+              />
+            </div>
+          ))}
         </div>
       </div>
 
