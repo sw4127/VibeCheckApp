@@ -10,6 +10,7 @@ import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import type { PremiumProfile, StateLevels } from "@/content/sample-profile";
 import { fnv1a } from "@/engine";
 import { premiumReportSchema, type Level, type PremiumReport } from "./premiumSchema";
+import { buildProtocol } from "./protocol";
 import { SYSTEM_PROMPT } from "./systemPrompt";
 
 /** Pinned snapshot for the paid report (covered by the sale). */
@@ -298,6 +299,7 @@ export function localPremiumReport(p: PremiumProfile): PremiumReport {
       intro: "Three corrections, administered without anesthetic:",
       picks,
       pairing: `${durable} for the tense knockout games — the one thing that's never let you down.`,
+      protocol: buildProtocol(p), // §20.B4 — deterministic, engine-chosen
     },
     closer: `Still re-reading this, ${p.archetype}? Of course you are. Screenshot it and prove it wrong.`,
   };
@@ -323,6 +325,9 @@ export function anchorReport(raw: PremiumReport, p: PremiumProfile): PremiumRepo
   return {
     ...raw,
     archetype: p.archetype,
+    // The protocol is engine content (§20.B4): whatever the model wrote, the
+    // deterministic track wins — same input, same 7 days, every time.
+    prescription: { ...raw.prescription, protocol: buildProtocol(p) },
     diagnosis: {
       ...raw.diagnosis,
       traits,

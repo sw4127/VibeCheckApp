@@ -4,6 +4,11 @@ import Stripe from "stripe";
 import { narratePremium } from "@/llm";
 import { SAMPLE_PROFILES, DEFAULT_SAMPLE } from "@/content/sample-profile";
 import { decodePremiumToken } from "@/lib/premiumToken";
+import { applyPaidTaps, neededTaps } from "@/lib/paidTaps";
+import { themeForArchetypeLabel } from "@/content/music";
+import { cardPath } from "@/lib/site";
+import DownloadButton from "@/app/result/DownloadButton";
+import Calibration from "./Calibration";
 import PurchaseTrack from "./PurchaseTrack";
 
 export const runtime = "nodejs";
@@ -44,9 +49,26 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
 
   // profileRef is either a stateless premium token (real user, from the music
   // result) or a Slice-0 sample id; malformed anything falls back to the sample.
-  const profile =
+  const base =
     decodePremiumToken(profileRef) ?? SAMPLE_PROFILES[profileRef] ?? DEFAULT_SAMPLE;
+  // §18.E — paid calibration taps ride the URL and upgrade C/A/N in the engine
+  // (new premiumHash → the report regenerates with full-signal Diagnosis).
+  const profile = applyPaidTaps(base, {
+    c: param(sp, "c"),
+    a: param(sp, "a"),
+    n: param(sp, "n"),
+  });
   const { report, source } = await narratePremium(profile);
+
+  // §20.B5 — the collector card (the paid vanity artifact).
+  const collectorPath = cardPath({
+    format: "square",
+    mode: "music",
+    tier: "paid",
+    theme: themeForArchetypeLabel(profile.archetype),
+    archetype: profile.archetype,
+    verdict: report.split.verdict,
+  });
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-6 py-10">
@@ -57,6 +79,15 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
 
       <p className="text-xs font-bold tracking-[0.4em] text-accent">VIBE CHECK · THE FULL READ</p>
       <h1 className="mt-6 font-display text-5xl font-black leading-[0.95]">{report.archetype}</h1>
+
+      {/* §20.B5 — the collector card, delivered at the top of the report */}
+      <div className="mt-7 overflow-hidden rounded-2xl border border-white/10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={collectorPath} alt="Your collector card — the full read" className="w-full" />
+      </div>
+      <div className="mt-3 flex justify-center">
+        <DownloadButton url={collectorPath} label="Save the collector card" filename="vibe-check-full-read.png" />
+      </div>
 
       {/* THE SPLIT — the centerpiece (§20.B1): LATELY vs ALWAYS, engine-routed */}
       <section className="mt-9">
@@ -111,6 +142,9 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
         </p>
       </section>
 
+      {/* §18.E — upgrade the unmeasured traits, paid-side */}
+      <Calibration taps={neededTaps(profile)} />
+
       {/* Red Flags — with receipts (§20.B3) */}
       <section className="mt-9">
         <p className="text-xs font-bold tracking-[0.3em] text-accent">RED FLAGS</p>
@@ -136,6 +170,26 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
           ))}
         </div>
         <p className="mt-3 text-sm leading-relaxed text-slate-300">🎧 {report.prescription.pairing}</p>
+
+        {/* §20.B4 — the 7-Day Recalibration: Day 1 visible, the week expandable */}
+        {report.prescription.protocol ? (
+          <details className="mt-5 rounded-2xl border border-white/10 p-4">
+            <summary className="cursor-pointer font-display text-lg font-semibold">
+              {report.prescription.protocol.title}
+              <span className="mt-1 block text-sm font-normal text-slate-300">
+                Day 1 — {report.prescription.protocol.days[0]}
+              </span>
+              <span className="mt-1 block text-xs text-muted">tap for the full week ↓</span>
+            </summary>
+            <ol className="mt-3 flex flex-col gap-2">
+              {report.prescription.protocol.days.map((d, i) => (
+                <li key={d} className="text-sm leading-relaxed text-slate-300">
+                  <span className="font-semibold text-accent">Day {i + 1}</span> — {d}
+                </li>
+              ))}
+            </ol>
+          </details>
+        ) : null}
       </section>
 
       <p className="mt-9 font-display text-xl font-semibold leading-snug">{report.closer}</p>

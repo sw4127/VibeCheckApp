@@ -15,6 +15,8 @@ export interface CardParams {
   mode?: "music";
   /** Music theme (ember|midnight|neon|bloom|static) → accent colour. */
   theme?: string;
+  /** "paid" = the §20.B5 collector card ("THE FULL READ" wordmark). */
+  tier?: "paid";
   player?: string;
   verdict?: string;
   traits?: string[];
@@ -36,6 +38,7 @@ export function cardPath(p: CardParams): string {
   if (p.player) q.set("player", p.player);
   if (p.mode) q.set("mode", p.mode);
   if (p.theme) q.set("theme", p.theme);
+  if (p.tier) q.set("tier", p.tier);
   if (p.verdict) q.set("v", p.verdict);
   if (p.traits?.length) q.set("t", p.traits.join(","));
   if (p.position) q.set("pos", p.position);

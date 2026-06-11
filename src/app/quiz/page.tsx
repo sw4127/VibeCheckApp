@@ -84,6 +84,8 @@ export default function QuizPage() {
             style={{ width: `${((step + 1) / total) * 100}%` }}
           />
         </div>
+        {/* §18.A permission line (parity with the music quiz) */}
+        <p className="mt-2 text-xs text-muted">No wrong answers. First instinct is the real data.</p>
       </div>
 
       <h1 className="font-display text-3xl font-semibold leading-tight">{question.prompt}</h1>

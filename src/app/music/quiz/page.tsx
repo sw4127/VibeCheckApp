@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { musicQuiz, CUES, REVERB, buildMusicProfile } from "@/content/music";
-import { scoreAnswers, type Answers } from "@/engine";
+import { musicQuiz, CUES, REVERB, buildMusicProfile, musicArchetypes, ARCHETYPE_THEMES } from "@/content/music";
+import { percentileNormalize, rankMatches, scoreAnswers, type Answers } from "@/engine";
+import { Sigil, THEME_HUES, driftHue } from "@/lib/sigil";
 import { track } from "@/lib/analytics";
 
 const quiz = musicQuiz;
@@ -37,13 +38,20 @@ export default function MusicQuizPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // §18.C forming signature: abstract bars from the partial raw vector — no
-  // labels, no verdict, until the reveal. (Upgraded to the §20.C2 sigil in Slice 3.)
-  const bars = useMemo(() => {
-    const raw = scoreAnswers(quiz, answers);
-    const values = quiz.dimensions.map((d) => raw[d] ?? 0);
-    const max = Math.max(1, ...values);
-    return values.map((v) => v / max);
+  // §20.C2 THE FORMING SIGIL — one arc fills per answer; the hue drifts toward
+  // the (undisclosed) leading archetype's theme. Deterministic, no labels, no
+  // verdict — the trajectory teases, never tells.
+  const sigil = useMemo(() => {
+    const answered = Object.keys(answers).length;
+    if (answered === 0) return { filled: 0, colors: [] as string[], lockHue: 250 };
+    const norm = percentileNormalize(quiz, scoreAnswers(quiz, answers));
+    const leader = rankMatches(norm, musicArchetypes.centroids)[0];
+    const targetHue = THEME_HUES[ARCHETYPE_THEMES[leader.id] ?? "midnight"];
+    const colors = Array.from({ length: answered }, (_, i) => {
+      const t = ((i + 1) / quiz.questions.length) * 0.85;
+      return `hsl(${Math.round(driftHue(targetHue, t))} ${Math.round(35 + t * 45)}% 62%)`;
+    });
+    return { filled: answered, colors, lockHue: targetHue };
   }, [answers]);
 
   function goToResult(finalAnswers: Answers) {
@@ -95,6 +103,14 @@ export default function MusicQuizPage() {
         className="mx-auto flex min-h-dvh w-full max-w-lg cursor-pointer flex-col items-center justify-center px-6 text-center"
         onClick={advance}
       >
+        {/* §20.C2 — the sigil locks in: the curiosity gap is literal */}
+        <div className="mb-8 animate-pulse">
+          <Sigil
+            size={96}
+            filled={7}
+            colors={`hsl(${Math.round(sigil.lockHue)} 80% 62%)`}
+          />
+        </div>
         {/* §17.A P3 crystallizer + §20.A1 Hume clause */}
         <p className="font-display text-3xl font-semibold leading-snug">
           You answered in seconds — that&apos;s sentiment.
@@ -129,15 +145,14 @@ export default function MusicQuizPage() {
             style={{ width: `${((step + 1) / total) * 100}%` }}
           />
         </div>
-        <div className="mt-3 flex h-6 items-end gap-1.5" aria-hidden>
-          {bars.map((v, i) => (
-            <div key={i} className="flex w-2 items-end" style={{ height: "100%" }}>
-              <div
-                className="w-full rounded-sm bg-accent/50 transition-all duration-500"
-                style={{ height: `${Math.max(8, v * 100)}%` }}
-              />
-            </div>
-          ))}
+        <div className="mt-3" aria-hidden>
+          {/* §20.C2 — the forming sigil replaces the bars (restraint: swap, not add) */}
+          <Sigil
+            size={44}
+            filled={sigil.filled}
+            colors={sigil.colors}
+            trackColor="rgba(255,255,255,0.08)"
+          />
         </div>
       </div>
 

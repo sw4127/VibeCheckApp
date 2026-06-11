@@ -14,6 +14,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { buildCardDesign, POSITION_INFO, type Position } from "@/content/world-cup/design";
 import { baseUrl } from "@/lib/site";
+import { Sigil } from "@/lib/sigil";
 
 export const runtime = "nodejs";
 
@@ -59,9 +60,12 @@ export async function GET(request: Request) {
   const sig = (searchParams.get("sig") ?? "")
     .split(",")
     .map((x) => Math.max(0, Math.min(100, Number(x) || 0)));
-  const rarity = Math.max(1, Math.min(99, Number(searchParams.get("rar")) || 0)) || null;
+  const rarParsed = Number(searchParams.get("rar"));
+  const rarity =
+    Number.isFinite(rarParsed) && rarParsed >= 1 ? Math.min(99, Math.round(rarParsed)) : null;
   const isMusic = searchParams.get("mode") === "music";
   const theme = searchParams.get("theme");
+  const isPaid = searchParams.get("tier") === "paid"; // §20.B5 collector card
 
   const design = buildCardDesign({
     position: pick<Position>(searchParams.get("pos"), Object.keys(POSITION_INFO) as Position[], "midfielder"),
@@ -194,7 +198,9 @@ export async function GET(request: Request) {
   })();
 
   const Footer = (
-    <div style={{ display: "flex", alignItems: "baseline", gap: px(12), fontSize: px(28), fontWeight: 800, letterSpacing: px(1) }}>
+    <div style={{ display: "flex", alignItems: "center", gap: px(14), fontSize: px(28), fontWeight: 800, letterSpacing: px(1) }}>
+      {/* §20.C2 — the locked sigil, the user's collectible mark (music only) */}
+      {isMusic ? <Sigil size={px(52)} filled={7} colors={p.accent} /> : null}
       <span style={{ display: "flex", color: p.sub }}>Find yours →</span>
       <span style={{ display: "flex", color: p.accent }}>{host}</span>
     </div>
@@ -203,9 +209,9 @@ export async function GET(request: Request) {
   const Wordmark = (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <div style={{ display: "flex", fontSize: px(28), letterSpacing: px(8), fontWeight: 800, color: p.accent }}>
-        VIBE CHECK
+        {isPaid ? "VIBE CHECK · THE FULL READ" : "VIBE CHECK"}
       </div>
-      {isMusic ? (
+      {isMusic && !isPaid ? (
         <div style={{ display: "flex", fontSize: px(22), color: p.sub, marginTop: px(6) }}>
           What does your taste say about you?
         </div>

@@ -41,6 +41,12 @@ export function buildMusicProfile(answers: Answers): Profile {
   return buildProfile(musicQuiz, musicArchetypes, musicArchetypes, answers);
 }
 
+/** Theme for an archetype LABEL (tokens carry labels, not ids). Unknown → midnight. */
+export function themeForArchetypeLabel(label: string): string {
+  const c = musicArchetypes.centroids.find((x) => x.label === label);
+  return (c && ARCHETYPE_THEMES[c.id]) || "midnight";
+}
+
 export interface Lanes {
   /** Recent/mood (→ Red Flags). */
   state: Record<string, Level>;
