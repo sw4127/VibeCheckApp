@@ -7,37 +7,38 @@ import { scoreAnswers, type Answers } from "@/engine";
 import { track } from "@/lib/analytics";
 
 const quiz = musicQuiz;
-const REVERB_MS = 900; // §17.A/§18.C: the confirm beat where the quiz "talks back"
+const REVERB_MS = 900; // §17.A beat — tap anywhere to skip (§20.C3)
+const CRYSTALLIZER_MS = 1800;
 
-/** §18.B retrieval triggers — neutral contexts, never example artists. */
-const TRIGGERS = ["most-played this month", "shower anthem", "your 2 a.m. artist", "defend-to-the-death"];
-
+/**
+ * Free path = 7 taps → reveal, zero typing (§20.C1 — the artist field lives on
+ * the result page as "sharpen the read"). The quiz talks back per tap (§17.A),
+ * the beat is tap-through (§20.C3), and the run ends on the P3 crystallizer
+ * (§17.A + §20.A1's Hume clause) before the reveal.
+ */
 export default function MusicQuizPage() {
   const router = useRouter();
-  const [step, setStep] = useState(0); // 0..6 taps, 7 = artist bonus round
+  const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [selected, setSelected] = useState<string | null>(null);
   const [reverb, setReverb] = useState<string | null>(null);
-
-  // Artist step state (§18.B): two zones, chips, optional.
-  const [recent, setRecent] = useState<string[]>([]);
-  const [durable, setDurable] = useState<string[]>([]);
-  const [recentInput, setRecentInput] = useState("");
-  const [durableInput, setDurableInput] = useState("");
-  const [placeholder, setPlaceholder] = useState("start typing — we'll find them");
-  const recentRef = useRef<HTMLInputElement>(null);
+  const [phase, setPhase] = useState<"taps" | "crystallizer">("taps");
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingAnswers = useRef<Answers>({});
 
   const total = quiz.questions.length;
-  const onTaps = step < total;
-  const question = onTaps ? quiz.questions[step] : null;
+  const question = quiz.questions[step];
 
   useEffect(() => {
     track("quiz_start", { variant: "music" });
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // §18.C forming signature: abstract bars from the partial raw vector — no
-  // labels, no archetype, no verdict until the reveal.
+  // labels, no verdict, until the reveal. (Upgraded to the §20.C2 sigil in Slice 3.)
   const bars = useMemo(() => {
     const raw = scoreAnswers(quiz, answers);
     const values = quiz.dimensions.map((d) => raw[d] ?? 0);
@@ -45,63 +46,89 @@ export default function MusicQuizPage() {
     return values.map((v) => v / max);
   }, [answers]);
 
+  function goToResult(finalAnswers: Answers) {
+    const profile = buildMusicProfile(finalAnswers);
+    track("quiz_complete", { variant: "music", archetype: profile.archetype.id });
+    const qs = new URLSearchParams();
+    for (const q of quiz.questions) qs.set(q.id, finalAnswers[q.id]);
+    router.push(`/music/result?${qs.toString()}`);
+  }
+
+  /** Advance immediately (used by the beat timer AND tap-through). */
+  function advance() {
+    if (timer.current) {
+      clearTimeout(timer.current);
+      timer.current = null;
+    }
+    if (phase === "crystallizer") {
+      goToResult(pendingAnswers.current);
+      return;
+    }
+    if (!selected) return;
+    setSelected(null);
+    setReverb(null);
+    if (step < total - 1) {
+      setStep(step + 1);
+    } else {
+      setPhase("crystallizer");
+      timer.current = setTimeout(() => goToResult(pendingAnswers.current), CRYSTALLIZER_MS);
+    }
+  }
+
   function choose(optionId: string) {
-    if (!question || selected) return;
+    if (!question || selected || phase !== "taps") return;
     setSelected(optionId);
     setReverb(REVERB[question.id]?.[optionId] ?? null);
     const next: Answers = { ...answers, [question.id]: optionId };
     setAnswers(next);
-
-    setTimeout(() => {
-      setSelected(null);
-      setReverb(null);
-      setStep(step + 1);
-    }, REVERB_MS);
+    pendingAnswers.current = next;
+    timer.current = setTimeout(advanceRef.current, REVERB_MS);
   }
 
-  function addChip(zone: "recent" | "durable") {
-    if (zone === "recent") {
-      const v = recentInput.trim();
-      if (v && recent.length < 3 && !recent.includes(v)) setRecent([...recent, v]);
-      setRecentInput("");
-    } else {
-      const v = durableInput.trim();
-      if (v && durable.length < 1) setDurable([v]);
-      setDurableInput("");
-    }
-  }
+  // Keep the timer callback pointing at the latest advance() closure.
+  const advanceRef = useRef(advance);
+  advanceRef.current = advance;
 
-  function finish(skipArtists: boolean) {
-    const profile = buildMusicProfile(answers);
-    track("quiz_complete", {
-      variant: "music",
-      archetype: profile.archetype.id,
-      artists: skipArtists ? 0 : recent.length + durable.length,
-    });
-    const qs = new URLSearchParams();
-    for (const q of quiz.questions) qs.set(q.id, answers[q.id]);
-    if (!skipArtists) {
-      if (recent.length) qs.set("ar", recent.join(","));
-      if (durable.length) qs.set("ad", durable.join(","));
-    }
-    router.push(`/music/result?${qs.toString()}`);
+  if (phase === "crystallizer") {
+    return (
+      <main
+        className="mx-auto flex min-h-dvh w-full max-w-lg cursor-pointer flex-col items-center justify-center px-6 text-center"
+        onClick={advance}
+      >
+        {/* §17.A P3 crystallizer + §20.A1 Hume clause */}
+        <p className="font-display text-3xl font-semibold leading-snug">
+          You answered in seconds — that&apos;s sentiment.
+        </p>
+        <p className="mt-4 font-display text-3xl font-semibold leading-snug text-accent">
+          The pattern in those answers is the training.
+        </p>
+        <p className="mt-8 text-sm tracking-[0.3em] text-muted">READING YOU NOW…</p>
+      </main>
+    );
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col px-6 py-10">
+    <main
+      className="mx-auto flex min-h-dvh w-full max-w-lg flex-col px-6 py-10"
+      onClick={() => {
+        // §20.C3 tap-through: any tap during the beat advances immediately.
+        if (selected) advance();
+      }}
+    >
       {/* Progress + §18.A permission line */}
       <div className="mb-8">
         <div className="flex justify-between text-xs font-medium text-muted">
-          <span>{onTaps ? `${step + 1} of ${total}` : "Bonus round"}</span>
+          <span>
+            {step + 1} of {total}
+          </span>
           <span>No wrong answers. First instinct is the real data.</span>
         </div>
         <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/10">
           <div
             className="h-full rounded-full bg-accent transition-all duration-300"
-            style={{ width: `${(Math.min(step + 1, total) / total) * 100}%` }}
+            style={{ width: `${((step + 1) / total) * 100}%` }}
           />
         </div>
-        {/* §18.C forming signature — abstract, unlabeled */}
         <div className="mt-3 flex h-6 items-end gap-1.5" aria-hidden>
           {bars.map((v, i) => (
             <div key={i} className="flex w-2 items-end" style={{ height: "100%" }}>
@@ -114,135 +141,54 @@ export default function MusicQuizPage() {
         </div>
       </div>
 
-      {onTaps && question ? (
-        <>
-          <h1 className="font-display text-3xl font-semibold leading-tight">{question.prompt}</h1>
-          {CUES[question.id] ? (
-            <p className="mt-2 text-sm text-muted">{CUES[question.id]}</p>
-          ) : null}
+      {/* §20.A1 pre-Q1 framing — the zero-tap Hume hook */}
+      {step === 0 ? (
+        <p className="mb-4 text-sm text-muted">
+          This isn&apos;t a test of what you like. It&apos;s a read of what your ears learned.
+        </p>
+      ) : null}
+      {step === 3 ? (
+        <p className="mb-4 text-sm text-muted">Halfway. It&apos;s already taking shape.</p>
+      ) : null}
 
-          <div className="mt-7 flex flex-col gap-3">
-            {question.options.map((opt) => {
-              const isSelected = selected === opt.id;
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => choose(opt.id)}
-                  className={`flex items-center justify-between rounded-2xl border px-5 py-3.5 text-left text-lg transition active:scale-[0.99] ${
-                    isSelected
-                      ? "border-accent bg-accent/15"
-                      : "border-white/10 bg-white/[0.03] hover:border-accent/50 hover:bg-white/[0.06]"
-                  }`}
-                >
-                  <span>{opt.label}</span>
-                </button>
-              );
-            })}
-          </div>
+      <h1 className="font-display text-3xl font-semibold leading-tight">{question.prompt}</h1>
+      {CUES[question.id] ? <p className="mt-2 text-sm text-muted">{CUES[question.id]}</p> : null}
 
-          {/* §17.A reverb — the quiz talks back during the beat */}
-          <p
-            className={`mt-6 min-h-12 font-display text-lg leading-snug text-accent transition-opacity duration-300 ${
-              reverb ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            {reverb ?? "…"}
-          </p>
-        </>
-      ) : (
-        <>
-          {/* §18.B — optional artist bonus round; never blocks completion */}
-          <h1 className="font-display text-3xl font-semibold leading-tight">
-            Bonus round: name names.
-          </h1>
-          <p className="mt-2 text-sm text-muted">
-            The more you name, the more this reads like your diary. Or skip — you&apos;ll still get read.
-          </p>
-
-          <div className="mt-6">
-            <p className="text-xs font-bold tracking-[0.25em] text-muted">ON REPEAT RIGHT NOW · up to 3</p>
-            <p className="mt-1 text-xs text-muted">your last week of plays</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {recent.map((a) => (
-                <button
-                  key={a}
-                  type="button"
-                  onClick={() => setRecent(recent.filter((x) => x !== a))}
-                  className="rounded-full border border-accent/60 px-3 py-1 text-sm"
-                >
-                  {a} ✕
-                </button>
-              ))}
-            </div>
-            <input
-              ref={recentRef}
-              value={recentInput}
-              onChange={(e) => setRecentInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addChip("recent"))}
-              onBlur={() => addChip("recent")}
-              placeholder={recent.length < 3 ? placeholder : "that's plenty"}
-              disabled={recent.length >= 3}
-              className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 outline-none focus:border-accent/60"
-            />
-            <div className="mt-2 flex flex-wrap gap-2">
-              {TRIGGERS.map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => {
-                    setPlaceholder(`${t}…`);
-                    recentRef.current?.focus();
-                  }}
-                  className="rounded-full border border-white/15 px-3 py-1 text-xs text-muted transition hover:border-accent/50"
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-7">
-            <p className="text-xs font-bold tracking-[0.25em] text-muted">RIDE-OR-DIE · just 1</p>
-            <p className="mt-1 text-xs text-muted">the one you&apos;d defend in an argument</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {durable.map((a) => (
-                <button
-                  key={a}
-                  type="button"
-                  onClick={() => setDurable([])}
-                  className="rounded-full border border-accent/60 px-3 py-1 text-sm"
-                >
-                  {a} ✕
-                </button>
-              ))}
-            </div>
-            {durable.length === 0 ? (
-              <input
-                value={durableInput}
-                onChange={(e) => setDurableInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addChip("durable"))}
-                onBlur={() => addChip("durable")}
-                placeholder="years of loyalty, one name"
-                className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 outline-none focus:border-accent/60"
-              />
-            ) : null}
-          </div>
-
-          <div className="mt-9 flex flex-col items-center gap-3">
+      <div className="mt-7 flex flex-col gap-3">
+        {question.options.map((opt) => {
+          const isSelected = selected === opt.id;
+          return (
             <button
+              key={opt.id}
               type="button"
-              onClick={() => finish(false)}
-              className="rounded-full bg-accent px-10 py-4 text-lg font-bold text-white transition hover:opacity-90 active:scale-[0.98]"
+              onClick={(e) => {
+                if (selected) {
+                  e.stopPropagation();
+                  advance(); // tap-through even when tapping an option mid-beat
+                  return;
+                }
+                choose(opt.id);
+              }}
+              className={`flex items-center justify-between rounded-2xl border px-5 py-3.5 text-left text-lg transition active:scale-[0.99] ${
+                isSelected
+                  ? "border-accent bg-accent/15"
+                  : "border-white/10 bg-white/[0.03] hover:border-accent/50 hover:bg-white/[0.06]"
+              }`}
             >
-              Read me →
+              <span>{opt.label}</span>
             </button>
-            <button type="button" onClick={() => finish(true)} className="text-sm text-muted underline">
-              Skip — I&apos;ll still get read
-            </button>
-          </div>
-        </>
-      )}
+          );
+        })}
+      </div>
+
+      {/* §17.A reverb — the quiz talks back during the beat */}
+      <p
+        className={`mt-6 min-h-12 font-display text-lg leading-snug text-accent transition-opacity duration-300 ${
+          reverb ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        {reverb ?? "…"}
+      </p>
     </main>
   );
 }

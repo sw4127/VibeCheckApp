@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -7,8 +8,11 @@ import {
   musicQuiz,
   musicArchetypes,
   musicPremiumProfile,
+  splitLanes,
+  describeState,
   ARCHETYPE_THEMES,
 } from "@/content/music";
+import SharpenRead from "./SharpenRead";
 import type { MusicReading } from "@/llm";
 import { baseUrl, cardPath } from "@/lib/site";
 import { encodePremiumToken } from "@/lib/premiumToken";
@@ -102,6 +106,8 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
   // Thread the REAL profile to the paywall, statelessly (§17.B routing applied).
   const profile = buildMusicProfile(answers);
   const token = encodePremiumToken(musicPremiumProfile(profile, ar, ad));
+  // §20.C4 — the un-blurred LATELY tease: emotional proof BEFORE the ask.
+  const stateLine = describeState(splitLanes(profile).state);
 
   const cardArgs = {
     mode: "music" as const,
@@ -148,6 +154,11 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
         ))}
       </div>
 
+      {/* §20.C1 — relocated artist field: effort asked only of the hooked */}
+      <Suspense fallback={null}>
+        <SharpenRead accent={accent} />
+      </Suspense>
+
       {/* Vibe signature + rarity */}
       <div className="mt-8 flex items-end justify-between pt-6" style={{ borderTop: `1px solid ${accent}33` }}>
         <div className="flex h-16 items-end gap-2" aria-label="Your vibe signature">
@@ -171,7 +182,11 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
         className="mt-8 block rounded-2xl p-6 text-center"
         style={{ background: `${accent}14`, border: `1px solid ${accent}40` }}
       >
-        <p className="font-display text-2xl font-semibold leading-snug">{r.teaser}</p>
+        {/* §20.C4 — the un-blurred LATELY line: this isn't just taste */}
+        <p className="text-sm text-muted">
+          Lately reads: <span className="font-semibold" style={{ color: accent }}>&ldquo;{stateLine}.&rdquo;</span>
+        </p>
+        <p className="mt-3 font-display text-2xl font-semibold leading-snug">{r.teaser}</p>
         <span
           className="mt-4 inline-block rounded-full px-8 py-3.5 text-base font-bold text-white"
           style={{ background: accent }}
