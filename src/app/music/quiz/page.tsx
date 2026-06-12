@@ -146,7 +146,10 @@ export default function MusicQuizPage() {
     const next: Answers = { ...answers, [question.id]: optionId };
     setAnswers(next);
     pendingAnswers.current = next;
-    timer.current = setTimeout(advanceRef.current, REVERB_MS);
+    // Deref the ref AT FIRE TIME (a bare `advanceRef.current` here would freeze
+    // the pre-click closure, where `selected` is still null → the auto-advance
+    // would no-op and every question would need a second tap).
+    timer.current = setTimeout(() => advanceRef.current(), REVERB_MS);
   }
 
   // Keep the timer callback pointing at the latest advance() closure.
