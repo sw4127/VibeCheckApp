@@ -752,3 +752,19 @@ These rules are injected into `SYSTEM_PROMPT` (VOICE section v2 + per-block regi
 
 - **§20.C2 revised — bars stay, ring relocates.** PM testing preferred the moving FORMING BARS over the small in-quiz ring. Decision: the in-quiz visual is the bars, now **tinted with the sigil's hue-drift** (the "what colour am I becoming?" tease survives); the ring renders only where it reads well — the **crystallizer lock** and the **card footer mark**. Pull mechanic intact, motion the test liked restored.
 - **Completion-pull audio (PM seed, shipped opt-in).** A synthesized pentatonic note climbs one step per answer and **resolves** at the crystallizer (the audio mirror of the lock). **OFF by default** — most traffic is muted in-app webviews and sound-on-by-default is hostile; one-tap 🔇/🔊 opt-in, remembered per session. Synth-only (WebAudio oscillator): **no playback of any recording, §2's no-music-playback scope intact.**
+
+---
+
+## 23. Lifecycle audit, launch-readiness gaps & portfolio strategy
+
+### A. Maturity gaps (pre-launch; audit of record)
+Blockers: human verification stage (beta + device matrix — iOS Safari/IG webview: WebAudio, share-sheet, blur, `<details>`); live-dependency smoke tests (model voice vs §21 + Stripe test purchase); legal floor (ToS, privacy, refund policy, support email, Stripe descriptor). Major: error monitoring (Sentry free, or analytics-event error reporting as the $0 interim); domain purchase + trademark sanity check ("Vibe Check" is generic — contested-name risk accepted for launch, revisit at traction); "paid-but-lost-link" runbook (stateless unlock: recovery = Stripe dashboard lookup; full fix requires DB — approval-gated); KPI dashboard definitions (PostHog drop-in if Vercel WA can't express K_obs). Minor: prompt-injection pass on the artist field; OG-unfurl QA; seed-account prep. These EXTEND the §15 checklist; §15 remains the deploy procedure.
+
+### B. Pricing staging (refines §13's A/B)
+Launch FLAT $3.99. The A/B (vs $4.99) activates only past ~300 paywall views — below that it's noise. No change to the $2.99 floor or the §13 anchor logic.
+
+### C. Portfolio map & sequencing rule (the second act — NOT launch work)
+Diagnosis of record: single-function WTP is unproven-not-disproven; portfolio exists for LTV/stickiness/moat (the real single-function weakness), gated on the §13.B funnel showing life. Ranked: P1 Compatibility Report (paid /vs, two tokens, no DB — first expansion); P2 Date Decoder (user-profit module, below); P3 Gift Read (signed pre-paid token, no DB); P4 Aux Briefing packs; P7 Era Report (December counter-programming). Maturity tier (each requires explicit DB/accounts approval): P5 Music Passport (collection/stamps), P6 Music Diary (recurring LATELY timeline; natural subscription — distinct from §12's rejected report-sub).
+
+### D. User-profit module: THE DATE DECODER (flagship candidate)
+Paid brief decoding a date's 3 profile artists (+3 "as far as you can tell" proxy-taps so the verdict stays deterministic — §6 intact; artists remain flavor): what the taste signals, 3 openers, 2 friction points, venue + queue suggestions. Profit framing is INDIRECT (social capital, decision aid) and checkable same-night — the credit-attribution mechanism. GUARDRAILS (binding): §8 cruelty firewall extends to the absent third party; entertainment framing; no predictive/compatibility-score claims; no earnings or outcome promises; never marketed for employment/screening (work/interview variant REJECTED on regulated-assessment risk). DEMAND GATE: fake-door teaser on the result page must out-click the paid-read CTA over one week before any build.
