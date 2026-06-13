@@ -54,6 +54,16 @@ window is open; polish later.
 
 If Vercel WA can't express 3 cleanly, drop PostHog in as the second sink (spec §13.C allows it).
 
+## 6A. Premise test read-out (spec §10.A — selection vs. treatment)
+Every event carries `onboarding_arm` (persuasive|control) and `prior_belief` (totally|kind_of|not_really). Read on **conversion-given-arrival**, segmented:
+1. **Premise drop-off** = `quiz_start / premise_view`, split by `prior_belief`. Where skeptics (`not_really`) bail at the premise.
+2. **The treatment cell** = `purchase / paywall_view` for `prior_belief = not_really`, **persuasive vs. control**. This is the whole test:
+   - persuasive **>** control among skeptics → **treatment** (persuasion works) → invest in the recognition hook.
+   - persuasive **≈** control, conversion tracks `prior_belief` only → **selection** → widen via the timescale split + seed predisposed communities.
+   - lift uniform across all `prior_belief` → general clarity effect (good, not premise-conversion).
+3. **Channel check** = repeat #2 split by `ref` (cold seed vs. warm share) — the share loop biases toward believers; cold traffic is the cleaner skeptic test.
+**Power caveat:** needs a few hundred per arm×belief cell — directional through the window, not a day-one verdict. Don't choose a strategy off <100/cell.
+
 ## 7. Support: "paid but lost the link" (stateless recovery)
 1. Customer emails with their receipt → find the Checkout Session in Stripe dashboard.
 2. Copy the session id → send them `https://<domain>/premium/report?session_id=<id>`.
