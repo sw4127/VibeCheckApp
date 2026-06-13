@@ -30,24 +30,34 @@ export async function POST(request: Request) {
 
   const stripe = new Stripe(key);
   const origin = baseUrl();
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency: "usd",
-          unit_amount: PRICE_CENTS,
-          product_data: { name: "Vibe Check — The Full Read" },
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency: "usd",
+            unit_amount: PRICE_CENTS,
+            product_data: { name: "Vibe Check — The Full Read" },
+          },
         },
-      },
-    ],
-    // Hosted Checkout auto-offers eligible methods (Link + Apple/Google Pay +
-    // card) based on dashboard settings — enable Link in the Stripe dashboard.
-    metadata: { profile },
-    success_url: `${origin}/premium/report?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/premium/preview?canceled=1`,
-  });
-
-  return Response.json({ url: session.url });
+      ],
+      // Hosted Checkout auto-offers eligible methods (Link + Apple/Google Pay +
+      // card) based on dashboard settings — enable Link in the Stripe dashboard.
+      metadata: { profile },
+      success_url: `${origin}/premium/report?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/premium/preview?canceled=1`,
+    });
+    return Response.json({ url: session.url });
+  } catch (err) {
+    // Surface Stripe's reason (type/code/message — never the key) so a
+    // misconfigured key or account is diagnosable instead of an opaque 500.
+    const e = err as { type?: string; code?: string; message?: string };
+    console.error("[checkout] Stripe error:", e.type, e.code, e.message);
+    return Response.json(
+      { error: "checkout_failed", reason: e.code ?? e.type ?? "unknown" },
+      { status: 502 },
+    );
+  }
 }
