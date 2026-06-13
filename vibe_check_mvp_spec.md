@@ -216,6 +216,8 @@ Return nothing but the JSON object.
 
 This split maps onto the report: recent taste feeds **Red Flags / current stress**; durable taste feeds **The Diagnosis / Big Five**.
 
+**The claim we convert on (selection-vs-treatment clarification — approved).** We do NOT assert "only your current taste matters." That contradicts the P4 timescale split and the engine, which reads stable personality from *durable* taste. The defensible, differentiated claim is the **split itself**: *recent* taste catches your **current state** (self-verifiable against your last few weeks), *durable* taste reveals your **stable self**. Onboarding/marketing must never collapse these into "your current taste = who you are" — true for mood, false for personality, and the kind of "diagnosis" the §9 honesty line forbids. Conversion leans on the *recent→state* read because **recognition disarms skeptics faster than argument**; the *durable→trait* read gives the paid report its spine. Stand behind the split, not "only-now." (Whether the premise *persuades* skeptics or only *selects* believers is an empirical question — see §10.A.)
+
 ---
 
 ## 10. The quiz (v1)
@@ -230,6 +232,18 @@ Tap-based, 3–4 options each, mapped to a MUSIC dimension or personality/emotio
 6. **A sad song comes on. You…** turn it up and sit in it / let it gut you, then feel lighter / change it for something brighter — *rumination vs. catharsis vs. mood-repair; playful, never clinical.* (Replaced the noisy "it's all sad" joke option with a real third response.)
 7. **You listen mostly…** alone, in your own world / with other people / curating playlists for others — *Extraversion.* (Dropped the orthogonal "always-on" habit option.)
 8. **(text) Name 3 artists in your current rotation — and one you've loved for years.** — *recent = state, durable = trait. Flavor only (never drives the verdict). Autocomplete against a free catalog for clean spelling; unknown/junk entries degrade gracefully.*
+
+### 10.A. The premise test (selection vs. treatment — stateless; approved)
+
+Determines whether the positioning PERSUADES skeptics (treatment) or only SELECTS pre-believers (selection) — they imply very different TAM ceilings. A 2×2 of onboarding arm × prior belief, read on **conversion-given-arrival** (not raw volume — the share loop is a homophily/selection amplifier).
+
+1. **Prior-belief capture (one *unscored* tap; the §20.A2 decoy).** Q0 before Q1: *"Be honest — does your music taste actually say something about who you are?"* → `Totally / Kind of / Not really`. **Unscored: never enters the score vector — a PM-approved exception to §18.D (this resolves the §20.A2 / §20.F #2 sign-off).** Recorded as `prior_belief` on analytics events so every downstream event segments by it.
+2. **Onboarding A/B.** 50/50, stable per session (sessionStorage seed, no DB), carried as `onboarding_arm`: **persuasive** = the §20.A1 recognition framing ("a read of what your ears learned"); **neutral control** = bare utility ("7 quick questions about your music. Then your read."). Compare premise→start, completion, and paywall→purchase.
+3. **Traffic temperature.** Segment by `ref` (cold seed vs. warm share) — conversion must be read on arrival, not volume.
+
+**Funnel instrumentation.** `premise_view` (arm) → `quiz_start` (arm + prior_belief) measures **premise drop-off** — where a skeptic reveals themselves. All later events (`quiz_complete`, `result_view`, `paywall_view`, `purchase`) carry both props (sessionStorage-backed; survives the same-tab Stripe round-trip — no DB).
+
+**Signatures.** Treatment: the persuasive arm lifts conversion *specifically among `Not really` users*, narrowing the believer/skeptic gap. Selection: conversion flat across arms, tracks `prior_belief` only; skeptics ≈ 0 regardless of arm. Uniform lift across all priors = a general clarity effect, not premise-conversion. **Decision rule:** ship the diagnostic before choosing strategy; then skeptic-lift → invest in recognition-based persuasive onboarding; selection-dominated → WIDEN via the timescale split (two identity doors) + predisposed-community seeding as a beachhead only. **Power caveat:** small per-cell N at launch — directional through the window, not a day-one verdict.
 
 ---
 

@@ -6,6 +6,7 @@
  * server store). Drop in PostHog later by adding a second sink here.
  */
 import { track as vercelTrack } from "@vercel/analytics";
+import { experimentProps } from "./experiment";
 
 export type TrackProps = Record<string, string | number | boolean | null>;
 
@@ -39,7 +40,8 @@ export function captureAttribution(): TrackProps {
 /** Fire a loop-measurement event (no-op on the server; attribution auto-attached). */
 export function track(event: string, props: TrackProps = {}): void {
   if (typeof window === "undefined") return;
-  const payload = { ...captureAttribution(), ...props };
+  // §10.A: arm + prior_belief auto-attach to every event (segment the funnel).
+  const payload = { ...captureAttribution(), ...experimentProps(), ...props };
   try {
     vercelTrack(event, payload);
   } catch {

@@ -6,6 +6,19 @@ import { musicQuiz, CUES, REVERB, buildMusicProfile, musicArchetypes, ARCHETYPE_
 import { percentileNormalize, rankMatches, scoreAnswers, type Answers } from "@/engine";
 import { Sigil, THEME_HUES, driftHue } from "@/lib/sigil";
 import { track } from "@/lib/analytics";
+import {
+  getOnboardingArm,
+  setPriorBelief,
+  type OnboardingArm,
+  type PriorBelief,
+} from "@/lib/experiment";
+
+/** §10.A — the unscored prior-belief question (Q0). Never enters the vector. */
+const BELIEF_OPTIONS: { id: PriorBelief; label: string }[] = [
+  { id: "totally", label: "Totally" },
+  { id: "kind_of", label: "Kind of" },
+  { id: "not_really", label: "Not really" },
+];
 
 const quiz = musicQuiz;
 const REVERB_MS = 900; // §17.A beat — tap anywhere to skip (§20.C3)
@@ -30,7 +43,10 @@ export default function MusicQuizPage() {
   const [answers, setAnswers] = useState<Answers>({});
   const [selected, setSelected] = useState<string | null>(null);
   const [reverb, setReverb] = useState<string | null>(null);
-  const [phase, setPhase] = useState<"taps" | "crystallizer">("taps");
+  // §10.A: the premise test begins on the unscored belief step.
+  const [phase, setPhase] = useState<"belief" | "taps" | "crystallizer">("belief");
+  const [arm, setArm] = useState<OnboardingArm | null>(null);
+  const persuasive = arm !== "control"; // default to persuasive copy pre-hydration
   const [soundOn, setSoundOn] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingAnswers = useRef<Answers>({});
@@ -76,7 +92,11 @@ export default function MusicQuizPage() {
   const question = quiz.questions[step];
 
   useEffect(() => {
-    track("quiz_start", { variant: "music" });
+    // §10.A: assign the arm and record arrival at the premise. quiz_start fires
+    // only once the belief Q0 is answered, so it carries prior_belief and the
+    // premise_view→quiz_start gap measures skeptic drop-off at the premise.
+    setArm(getOnboardingArm());
+    track("premise_view", { variant: "music" });
     try {
       if (sessionStorage.getItem("vc_sound") === "1") setSoundOn(true);
     } catch {}
@@ -85,6 +105,12 @@ export default function MusicQuizPage() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function chooseBelief(pb: PriorBelief) {
+    setPriorBelief(pb);
+    track("quiz_start", { variant: "music" }); // prior_belief now auto-attaches
+    setPhase("taps");
+  }
 
   // §20.C2 revised (PM test feedback, §22): the FORMING BARS stay as the
   // in-quiz visual — heights move per answer (the motion the test liked) and
@@ -156,6 +182,37 @@ export default function MusicQuizPage() {
   const advanceRef = useRef(advance);
   advanceRef.current = advance;
 
+  // §10.A — the unscored prior-belief Q0 (premise step). Arm decides the framing
+  // around it (persuasive recognition vs. neutral utility); the question is
+  // common to both so the contrast isolates the framing.
+  if (phase === "belief") {
+    return (
+      <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center px-6 py-10">
+        <p className="text-xs font-bold tracking-[0.4em] text-accent">VIBE CHECK</p>
+        <h1 className="mt-6 font-display text-3xl font-semibold leading-tight">
+          Be honest — does your music taste actually say something about who you are?
+        </h1>
+        <p className="mt-3 text-sm text-muted">
+          {persuasive
+            ? "Most people underestimate this. Your ears have been keeping notes."
+            : "Quick gut check before we start."}
+        </p>
+        <div className="mt-7 flex flex-col gap-3">
+          {BELIEF_OPTIONS.map((opt) => (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => chooseBelief(opt.id)}
+              className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3.5 text-left text-lg transition hover:border-accent/50 hover:bg-white/[0.06] active:scale-[0.99]"
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </main>
+    );
+  }
+
   if (phase === "crystallizer") {
     return (
       <main
@@ -170,13 +227,17 @@ export default function MusicQuizPage() {
             colors={`hsl(${Math.round(forming.lockHue)} 80% 62%)`}
           />
         </div>
-        {/* §17.A P3 crystallizer + §20.A1 Hume clause */}
-        <p className="font-display text-3xl font-semibold leading-snug">
-          You answered in seconds — that&apos;s sentiment.
-        </p>
-        <p className="mt-4 font-display text-3xl font-semibold leading-snug text-accent">
-          The pattern in those answers is the training.
-        </p>
+        {/* §17.A P3 crystallizer + §20.A1 Hume clause — persuasive arm only (§10.A) */}
+        {persuasive ? (
+          <>
+            <p className="font-display text-3xl font-semibold leading-snug">
+              You answered in seconds — that&apos;s sentiment.
+            </p>
+            <p className="mt-4 font-display text-3xl font-semibold leading-snug text-accent">
+              The pattern in those answers is the training.
+            </p>
+          </>
+        ) : null}
         <p className="mt-8 text-sm tracking-[0.3em] text-muted">READING YOU NOW…</p>
       </main>
     );
@@ -228,10 +289,12 @@ export default function MusicQuizPage() {
         </div>
       </div>
 
-      {/* §20.A1 pre-Q1 framing — the zero-tap Hume hook */}
+      {/* §20.A1 pre-Q1 framing — §10.A A/B: persuasive recognition vs. bare utility */}
       {step === 0 ? (
         <p className="mb-4 text-sm text-muted">
-          This isn&apos;t a test of what you like. It&apos;s a read of what your ears learned.
+          {persuasive
+            ? "This isn't a test of what you like. It's a read of what your ears learned."
+            : "7 quick questions about your music. Then your read."}
         </p>
       ) : null}
       {step === 3 ? (
