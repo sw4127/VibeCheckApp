@@ -14,12 +14,18 @@
  *     cards shared from here render no preview. Avoid relying on it.
  */
 export function baseUrl(): string {
-  const env = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "");
-  if (env) return env;
-  if (process.env.VERCEL_PROJECT_PRODUCTION_URL)
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return "http://localhost:3000";
+  const raw =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL &&
+      `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`) ||
+    (process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`) ||
+    "http://localhost:3000";
+  const trimmed = raw.replace(/\/+$/, "");
+  // Tolerate a scheme-less value (common Vercel misconfig: setting
+  // NEXT_PUBLIC_BASE_URL to "host.vercel.app" without https://). Scheme-less
+  // origins produce RELATIVE OG-image URLs (social unfurl → doubled host →
+  // broken preview) and invalid Stripe success/cancel URLs. Force a scheme.
+  return /^https?:\/\//.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
 export interface CardParams {
