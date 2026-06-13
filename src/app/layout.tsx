@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next";
@@ -29,6 +29,13 @@ export const metadata: Metadata = {
   title: "Vibe Check — Which footballer matches your vibe?",
   description:
     "A 7-tap quiz reads your vibe and matches you to a footballer's style. Free, shareable.",
+  // §23.F (PWA-light) — installable, iOS standalone home-screen app.
+  applicationName: "Vibe Check",
+  appleWebApp: { capable: true, title: "Vibe Check", statusBarStyle: "black-translucent" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#08090d",
 };
 
 export default function RootLayout({

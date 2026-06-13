@@ -161,12 +161,10 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
         ))}
       </div>
 
-      {/* Stats: vibe signature + rarity */}
-      <div
-        className="mt-8 flex items-end justify-between pt-6"
-        style={{ borderTop: `1px solid ${accent}33` }}
-      >
-        <div className="flex h-16 items-end gap-2.5" aria-label="Your vibe signature">
+      {/* §23.E — vibe signature (the honest identity artifact; rarity % removed) */}
+      <div className="mt-8 pt-6" style={{ borderTop: `1px solid ${accent}33` }}>
+        <div className="text-[10px] font-bold tracking-[0.25em] text-muted">YOUR VIBE SIGNATURE</div>
+        <div className="mt-3 flex h-16 items-end gap-2.5" aria-label="Your vibe signature">
           {signature.map((v, i) => (
             <div key={i} className="flex w-4 items-end" style={{ height: "100%" }}>
               <div
@@ -175,12 +173,6 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
               />
             </div>
           ))}
-        </div>
-        <div className="text-right">
-          <div className="font-display text-4xl font-black leading-none" style={{ color: accent }}>
-            {data.rarity}%
-          </div>
-          <div className="mt-1 text-[10px] font-bold tracking-[0.25em] text-muted">SHARE YOUR VIBE</div>
         </div>
       </div>
 

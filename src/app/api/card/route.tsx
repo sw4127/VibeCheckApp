@@ -60,9 +60,8 @@ export async function GET(request: Request) {
   const sig = (searchParams.get("sig") ?? "")
     .split(",")
     .map((x) => Math.max(0, Math.min(100, Number(x) || 0)));
-  const rarParsed = Number(searchParams.get("rar"));
-  const rarity =
-    Number.isFinite(rarParsed) && rarParsed >= 1 ? Math.min(99, Math.round(rarParsed)) : null;
+  // §23.E — the rarity % (`rar`) is no longer rendered (implied a population
+  // stat we don't have). Param tolerated for old links, ignored.
   const isMusic = searchParams.get("mode") === "music";
   const theme = searchParams.get("theme");
   const isPaid = searchParams.get("tier") === "paid"; // §20.B5 collector card
@@ -99,17 +98,6 @@ export async function GET(request: Request) {
           <div style={{ display: "flex", width: "100%", height: `${Math.max(8, v)}%`, background: p.accent, borderRadius: px(4) }} />
         </div>
       ))}
-    </div>
-  ) : null;
-
-  const Rarity = rarity ? (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-      <div style={{ display: "flex", fontSize: px(56), fontFamily: "Fraunces", fontWeight: 900, color: p.accent, lineHeight: 1 }}>
-        {rarity}%
-      </div>
-      <div style={{ display: "flex", fontSize: px(20), letterSpacing: px(3), color: p.sub, fontWeight: 700, marginTop: px(4) }}>
-        SHARE YOUR VIBE
-      </div>
     </div>
   ) : null;
 
@@ -172,18 +160,15 @@ export async function GET(request: Request) {
     </div>
   ) : null;
 
-  const Stats = (Signature || Rarity) ? (
+  const Stats = Signature ? (
     <div
       style={{
         display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-end",
         borderTop: `${px(1)}px solid ${p.accent}26`,
         paddingTop: px(28),
       }}
     >
-      {Signature ?? <div style={{ display: "flex" }} />}
-      {Rarity ?? <div style={{ display: "flex" }} />}
+      {Signature}
     </div>
   ) : null;
 
@@ -257,7 +242,6 @@ export async function GET(request: Request) {
         {PlayerBlock}
       </div>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: px(20) }}>
-        {Rarity}
         {Signature}
       </div>
     </div>

@@ -159,20 +159,15 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
         <SharpenRead accent={accent} />
       </Suspense>
 
-      {/* Vibe signature + rarity */}
-      <div className="mt-8 flex items-end justify-between pt-6" style={{ borderTop: `1px solid ${accent}33` }}>
-        <div className="flex h-16 items-end gap-2" aria-label="Your vibe signature">
+      {/* §23.E — vibe signature (the honest identity artifact; rarity % removed) */}
+      <div className="mt-8 pt-6" style={{ borderTop: `1px solid ${accent}33` }}>
+        <div className="text-[10px] font-bold tracking-[0.25em] text-muted">YOUR VIBE SIGNATURE</div>
+        <div className="mt-3 flex h-16 items-end gap-2" aria-label="Your vibe signature">
           {signature.map((v, i) => (
             <div key={i} className="flex w-3.5 items-end" style={{ height: "100%" }}>
               <div className="w-full rounded" style={{ height: `${Math.max(8, v * 100)}%`, background: accent }} />
             </div>
           ))}
-        </div>
-        <div className="text-right">
-          <div className="font-display text-4xl font-black leading-none" style={{ color: accent }}>
-            {data.rarity}%
-          </div>
-          <div className="mt-1 text-[10px] font-bold tracking-[0.25em] text-muted">SHARE YOUR VIBE</div>
         </div>
       </div>
 
