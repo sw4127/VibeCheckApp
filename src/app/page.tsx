@@ -70,6 +70,11 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         Find my match
       </Link>
       <p className="mt-6 text-xs text-muted">Free · ~30 seconds · no sign-up</p>
+      <p className="mt-8 text-[11px] text-muted/70">
+        <Link href="/legal" className="underline">
+          Terms · Privacy · Refunds
+        </Link>
+      </p>
     </main>
   );
 }

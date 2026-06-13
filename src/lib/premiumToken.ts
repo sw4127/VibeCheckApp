@@ -10,6 +10,7 @@
 import type { PremiumProfile, StateLevels } from "@/content/sample-profile";
 import type { Level } from "@/llm/premiumSchema";
 import { fnv1a } from "@/engine";
+import { cleanName, cleanNames } from "@/lib/sanitize";
 
 const VERSION = "p2"; // p2 adds `st` (state-lane levels); p1 still decodes.
 const LEVEL_CHARS: Record<string, Level> = { H: "High", M: "Medium", L: "Low" };
@@ -66,15 +67,22 @@ export function decodePremiumToken(token: string | undefined | null): PremiumPro
         rumination: LEVEL_CHARS[raw.st[2]],
       };
     }
+    // §23.A (G9): tokens are user-forgeable input — sanitize every string field.
     return {
       stateLevels,
       id: fnv1a(`token|${token}`),
-      archetype: raw.a,
+      archetype: cleanName(raw.a, 40) || "The Unknown",
       bigFive: TRAITS.map((trait, i) => ({ trait, level: LEVEL_CHARS[raw.b[i]] })),
-      attachmentStyle: typeof raw.t === "string" && raw.t ? raw.t : "Secure",
-      stateLine: typeof raw.s === "string" && raw.s ? raw.s : "somewhere between fine and 'don't ask'",
-      artistsRecent: Array.isArray(raw.ar) ? raw.ar.filter((x) => typeof x === "string").slice(0, 3) : [],
-      artistsDurable: Array.isArray(raw.ad) ? raw.ad.filter((x) => typeof x === "string").slice(0, 1) : [],
+      attachmentStyle: cleanName(typeof raw.t === "string" ? raw.t : "", 30) || "Secure",
+      stateLine:
+        cleanName(typeof raw.s === "string" ? raw.s : "", 80) ||
+        "somewhere between fine and 'don't ask'",
+      artistsRecent: Array.isArray(raw.ar)
+        ? cleanNames(raw.ar.filter((x) => typeof x === "string"), 3)
+        : [],
+      artistsDurable: Array.isArray(raw.ad)
+        ? cleanNames(raw.ad.filter((x) => typeof x === "string"), 1)
+        : [],
     };
   } catch {
     return null;

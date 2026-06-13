@@ -111,6 +111,12 @@ export default async function PreviewPage({ searchParams }: { searchParams: Sear
       </div>
 
       <p className="mt-8 text-center text-xs text-muted">Your card is the cover. The read is inside.</p>
+      <p className="mt-3 text-center text-[11px] text-muted/70">
+        One-time purchase · 14-day refunds ·{" "}
+        <a href="/legal" className="underline">
+          terms & privacy
+        </a>
+      </p>
     </main>
   );
 }

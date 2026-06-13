@@ -14,15 +14,13 @@ import {
   ARCHETYPE_THEMES,
 } from "@/content/music";
 import { narrateMusic } from "@/llm";
+import { cleanNames } from "@/lib/sanitize";
 
 export const runtime = "nodejs";
 
 function csv(v: string | null): string[] {
-  return (v ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .slice(0, 3);
+  // §23.A (G9): user-typed names are sanitized before reaching the LLM prompt.
+  return cleanNames((v ?? "").split(","), 3);
 }
 
 export async function GET(request: Request) {

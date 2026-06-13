@@ -88,6 +88,10 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
       <div className="mt-3 flex justify-center">
         <DownloadButton url={collectorPath} label="Save the collector card" filename="vibe-check-full-read.png" />
       </div>
+      {/* §23.A (G6): stateless unlock — this URL IS the receipt's home. */}
+      <p className="mt-3 text-center text-xs text-muted">
+        🔖 Bookmark this page — it&apos;s your permanent link to this read.
+      </p>
 
       {/* THE SPLIT — the centerpiece (§20.B1): LATELY vs ALWAYS, engine-routed */}
       <section className="mt-9">
@@ -204,6 +208,11 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
         <Link href="/" className="text-sm text-muted underline">
           Back to Vibe Check
         </Link>
+        <p className="mt-3 text-[11px] text-muted/70">
+          <Link href="/legal" className="underline">
+            14-day refunds · terms & privacy
+          </Link>
+        </p>
       </div>
     </main>
   );
