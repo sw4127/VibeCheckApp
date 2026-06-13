@@ -28,9 +28,9 @@ Also in Vercel: **enable Web Analytics** on the project (loop events collect the
 ## 3. Stripe live-mode checklist
 - Business name + **statement descriptor** (what appears on card statements).
 - Support email set in Stripe (receipts reply-to).
-- Refund policy = 14 days (matches `/legal`).
+- Refund policy = **all sales final / no refunds** (digital good, delivered instantly; disclosed on `/legal` and at the point of sale). Stripe accepts a no-refund policy as long as it's disclosed — it is.
 - Payment methods: cards + **Link** + Apple/Google Pay enabled in dashboard.
-- Test one real $3.99 live purchase yourself, then refund it (validates the full loop).
+- Test one real $3.99 live purchase yourself (you can refund yourself from the Stripe dashboard — that's your choice as merchant, not a customer promise).
 
 ## 4. Device matrix (1 hour, before seeding)
 On a real iPhone (Safari + Instagram in-app browser) and one Android/Chrome:

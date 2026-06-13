@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Terms, Privacy & Refunds — Vibe Check",
-  description: "The plain-language legal page: terms of use, privacy, and refunds.",
+  title: "Terms & Privacy — Vibe Check",
+  description: "The plain-language legal page: terms of use and privacy.",
 };
 
 /**
- * §23.A (G3) — the legal floor: ToS, privacy, refunds, contact. Plain language,
- * honest, and consistent with the §8/§9 entertainment framing. Static, $0.
+ * §23.A (G3) — the legal floor: ToS, privacy, all-sales-final, contact. Plain
+ * language, honest, and consistent with the §8/§9 entertainment framing. Static.
  */
 export default function LegalPage() {
   const support = process.env.NEXT_PUBLIC_SUPPORT_EMAIL;
@@ -17,7 +17,7 @@ export default function LegalPage() {
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-6 py-10">
       <p className="text-xs font-bold tracking-[0.4em] text-accent">VIBE CHECK</p>
       <h1 className="mt-6 font-display text-4xl font-black leading-tight">
-        Terms, privacy & refunds
+        Terms & privacy
       </h1>
       <p className="mt-3 text-sm text-muted">Plain language, no tricks. Last updated June 2026.</p>
 
@@ -51,17 +51,20 @@ export default function LegalPage() {
       </section>
 
       <section className="mt-7">
-        <h2 className="font-display text-xl font-semibold">Refunds</h2>
+        <h2 className="font-display text-xl font-semibold">All sales are final</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-300">
-          Not happy with your full read? Tell us within <strong>14 days</strong> of purchase and
-          we&apos;ll refund it. {support ? (
+          The full read is a digital product delivered <strong>instantly</strong> — the moment you
+          pay, it&apos;s unlocked and yours to keep. For that reason, all sales are final and we
+          don&apos;t offer refunds. If something technically went wrong — you paid but couldn&apos;t
+          see your read —{" "}
+          {support ? (
             <>
-              Email <a className="text-accent underline" href={`mailto:${support}`}>{support}</a>
+              email <a className="text-accent underline" href={`mailto:${support}`}>{support}</a>
             </>
           ) : (
-            "Reply to your Stripe purchase receipt"
+            "reply to your Stripe receipt"
           )}{" "}
-          with the email you paid with. No interrogation.
+          and we&apos;ll make sure you get what you paid for.
         </p>
       </section>
 

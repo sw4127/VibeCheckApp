@@ -210,7 +210,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
         </Link>
         <p className="mt-3 text-[11px] text-muted/70">
           <Link href="/legal" className="underline">
-            14-day refunds · terms & privacy
+            terms & privacy
           </Link>
         </p>
       </div>
