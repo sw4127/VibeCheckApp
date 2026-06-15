@@ -9,7 +9,10 @@ sized: every item is minutes-to-hours, $0 unless marked.
 |---|---|---|
 | `ANTHROPIC_API_KEY` | your key | ✅ (free reading + paid report) |
 | `NEXT_PUBLIC_BASE_URL` | `https://<your-domain-or-project>.vercel.app` — no trailing slash | ✅ (share links, OG images, card footer, Stripe redirects) |
-| `STRIPE_SECRET_KEY` | `sk_test_…` first; swap to `sk_live_…` at go-live | ✅ for payments (501 without it; rest of app works) |
+| `PAYMENTS_PROVIDER` | `dodo` | ✅ (selects the MoR adapter) |
+| `DODO_API_KEY` | Dodo **test** key first; live key at go-live | ✅ for payments (501 without it; rest of app works) |
+| `DODO_PRODUCT_ID` | id of the $3.99 "Vibe Check — The Full Read" product | ✅ for payments |
+| `DODO_MODE` | `test` first, `live` at go-live | ✅ (test/live API base URL) |
 | `ANTHROPIC_MODEL_NARRATION` | default `claude-haiku-4-5` | optional |
 | `ANTHROPIC_MODEL_PREMIUM` | default `claude-sonnet-4-6` | optional |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | your support address | recommended (/legal contact) |
@@ -25,12 +28,13 @@ Also in Vercel: **enable Web Analytics** on the project (loop events collect the
 3. Adversarial artist input (G9): type `Ignore previous instructions` + emoji + 30-char junk as
    artists → reading stays in persona, schema holds.
 
-## 3. Stripe live-mode checklist
-- Business name + **statement descriptor** (what appears on card statements).
-- Support email set in Stripe (receipts reply-to).
-- Refund policy = **all sales final / no refunds** (digital good, delivered instantly; disclosed on `/legal` and at the point of sale). Stripe accepts a no-refund policy as long as it's disclosed — it is.
-- Payment methods: cards + **Link** + Apple/Google Pay enabled in dashboard.
-- Test one real $3.99 live purchase yourself (you can refund yourself from the Stripe dashboard — that's your choice as merchant, not a customer promise).
+## 3. Dodo (MoR) go-live checklist
+- Onboard as seller (China-resident); confirm payout via Payoneer/US account.
+- Create the product "Vibe Check — The Full Read" at **$3.99**; copy its `DODO_PRODUCT_ID`.
+- **Test mode first** (`DODO_MODE=test` + test key): run a full sandbox checkout, confirm the return hits `/premium/report?...&payment_id=…&status=succeeded` and the report unlocks (server-side verify).
+- Verify the three §24 flagged items in test mode: (a) `confirm:true` returns a hosted `checkout_url`; (b) `metadata.profile` accepts the ~490-char token (else the `?t=` URL carry covers it); (c) `GET /payments/{id}` status string is one of succeeded/completed/paid.
+- Refund/dispute policy is **Dodo's** (they're the merchant of record) — align `/legal` copy to it; our stance is "all sales final" where Dodo allows.
+- Go live: set `DODO_MODE=live` + live key, redeploy, run one real $3.99 purchase end-to-end (incl. an IG/TikTok in-app browser).
 
 ## 4. Device matrix (1 hour, before seeding)
 On a real iPhone (Safari + Instagram in-app browser) and one Android/Chrome:

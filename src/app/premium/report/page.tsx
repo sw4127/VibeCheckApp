@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import Stripe from "stripe";
 import { narratePremium } from "@/llm";
 import { SAMPLE_PROFILES, DEFAULT_SAMPLE } from "@/content/sample-profile";
 import { decodePremiumToken } from "@/lib/premiumToken";
 import { applyPaidTaps, neededTaps } from "@/lib/paidTaps";
+import { paymentProvider } from "@/lib/payments";
 import { themeForArchetypeLabel } from "@/content/music";
 import { cardPath } from "@/lib/site";
 import DownloadButton from "@/app/result/DownloadButton";
@@ -18,31 +18,27 @@ const param = (sp: Record<string, string | string[] | undefined>, k: string) =>
   (typeof sp[k] === "string" ? (sp[k] as string) : undefined);
 
 /**
- * Stateless unlock: the report renders only if Stripe says the session is paid
- * (verified live, no DB) — or via dev-unlock in non-production for testing
- * without keys. Otherwise → back to the paywall.
+ * Stateless unlock (spec §24): the report renders only if the payment provider
+ * confirms the order is paid (verified live, no DB) — or via dev-unlock in
+ * non-production for testing without keys. Otherwise → back to the paywall.
  */
 export default async function ReportPage({ searchParams }: { searchParams: SearchParams }) {
   const sp = await searchParams;
-  const sessionId = param(sp, "session_id");
+  const provider = paymentProvider();
+  const orderRef = param(sp, provider.orderRefParam); // Dodo: payment_id
   const devUnlock = param(sp, "dev") === "1" && process.env.NODE_ENV !== "production";
 
   let paid = false;
-  let profileRef = "velvet_cynic";
+  // Token rides the return URL (?t=) as the content carrier; provider metadata
+  // (read on verify) is authoritative when present.
+  let profileRef = param(sp, "t") ?? "velvet_cynic";
 
-  if (sessionId && process.env.STRIPE_SECRET_KEY) {
-    try {
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-      const s = await stripe.checkout.sessions.retrieve(sessionId);
-      paid = s.payment_status === "paid";
-      if (typeof s.metadata?.profile === "string") profileRef = s.metadata.profile;
-    } catch {
-      paid = false;
-    }
+  if (orderRef && provider.isConfigured()) {
+    const v = await provider.verify(orderRef);
+    paid = v.paid;
+    if (v.token) profileRef = v.token;
   } else if (devUnlock) {
     paid = true;
-    const t = param(sp, "t");
-    if (t) profileRef = t;
   }
 
   if (!paid) redirect("/premium/preview");
@@ -73,7 +69,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-6 py-10">
       <PurchaseTrack
-        unlockKey={sessionId ?? "dev"}
+        unlockKey={orderRef ?? "dev"}
         props={{ profile: profile.id, source, dev: devUnlock }}
       />
 

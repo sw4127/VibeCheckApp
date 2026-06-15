@@ -4,9 +4,9 @@ import { useState } from "react";
 import { track } from "@/lib/analytics";
 
 /**
- * Starts Stripe Checkout and redirects to the hosted page. If Stripe isn't
- * configured yet (501) and a dev-unlock href was provided (non-prod only), it
- * surfaces that so the gated report view is testable without keys.
+ * Starts the hosted MoR checkout (spec §24) and redirects to it. If payments
+ * aren't configured yet (501) and a dev-unlock href was provided (non-prod
+ * only), it surfaces that so the gated report view is testable without keys.
  */
 export default function UnlockButton({
   profile,
@@ -37,7 +37,7 @@ export default function UnlockButton({
           return;
         }
       } else if (res.status === 501) {
-        setNote(devUnlockHref ? "Stripe not configured — use dev unlock below." : "Checkout isn't available yet.");
+        setNote(devUnlockHref ? "Payments not configured — use dev unlock below." : "Checkout isn't available yet.");
       } else {
         setNote("Something went wrong. Try again.");
       }
