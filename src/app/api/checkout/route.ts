@@ -27,9 +27,11 @@ export async function POST(request: Request) {
   const token = (typeof body?.profile === "string" ? body.profile : "velvet_cynic").slice(0, 490);
 
   const origin = baseUrl();
-  // Token in the return URL is the primary, size-proof content carrier; the
-  // provider's order id (appended on redirect) is the entitlement proof.
-  const successUrl = `${origin}/premium/report?t=${encodeURIComponent(token)}`;
+  // CLEAN return URL (no query) so the provider appends ?payment_id=&status=
+  // unambiguously — a paid customer must never fail to unlock because the order
+  // id didn't parse. The token rides the provider's metadata and is read back on
+  // server-side verify (authoritative); ?t= is reserved for dev-unlock only.
+  const successUrl = `${origin}/premium/report`;
   const cancelUrl = `${origin}/premium/preview?canceled=1`;
 
   const { url, reason } = await provider.createCheckout({ token, successUrl, cancelUrl });

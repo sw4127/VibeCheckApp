@@ -43,8 +43,9 @@ export const dodo: PaymentProvider = {
     if (!link) return { url: null, reason: "not_configured" };
     try {
       const u = new URL(link);
-      // redirect_url carries our return (with ?t=<token> as the size-proof
-      // content fallback); metadata_profile is read back authoritatively on verify.
+      // redirect_url is clean (no query) so Dodo appends payment_id/status
+      // unambiguously; metadata_profile carries the token and is read back
+      // authoritatively on verify.
       u.searchParams.set("redirect_url", successUrl);
       u.searchParams.set("metadata_profile", token);
       return { url: u.toString() };
