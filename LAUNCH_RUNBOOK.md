@@ -10,9 +10,9 @@ sized: every item is minutes-to-hours, $0 unless marked.
 | `ANTHROPIC_API_KEY` | your key | ✅ (free reading + paid report) |
 | `NEXT_PUBLIC_BASE_URL` | `https://<your-domain-or-project>.vercel.app` — no trailing slash | ✅ (share links, OG images, card footer, Stripe redirects) |
 | `PAYMENTS_PROVIDER` | `dodo` | ✅ (selects the MoR adapter) |
-| `DODO_API_KEY` | Dodo **test** key first; live key at go-live | ✅ for payments (501 without it; rest of app works) |
-| `DODO_PRODUCT_ID` | id of the $3.99 "Vibe Check — The Full Read" product | ✅ for payments |
-| `DODO_MODE` | `test` first, `live` at go-live | ✅ (test/live API base URL) |
+| `DODO_API_KEY` | Dodo **test** key first; live key at go-live (used to verify payments) | ✅ for payments (501 without it; rest of app works) |
+| `DODO_PAYMENT_LINK` | hosted No-Code link for the $3.99 "Vibe Check — The Full Read" product | ✅ for payments |
+| `DODO_MODE` | `test` first, `live` at go-live | ✅ (test/live verify API base) |
 | `ANTHROPIC_MODEL_NARRATION` | default `claude-haiku-4-5` | optional |
 | `ANTHROPIC_MODEL_PREMIUM` | default `claude-sonnet-4-6` | optional |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | your support address | recommended (/legal contact) |
@@ -30,9 +30,9 @@ Also in Vercel: **enable Web Analytics** on the project (loop events collect the
 
 ## 3. Dodo (MoR) go-live checklist
 - Onboard as seller (China-resident); confirm payout via Payoneer/US account.
-- Create the product "Vibe Check — The Full Read" at **$3.99**; copy its `DODO_PRODUCT_ID`.
-- **Test mode first** (`DODO_MODE=test` + test key): run a full sandbox checkout, confirm the return hits `/premium/report?...&payment_id=…&status=succeeded` and the report unlocks (server-side verify).
-- Verify the three §24 flagged items in test mode: (a) `confirm:true` returns a hosted `checkout_url`; (b) `metadata.profile` accepts the ~490-char token (else the `?t=` URL carry covers it); (c) `GET /payments/{id}` status string is one of succeeded/completed/paid.
+- Create the product "Vibe Check — The Full Read" at **$3.99**; copy its **No-Code Payment Link** into `DODO_PAYMENT_LINK`.
+- **Test mode first** (`DODO_MODE=test` + test key + test-mode link): run a full sandbox checkout, confirm the return hits `/premium/report?t=…&payment_id=…&status=succeeded` and the report unlocks (server-side verify).
+- Verify the three §24 flagged items in test mode: (a) the link accepts `redirect_url`+`metadata_profile` and the return is well-formed (both `t` and `payment_id` present); (b) `metadata.profile` carries the ~490-char token (else the `?t=` URL carry covers it); (c) `GET /payments/{id}` status string is one of succeeded/completed/paid.
 - Refund/dispute policy is **Dodo's** (they're the merchant of record) — align `/legal` copy to it; our stance is "all sales final" where Dodo allows.
 - Go live: set `DODO_MODE=live` + live key, redeploy, run one real $3.99 purchase end-to-end (incl. an IG/TikTok in-app browser).
 

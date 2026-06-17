@@ -13,18 +13,41 @@ describe("payments provider selection (§24)", () => {
 });
 
 describe("dodo adapter", () => {
-  it("reports configured only when key AND product are set", () => {
+  it("reports configured only when the payment link AND verify key are set", () => {
     vi.stubEnv("DODO_API_KEY", "");
-    vi.stubEnv("DODO_PRODUCT_ID", "");
+    vi.stubEnv("DODO_PAYMENT_LINK", "");
     expect(dodo.isConfigured()).toBe(false);
+    vi.stubEnv("DODO_PAYMENT_LINK", "https://test.dodopayments.com/buy/pdt_123");
+    expect(dodo.isConfigured()).toBe(false); // verify key still missing
     vi.stubEnv("DODO_API_KEY", "test_key");
-    expect(dodo.isConfigured()).toBe(false); // product still missing
-    vi.stubEnv("DODO_PRODUCT_ID", "pdt_123");
     expect(dodo.isConfigured()).toBe(true);
   });
 
   it("reads the order ref from the return-URL param Dodo appends", () => {
     expect(dodo.orderRefParam).toBe("payment_id");
+  });
+
+  it("builds a static-link checkout URL with redirect_url + metadata, no network", async () => {
+    vi.stubEnv("DODO_PAYMENT_LINK", "https://test.dodopayments.com/buy/pdt_123");
+    const r = await dodo.createCheckout({
+      token: "TOKEN490",
+      successUrl: "https://app.example/premium/report?t=TOKEN490",
+      cancelUrl: "https://app.example/premium/preview?canceled=1",
+    });
+    expect(r.url).toBeTruthy();
+    const u = new URL(r.url!);
+    expect(u.origin + u.pathname).toBe("https://test.dodopayments.com/buy/pdt_123");
+    expect(u.searchParams.get("metadata_profile")).toBe("TOKEN490");
+    expect(u.searchParams.get("redirect_url")).toBe("https://app.example/premium/report?t=TOKEN490");
+  });
+
+  it("createCheckout is unconfigured-safe and rejects a malformed link", async () => {
+    vi.stubEnv("DODO_PAYMENT_LINK", "");
+    expect((await dodo.createCheckout({ token: "x", successUrl: "u", cancelUrl: "c" })).url).toBeNull();
+    vi.stubEnv("DODO_PAYMENT_LINK", "not a url");
+    expect((await dodo.createCheckout({ token: "x", successUrl: "u", cancelUrl: "c" })).reason).toBe(
+      "bad_payment_link",
+    );
   });
 
   it("maps Dodo statuses to paid? correctly (case-insensitive)", () => {

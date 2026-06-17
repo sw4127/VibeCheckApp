@@ -1,12 +1,18 @@
 /**
  * Dodo Payments adapter (Merchant of Record). REST via fetch — no SDK, no
- * lock-in. Hosted redirect checkout (webview-survivable); verify-on-return,
- * no DB. Endpoints per docs.dodopayments.com:
- *   POST {base}/checkouts        → { checkout_url, payment_id, ... }
- *   return_url ?payment_id=&status=succeeded
- *   GET  {base}/payments/{id}    → { status, metadata, ... }
+ * lock-in. Uses the **No-Code static Payment Link** (spec §24 decision):
+ *   - checkout = redirect to the product's hosted Dodo link with our params
+ *     appended (full-page redirect → webview-survivable; NOT an iframe/overlay).
+ *     `metadata_profile=<token>` → payment.metadata.profile; `redirect_url` →
+ *     our return URL. No create-API call = fewest failure modes.
+ *   - Dodo returns to `redirect_url?payment_id=…&status=succeeded`.
+ *   - verify = GET {base}/payments/{id} → { status, metadata } (server-side;
+ *     the client `status` param is never trusted).
  *
- * Config (env, server-only): DODO_API_KEY, DODO_PRODUCT_ID, DODO_MODE=test|live.
+ * Config (env, server-only): DODO_PAYMENT_LINK (hosted link from the dashboard),
+ * DODO_API_KEY (verify), DODO_MODE=test|live (verify API base).
+ * (Checkout Sessions POST /checkouts is the documented alternative if ever
+ * needed; the static link is simpler for our single fixed-price product.)
  */
 import type { CheckoutParams, CheckoutResult, PaymentProvider, VerifyResult } from "./types";
 
@@ -17,14 +23,10 @@ export function isPaidStatus(status: unknown): boolean {
   return typeof status === "string" && PAID_STATUSES.has(status.toLowerCase());
 }
 
-function base(): string {
+function apiBase(): string {
   return process.env.DODO_MODE === "live"
     ? "https://live.dodopayments.com"
     : "https://test.dodopayments.com";
-}
-
-function headers(key: string): HeadersInit {
-  return { Authorization: `Bearer ${key}`, "content-type": "application/json" };
 }
 
 export const dodo: PaymentProvider = {
@@ -32,40 +34,22 @@ export const dodo: PaymentProvider = {
   orderRefParam: "payment_id",
 
   isConfigured() {
-    return Boolean(process.env.DODO_API_KEY && process.env.DODO_PRODUCT_ID);
+    // Link to start checkout; API key to verify it server-side. Both required.
+    return Boolean(process.env.DODO_PAYMENT_LINK && process.env.DODO_API_KEY);
   },
 
   async createCheckout({ token, successUrl }: CheckoutParams): Promise<CheckoutResult> {
-    const key = process.env.DODO_API_KEY;
-    const productId = process.env.DODO_PRODUCT_ID;
-    if (!key || !productId) return { url: null, reason: "not_configured" };
+    const link = process.env.DODO_PAYMENT_LINK;
+    if (!link) return { url: null, reason: "not_configured" };
     try {
-      const res = await fetch(`${base()}/checkouts`, {
-        method: "POST",
-        headers: headers(key),
-        body: JSON.stringify({
-          product_cart: [{ product_id: productId, quantity: 1 }],
-          // Token rides BOTH the return URL (primary, size-proof) and metadata
-          // (authoritative record read back on verify). §24 token-carry.
-          metadata: { profile: token },
-          return_url: successUrl,
-          billing_currency: "USD",
-          // confirm:true makes Dodo return a hosted checkout_url to redirect to
-          // (vs. a client-secret for the JS overlay, which is unsafe in webviews).
-          confirm: true,
-        }),
-      });
-      if (!res.ok) {
-        const detail = await res.text().catch(() => "");
-        console.error("[dodo] createCheckout failed:", res.status, detail.slice(0, 200));
-        return { url: null, reason: `http_${res.status}` };
-      }
-      const data = (await res.json()) as { checkout_url?: string; payment_link?: string };
-      const url = data.checkout_url ?? data.payment_link ?? null;
-      return url ? { url } : { url: null, reason: "no_checkout_url" };
-    } catch (err) {
-      console.error("[dodo] createCheckout error:", (err as Error).message);
-      return { url: null, reason: "network" };
+      const u = new URL(link);
+      // redirect_url carries our return (with ?t=<token> as the size-proof
+      // content fallback); metadata_profile is read back authoritatively on verify.
+      u.searchParams.set("redirect_url", successUrl);
+      u.searchParams.set("metadata_profile", token);
+      return { url: u.toString() };
+    } catch {
+      return { url: null, reason: "bad_payment_link" };
     }
   },
 
@@ -73,8 +57,8 @@ export const dodo: PaymentProvider = {
     const key = process.env.DODO_API_KEY;
     if (!key || !paymentId) return { paid: false, token: null };
     try {
-      const res = await fetch(`${base()}/payments/${encodeURIComponent(paymentId)}`, {
-        headers: headers(key),
+      const res = await fetch(`${apiBase()}/payments/${encodeURIComponent(paymentId)}`, {
+        headers: { Authorization: `Bearer ${key}` },
       });
       if (!res.ok) return { paid: false, token: null };
       const p = (await res.json()) as { status?: string; metadata?: Record<string, unknown> };
