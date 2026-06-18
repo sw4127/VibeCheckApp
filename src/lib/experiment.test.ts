@@ -23,9 +23,19 @@ describe("experiment (§10.A) — with a browser-like environment", () => {
     vi.stubGlobal("window", {});
     vi.stubGlobal("sessionStorage", makeStore());
   });
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  it("voice A/B is DORMANT until the flag is set (§26 staged rollout)", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.9); // would be online if enabled
+    expect(getVoiceArm()).toBe("classic"); // flag unset → everyone classic
+    expect(experimentProps().voice).toBeUndefined(); // nothing written, nothing tracked
+  });
 
   it("assigns a STABLE voice arm and exposes it for analytics (§26)", () => {
+    vi.stubEnv("NEXT_PUBLIC_VOICE_AB", "1");
     vi.spyOn(Math, "random").mockReturnValue(0.9); // → online
     expect(getVoiceArm()).toBe("online");
     vi.spyOn(Math, "random").mockReturnValue(0.1); // a fresh flip is ignored
@@ -34,6 +44,7 @@ describe("experiment (§10.A) — with a browser-like environment", () => {
   });
 
   it("voice arm can land classic too", () => {
+    vi.stubEnv("NEXT_PUBLIC_VOICE_AB", "1");
     vi.spyOn(Math, "random").mockReturnValue(0.1);
     expect(getVoiceArm()).toBe("classic");
   });

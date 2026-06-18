@@ -30,9 +30,15 @@ export function getOnboardingArm(): OnboardingArm {
   }
 }
 
-/** Stable 50/50 voice arm for this session (same anti-double-count rule as the arm). */
+/**
+ * Stable 50/50 voice arm for this session (same anti-double-count rule as the arm).
+ * §26 staged rollout: dormant (everyone "classic") until NEXT_PUBLIC_VOICE_AB=1,
+ * so deploying the code never exposes the unverified online voice to real users —
+ * smoke-test first, then flip the flag, and flip it off in seconds if it bombs.
+ */
 export function getVoiceArm(): VoiceArm {
   if (typeof window === "undefined") return "classic";
+  if (process.env.NEXT_PUBLIC_VOICE_AB !== "1") return "classic";
   try {
     const cached = sessionStorage.getItem(VOICE_KEY);
     if (cached === "classic" || cached === "online") return cached;
