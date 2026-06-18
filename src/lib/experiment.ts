@@ -6,9 +6,12 @@
  */
 export type OnboardingArm = "persuasive" | "control";
 export type PriorBelief = "totally" | "kind_of" | "not_really";
+/** §26 — free-read voice A/B (transparent, equal, no segmentation). */
+export type VoiceArm = "classic" | "online";
 
 const ARM_KEY = "vc_arm";
 const PB_KEY = "vc_pb";
+const VOICE_KEY = "vc_voice";
 
 /**
  * Stable 50/50 arm for this session. Coin-flipped once on first read and cached,
@@ -24,6 +27,20 @@ export function getOnboardingArm(): OnboardingArm {
     return arm;
   } catch {
     return "persuasive";
+  }
+}
+
+/** Stable 50/50 voice arm for this session (same anti-double-count rule as the arm). */
+export function getVoiceArm(): VoiceArm {
+  if (typeof window === "undefined") return "classic";
+  try {
+    const cached = sessionStorage.getItem(VOICE_KEY);
+    if (cached === "classic" || cached === "online") return cached;
+    const v: VoiceArm = Math.random() < 0.5 ? "classic" : "online";
+    sessionStorage.setItem(VOICE_KEY, v);
+    return v;
+  } catch {
+    return "classic";
   }
 }
 
@@ -55,6 +72,8 @@ export function experimentProps(): Record<string, string> {
     if (arm) props.onboarding_arm = arm;
     const pb = sessionStorage.getItem(PB_KEY);
     if (pb) props.prior_belief = pb;
+    const voice = sessionStorage.getItem(VOICE_KEY);
+    if (voice) props.voice = voice;
   } catch {
     /* ignore */
   }

@@ -87,10 +87,13 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
   if (missingAnswers(musicQuiz, answers).length > 0) redirect("/music/quiz");
   const ar = csv(sp.ar);
   const ad = csv(sp.ad).slice(0, 1);
+  // §26 — the voice arm rides the URL (stateless); separate cache key per voice.
+  const voice = sp.voice === "online" ? "online" : "classic";
 
-  const res = await fetch(`${baseUrl()}/api/music-reading?${orderedQuery(answers, ar, ad)}`, {
-    cache: "force-cache",
-  });
+  const res = await fetch(
+    `${baseUrl()}/api/music-reading?${orderedQuery(answers, ar, ad)}&voice=${voice}`,
+    { cache: "force-cache" },
+  );
   const data: {
     archetype: { id: string; label: string; tags?: string[] };
     theme: string;
@@ -127,7 +130,7 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-6 py-8">
       <Track
         event="result_view"
-        props={{ variant: "music", archetype: data.archetype.id, rarity: data.rarity, source: data.source }}
+        props={{ variant: "music", archetype: data.archetype.id, rarity: data.rarity, source: data.source, voice }}
       />
       <p className="text-xs font-bold tracking-[0.4em]" style={{ color: accent }}>
         VIBE CHECK

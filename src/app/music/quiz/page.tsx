@@ -8,6 +8,7 @@ import { Sigil, THEME_HUES, driftHue } from "@/lib/sigil";
 import { track } from "@/lib/analytics";
 import {
   getOnboardingArm,
+  getVoiceArm,
   setPriorBelief,
   type OnboardingArm,
   type PriorBelief,
@@ -96,6 +97,7 @@ export default function MusicQuizPage() {
     // only once the belief Q0 is answered, so it carries prior_belief and the
     // premise_view→quiz_start gap measures skeptic drop-off at the premise.
     setArm(getOnboardingArm());
+    getVoiceArm(); // §26 — lock the voice arm early so every event carries it
     track("premise_view", { variant: "music" });
     try {
       if (sessionStorage.getItem("vc_sound") === "1") setSoundOn(true);
@@ -138,6 +140,7 @@ export default function MusicQuizPage() {
     track("quiz_complete", { variant: "music", archetype: profile.archetype.id });
     const qs = new URLSearchParams();
     for (const q of quiz.questions) qs.set(q.id, finalAnswers[q.id]);
+    qs.set("voice", getVoiceArm()); // §26 — carry the voice arm into the read (stateless)
     router.push(`/music/result?${qs.toString()}`);
   }
 

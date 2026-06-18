@@ -41,7 +41,9 @@ export async function GET(request: Request) {
 
   const profile = buildMusicProfile(answers);
   const lanes = splitLanes(profile);
-  const { reading, source } = await narrateMusic(profile, lanes, artistsRecent, artistsDurable);
+  // §26 — voice arm (default classic); separate query → separate CDN cache entry.
+  const voice = searchParams.get("voice") === "online" ? "online" : "classic";
+  const { reading, source } = await narrateMusic(profile, lanes, artistsRecent, artistsDurable, voice);
 
   return Response.json(
     {

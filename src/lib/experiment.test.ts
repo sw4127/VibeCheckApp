@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   getOnboardingArm,
+  getVoiceArm,
   getPriorBelief,
   setPriorBelief,
   experimentProps,
@@ -23,6 +24,19 @@ describe("experiment (§10.A) — with a browser-like environment", () => {
     vi.stubGlobal("sessionStorage", makeStore());
   });
   afterEach(() => vi.unstubAllGlobals());
+
+  it("assigns a STABLE voice arm and exposes it for analytics (§26)", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.9); // → online
+    expect(getVoiceArm()).toBe("online");
+    vi.spyOn(Math, "random").mockReturnValue(0.1); // a fresh flip is ignored
+    expect(getVoiceArm()).toBe("online");
+    expect(experimentProps().voice).toBe("online");
+  });
+
+  it("voice arm can land classic too", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.1);
+    expect(getVoiceArm()).toBe("classic");
+  });
 
   it("assigns an arm and keeps it STABLE across reloads (no double-count)", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.1); // → persuasive
