@@ -20,6 +20,9 @@ export {
   localMusicReading,
   buildMusicUserMessage,
   musicReadingSchema,
+  slangFor,
+  ONLINE_SLANG,
+  type Voice,
   type MusicReading,
   type MusicNarrationResult,
 } from "./musicNarrate";
