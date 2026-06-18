@@ -60,3 +60,7 @@ No UI is "done" until it passes all of these. On any UI work, audit each item ex
 
 ## Payments update (supersedes the Stripe/$2.99 mentions in §Stack)
 The seller is a mainland-China tax resident and **cannot use Stripe**. Payments are now a **Merchant-of-Record (Dodo Payments)** behind a provider-agnostic adapter (`src/lib/payments/`, `PAYMENTS_PROVIDER` env). Hosted redirect checkout at **$3.99**, stateless verify-on-return (no DB), webview-survivable. The MoR is the legal seller (handles tax/refunds/disputes). Full design + the test-mode items to verify live: **spec §24**.
+
+## Build log (append-only — detail in spec)
+- **World Cup quiz refresh (shipped, main):** +9 breakout footballers as playing-style archetypes + host-nation colour cues (USA/CAN/MEX +4) via the IP-safe `NATIONS` card system. Trademark-safe (§13.D), playing-style-only (§3). Detail: **spec §25**.
+- **§10.A online-voice experiment (in progress):** a transparent "extremely-online" voice variant for the FREE read; vector-gated slang (≤2 tokens earned by axis levels; `six-seven`/`rizzless` held). Slice 1 = the variant (default-off), Slice 2 = wire the 50/50 A/B. Detail: **spec §26**.

@@ -801,3 +801,20 @@ The seller is a mainland-China tax resident and cannot use Stripe (US SSN). Paym
 - **Config (env, server-only, test-first):** `PAYMENTS_PROVIDER=dodo`, `DODO_PAYMENT_LINK` (hosted link from the dashboard), `DODO_API_KEY` (verify), `DODO_MODE=test|live`. Unconfigured → `/api/checkout` 501 + dev-unlock in non-prod (build/deploy works without keys).
 - **Price/refunds:** buyer-facing price is MoR-controlled (tax-inclusive/localized) around the $3.99 anchor; `/legal` refund copy follows Dodo's policy where it differs from "all sales final."
 - **Open / to verify in Dodo test mode (flagged):** (a) the hosted link accepts `redirect_url` + `metadata_profile` and the return comes back well-formed (both `t` and `payment_id` present); (b) `metadata` value holds the ~490-char token (else the `?t=` URL carry covers it, already in place); (c) exact `GET /payments/{id}` shape + the paid status string. A signed Dodo webhook (`/api/webhooks/dodo`) for refund/dispute sync is optional maturity work, not required for unlock.
+
+---
+
+## 25. World Cup 2026 roster refresh — SHIPPED (main)
+
+Tournament-window content refresh of the footballer quiz, within the locked guardrails. **Roster, not trivia:** the quiz scores vibe→archetype, so trending players are added as **style-archetypes** (style vector + flavour tags + `playerMeta`), never trivia questions.
+- **+9 breakout footballers** (`roster.ts`), playing-style reputation only: Gilberto Mora, Folarin Balogun, Alphonso Davies, Nico Paz, Yan Diomande, Antonio Nusa, Noah Sadiki, Ibrahim Maza, Josimar Dias (keeper). No match results, no metrics, no real-person claims (§3); names nominative + style-only.
+- **+7 nation colour cues** (`design.ts` `NATIONS`): host nations USA/CAN/MEX + CIV/COD/ALG/CPV. Single flag-free accent, each WCAG-AA on the card base. Host-nation matches theme their result card automatically — no global retheme (Design-Bar single-accent intact).
+- **Trademark-safe (§13.D/§I):** no "World Cup"/"FIFA", "footballer" framing, no badges/likeness/affiliation. All 9 additions tuned to be reachable; schema invariants green.
+
+## 26. Voice experiment — "extremely-online" register (§10.A)
+
+A transparent A/B testing an internet-native voice for the FREE read (shareability play). Distinct experiment from §10.A's premise test; reuses its machinery.
+- **Surface:** the free music `vibe_check` only (most-shared, cheapest, lowest-risk). The paid §21 report voice is **not** touched.
+- **Anti-cringe mechanism = vector-gating** (`slangFor(lanes)`, `musicNarrate.ts`): the user's axis levels unlock **at most TWO** slang tokens that genuinely fit; the model never sees the rest, never stacks, never forces. `six-seven`/`rizzless` are held out. The deterministic $0 fallback uses **one** best-fit token, woven. The anti-Barnum specificity rule still binds — slang seasons a specific read, never replaces it. A test contract enforces this (no un-earned token can appear; ≤2; classic stays slang-free).
+- **Slice status:** Slice 1 = the variant behind a `voice` param defaulting to "classic" (default-off, shipped to git, no live change). Slice 2 = wire the transparent 50/50 `voice` arm via §10.A (sessionStorage-stable, URL-carried, analytics-tracked). Slice 3 = optional "Grounded in research" panel (Hume + Rentfrow citations, honest §9 caveat).
+- **Caveat:** slang half-life is short (terms date fast) — the lexicon is data, refresh periodically. The live-model voice needs a key-gated smoke test before/with the A/B read-out.
