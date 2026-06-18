@@ -45,6 +45,15 @@ export const NATIONS: Record<string, Nation> = {
   NED: { name: "Netherlands", accent: "#ff7a1a", deep: "#1a0f06" },
   URU: { name: "Uruguay", accent: "#6db3e8", deep: "#0d1726" },
   GER: { name: "Germany", accent: "#f5c542", deep: "#16100a" },
+  // 2026 host nations + breakout-player nations. Single national COLOUR cue
+  // only (never a flag); each accent clears WCAG AA (≥4.5:1) on the #0c0d12 base.
+  USA: { name: "United States", accent: "#5a7dff", deep: "#0c1330" },
+  CAN: { name: "Canada", accent: "#ff4d52", deep: "#1f0b0c" },
+  MEX: { name: "Mexico", accent: "#2bbf63", deep: "#0a1f12" },
+  CIV: { name: "Ivory Coast", accent: "#ff8a3d", deep: "#1a0f06" },
+  COD: { name: "DR Congo", accent: "#3aa0ed", deep: "#08182a" },
+  ALG: { name: "Algeria", accent: "#16a06b", deep: "#08201a" },
+  CPV: { name: "Cape Verde", accent: "#5a86e0", deep: "#0a1228" },
 };
 
 const FALLBACK: Nation = { name: "", accent: "#6ea8ff", deep: "#16203c" };
