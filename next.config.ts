@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     "/icon": ["./src/fonts/*.woff"],
     "/apple-icon": ["./src/fonts/*.woff"],
     "/icons/[size]": ["./src/fonts/*.woff"],
+    "/product-image": ["./src/fonts/*.woff"],
   },
 };
 
