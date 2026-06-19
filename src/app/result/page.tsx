@@ -15,7 +15,6 @@ import { buildSignatureRows, FOOTBALL_SIGNATURE_LABELS } from "@/lib/signature";
 import DownloadButton from "./DownloadButton";
 import ShareButton from "./ShareButton";
 import SignatureChart from "@/components/SignatureChart";
-import ResearchPanel from "@/components/ResearchPanel";
 import Track from "@/components/Track";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -220,8 +219,6 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
           Read my music taste →
         </span>
       </Link>
-
-      <ResearchPanel accent={accent} />
 
       <div className="mt-8 mb-2 text-center">
         <Link href="/quiz" className="text-sm text-muted underline">
