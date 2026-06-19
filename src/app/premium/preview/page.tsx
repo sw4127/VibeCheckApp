@@ -105,8 +105,8 @@ export default async function PreviewPage({ searchParams }: { searchParams: Sear
         </p>
         <UnlockButton profile={checkoutProfile} price="$3.99" devUnlockHref={devUnlockHref} />
         <p className="text-xs leading-relaxed text-muted">
-          ChatGPT will flatter you. This one <span className="text-accent">scored</span> you — from your
-          answers, the same way every time — and it doesn&apos;t care about your feelings.
+          ChatGPT will flatter you. This one <span className="text-accent">scored</span>{" "}
+          you — from your answers, the same way every time — and it doesn&apos;t care about your feelings.
         </p>
       </div>
 

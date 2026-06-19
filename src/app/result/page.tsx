@@ -15,6 +15,7 @@ import { buildSignatureRows, FOOTBALL_SIGNATURE_LABELS } from "@/lib/signature";
 import DownloadButton from "./DownloadButton";
 import ShareButton from "./ShareButton";
 import SignatureChart from "@/components/SignatureChart";
+import ResearchPanel from "@/components/ResearchPanel";
 import Track from "@/components/Track";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -89,6 +90,9 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
   const accent = buildCardDesign({ position: meta?.position, nation: meta?.nation }).palette.accent;
   const caption = buildCardDesign({ position: meta?.position, nation: meta?.nation }).caption;
   const signature = signatureOf(data.scores);
+  const sigRows = buildSignatureRows(worldCup.quiz, answers, data.scores, FOOTBALL_SIGNATURE_LABELS);
+  const topRows = [...sigRows].sort((a, b) => b.value - a.value).slice(0, 3)
+    .map((r) => ({ label: r.label, value: r.value }));
 
   const cardArgs = {
     archetype: r.archetype,
@@ -98,6 +102,7 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
     position: meta?.position,
     nation: meta?.nation,
     signature,
+    sigRows: topRows,
     rarity: data.rarity,
   };
   const storyUrl = cardPath({ format: "story", ...cardArgs });
@@ -167,10 +172,7 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
       <div className="mt-8 pt-6" style={{ borderTop: `1px solid ${accent}33` }}>
         <div className="text-[10px] font-bold tracking-[0.25em] text-muted">YOUR VIBE SIGNATURE</div>
         <div className="mt-4">
-          <SignatureChart
-            rows={buildSignatureRows(worldCup.quiz, answers, data.scores, FOOTBALL_SIGNATURE_LABELS)}
-            accent={accent}
-          />
+          <SignatureChart rows={sigRows} accent={accent} />
         </div>
       </div>
 
@@ -218,6 +220,8 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
           Read my music taste →
         </span>
       </Link>
+
+      <ResearchPanel accent={accent} />
 
       <div className="mt-8 mb-2 text-center">
         <Link href="/quiz" className="text-sm text-muted underline">

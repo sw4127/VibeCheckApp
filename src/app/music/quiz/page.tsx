@@ -121,18 +121,19 @@ export default function MusicQuizPage() {
   // and on the card. No labels, no verdict — the trajectory teases, never tells.
   const forming = useMemo(() => {
     const answered = Object.keys(answers).length;
-    const raw = scoreAnswers(quiz, answers);
-    const values = quiz.dimensions.map((d) => raw[d] ?? 0);
-    const max = Math.max(1, ...values);
     if (answered === 0) {
-      return { bars: values.map(() => 0), color: "hsl(250 35% 62%)", lockHue: 250 };
+      return { bars: quiz.dimensions.map(() => 0), color: "hsl(250 35% 62%)", lockHue: 250 };
     }
+    // Bars use the NORMALIZED profile (same as the colour/leader), not raw
+    // weights — so they move with every answer, including low-pole picks
+    // (calm/mainstream) that add zero raw weight. (Bug fix.)
     const norm = percentileNormalize(quiz, scoreAnswers(quiz, answers));
+    const bars = quiz.dimensions.map((d) => norm[d] ?? 0);
     const leader = rankMatches(norm, musicArchetypes.centroids)[0];
     const targetHue = THEME_HUES[ARCHETYPE_THEMES[leader.id] ?? "midnight"];
     const t = (answered / quiz.questions.length) * 0.85;
     const color = `hsl(${Math.round(driftHue(targetHue, t))} ${Math.round(35 + t * 45)}% 62%)`;
-    return { bars: values.map((v) => v / max), color, lockHue: targetHue };
+    return { bars, color, lockHue: targetHue };
   }, [answers]);
 
   function goToResult(finalAnswers: Answers) {

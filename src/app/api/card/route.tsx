@@ -60,6 +60,15 @@ export async function GET(request: Request) {
   const sig = (searchParams.get("sig") ?? "")
     .split(",")
     .map((x) => Math.max(0, Math.min(100, Number(x) || 0)));
+  // Top ranked labelled rows ("Label:value|…") → the labelled card signature.
+  const sigRows = (searchParams.get("sigr") ?? "")
+    .split("|")
+    .map((s) => {
+      const i = s.lastIndexOf(":");
+      return i < 0 ? null : { label: s.slice(0, i), value: Math.max(0, Math.min(100, Number(s.slice(i + 1)) || 0)) };
+    })
+    .filter((x): x is { label: string; value: number } => x !== null)
+    .slice(0, 3);
   // §23.E — the rarity % (`rar`) is no longer rendered (implied a population
   // stat we don't have). Param tolerated for old links, ignored.
   const isMusic = searchParams.get("mode") === "music";
@@ -90,16 +99,45 @@ export async function GET(request: Request) {
     </div>
   );
 
-  // Vibe-signature: five thin bars of the user's axis percentiles.
-  const Signature = sig.length >= 3 ? (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: px(10), height: px(72) }}>
-      {sig.map((v, i) => (
-        <div key={i} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: px(20), height: "100%" }}>
-          <div style={{ display: "flex", width: "100%", height: `${Math.max(8, v)}%`, background: p.accent, borderRadius: px(4) }} />
-        </div>
-      ))}
-    </div>
-  ) : null;
+  // Vibe-signature. Downloaded shares (story/square) get the labelled ranked
+  // mini-chart — the proof of real analysis, on the artifact that travels. The
+  // OG link-preview keeps the compact vertical bars (narrow column). Static, no
+  // animation (Satori subset).
+  const Signature =
+    sigRows.length > 0 && !isOg ? (
+      <div style={{ display: "flex", flexDirection: "column", gap: px(14), width: "100%" }}>
+        {sigRows.map((r, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: px(16) }}>
+            <div style={{ display: "flex", width: px(248), fontSize: px(26), fontWeight: 700, color: p.text }}>
+              {r.label}
+            </div>
+            <div style={{ display: "flex", flex: 1, height: px(16), background: `${p.accent}26`, borderRadius: px(8) }}>
+              <div
+                style={{
+                  display: "flex",
+                  width: `${Math.max(6, r.value)}%`,
+                  height: "100%",
+                  background: p.accent,
+                  borderRadius: px(8),
+                  opacity: 1 - i * 0.2,
+                }}
+              />
+            </div>
+            <div style={{ display: "flex", fontFamily: "Fraunces", fontSize: px(32), fontWeight: 900, color: p.accent }}>
+              {r.value}
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : sig.length >= 3 ? (
+      <div style={{ display: "flex", alignItems: "flex-end", gap: px(10), height: px(72) }}>
+        {sig.map((v, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: px(20), height: "100%" }}>
+            <div style={{ display: "flex", width: "100%", height: `${Math.max(8, v)}%`, background: p.accent, borderRadius: px(4) }} />
+          </div>
+        ))}
+      </div>
+    ) : null;
 
   const Hero = (
     <div style={{ display: "flex", flexDirection: "column" }}>

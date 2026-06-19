@@ -45,6 +45,8 @@ export interface CardParams {
   nation?: string;
   /** Five axis percentiles [0,1] (fixed dimension order) → vibe-signature bars. */
   signature?: number[];
+  /** Top ranked labelled rows (label + 0–100) → the labelled card signature. */
+  sigRows?: { label: string; value: number }[];
   /** Whole-percent rarity → "X% share your vibe" spark. */
   rarity?: number;
 }
@@ -64,6 +66,8 @@ export function cardPath(p: CardParams): string {
   if (p.position) q.set("pos", p.position);
   if (p.nation) q.set("nat", p.nation);
   if (p.signature?.length) q.set("sig", p.signature.map((v) => Math.round(v * 100)).join(","));
+  if (p.sigRows?.length)
+    q.set("sigr", p.sigRows.slice(0, 3).map((r) => `${r.label}:${r.value}`).join("|"));
   if (p.rarity !== undefined) q.set("rar", String(p.rarity));
   return `/api/card?${q.toString()}`;
 }

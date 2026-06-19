@@ -20,6 +20,7 @@ import { buildSignatureRows, MUSIC_SIGNATURE_LABELS } from "@/lib/signature";
 import ShareButton from "@/app/result/ShareButton";
 import DownloadButton from "@/app/result/DownloadButton";
 import SignatureChart from "@/components/SignatureChart";
+import ResearchPanel from "@/components/ResearchPanel";
 import Track from "@/components/Track";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -107,6 +108,9 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
   const r = data.reading;
   const accent = THEME_ACCENTS[data.theme] ?? THEME_ACCENTS.midnight;
   const signature = musicQuiz.dimensions.map((d) => data.scores[d] ?? 0.5);
+  const sigRows = buildSignatureRows(musicQuiz, answers, data.scores, MUSIC_SIGNATURE_LABELS);
+  const topRows = [...sigRows].sort((a, b) => b.value - a.value).slice(0, 3)
+    .map((row) => ({ label: row.label, value: row.value }));
 
   // Thread the REAL profile to the paywall, statelessly (§17.B routing applied).
   const profile = buildMusicProfile(answers);
@@ -121,6 +125,7 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
     verdict: r.vibe_check,
     traits: r.tags,
     signature,
+    sigRows: topRows,
     rarity: data.rarity,
   };
   const storyUrl = cardPath({ format: "story", ...cardArgs });
@@ -168,10 +173,7 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
       <div className="mt-8 pt-6" style={{ borderTop: `1px solid ${accent}33` }}>
         <div className="text-[10px] font-bold tracking-[0.25em] text-muted">YOUR VIBE SIGNATURE</div>
         <div className="mt-4">
-          <SignatureChart
-            rows={buildSignatureRows(musicQuiz, answers, data.scores, MUSIC_SIGNATURE_LABELS)}
-            accent={accent}
-          />
+          <SignatureChart rows={sigRows} accent={accent} />
         </div>
       </div>
 
@@ -204,6 +206,8 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
         <DownloadButton url={storyUrl} label="Download (Story)" filename="vibe-check-story.png" />
         <DownloadButton url={squareUrl} label="Download (Square)" filename="vibe-check-square.png" />
       </div>
+
+      <ResearchPanel accent={accent} />
 
       <div className="mt-8 mb-2 text-center">
         <Link href="/music/quiz" className="text-sm text-muted underline">
