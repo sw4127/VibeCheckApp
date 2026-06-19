@@ -11,8 +11,10 @@ import { worldCup, playerMeta, buildCardDesign } from "@/content/world-cup";
 import { type WorldCupReading } from "@/llm";
 import { baseUrl, cardPath } from "@/lib/site";
 import { encodeChallenger } from "@/lib/vs";
+import { buildSignatureRows, FOOTBALL_SIGNATURE_LABELS } from "@/lib/signature";
 import DownloadButton from "./DownloadButton";
 import ShareButton from "./ShareButton";
+import SignatureChart from "@/components/SignatureChart";
 import Track from "@/components/Track";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -161,18 +163,14 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
         ))}
       </div>
 
-      {/* §23.E — vibe signature (the honest identity artifact; rarity % removed) */}
+      {/* Vibe signature — ranked, labelled, receipted (the proof of real analysis) */}
       <div className="mt-8 pt-6" style={{ borderTop: `1px solid ${accent}33` }}>
         <div className="text-[10px] font-bold tracking-[0.25em] text-muted">YOUR VIBE SIGNATURE</div>
-        <div className="mt-3 flex h-16 items-end gap-2.5" aria-label="Your vibe signature">
-          {signature.map((v, i) => (
-            <div key={i} className="flex w-4 items-end" style={{ height: "100%" }}>
-              <div
-                className="w-full rounded"
-                style={{ height: `${Math.max(8, v * 100)}%`, background: accent }}
-              />
-            </div>
-          ))}
+        <div className="mt-4">
+          <SignatureChart
+            rows={buildSignatureRows(worldCup.quiz, answers, data.scores, FOOTBALL_SIGNATURE_LABELS)}
+            accent={accent}
+          />
         </div>
       </div>
 
