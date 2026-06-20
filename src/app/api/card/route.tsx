@@ -68,7 +68,8 @@ export async function GET(request: Request) {
       return i < 0 ? null : { label: s.slice(0, i), value: Math.max(0, Math.min(100, Number(s.slice(i + 1)) || 0)) };
     })
     .filter((x): x is { label: string; value: number } => x !== null)
-    .slice(0, 3);
+    // Music sends its top 3 (ranked); football sends all 5 (the FUT stat line).
+    .slice(0, 5);
   // §23.E — the rarity % (`rar`) is no longer rendered (implied a population
   // stat we don't have). Param tolerated for old links, ignored.
   const isMusic = searchParams.get("mode") === "music";
@@ -99,36 +100,83 @@ export async function GET(request: Request) {
     </div>
   );
 
-  // Vibe-signature. Downloaded shares (story/square) get the labelled ranked
-  // mini-chart — the proof of real analysis, on the artifact that travels. The
-  // OG link-preview keeps the compact vertical bars (narrow column). Static, no
-  // animation (Satori subset).
+  // Small black/white soccer-ball emblem (Satori-safe: circle + pentagon path).
+  const ballSvg = (s: number) => {
+    const c = s / 2;
+    const R = c - 1.5;
+    const pr = R * 0.42;
+    const pt = (a: number): [number, number] => {
+      const t = ((a - 90) * Math.PI) / 180;
+      return [c + pr * Math.cos(t), c + pr * Math.sin(t)];
+    };
+    const pts = [-90, -18, 54, 126, 198].map(pt);
+    const d =
+      `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)} ` +
+      pts.slice(1).map((q) => `L${q[0].toFixed(1)},${q[1].toFixed(1)}`).join(" ") +
+      " Z";
+    return (
+      <svg width={s} height={s} viewBox={`0 0 ${s} ${s}`} style={{ display: "flex" }}>
+        <circle cx={c} cy={c} r={R} fill="#f5f5f6" stroke="#0c0d12" strokeWidth={1.5} />
+        <path d={d} fill="#14171d" />
+      </svg>
+    );
+  };
+
+  // Vibe-signature on downloaded shares (story/square; OG keeps vertical bars).
+  // MUSIC = labelled ranked rows (depth = WTP). FOOTBALL = the fun FUT-style
+  // "stat line" — fixed order, big serif ratings, ball emblem. Static (Satori).
   const Signature =
     sigRows.length > 0 && !isOg ? (
-      <div style={{ display: "flex", flexDirection: "column", gap: px(14), width: "100%" }}>
-        {sigRows.map((r, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: px(16) }}>
-            <div style={{ display: "flex", width: px(248), fontSize: px(26), fontWeight: 700, color: p.text }}>
-              {r.label}
+      isMusic ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: px(14), width: "100%" }}>
+          {sigRows.map((r, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: px(16) }}>
+              <div style={{ display: "flex", width: px(248), fontSize: px(26), fontWeight: 700, color: p.text }}>
+                {r.label}
+              </div>
+              <div style={{ display: "flex", flex: 1, height: px(16), background: `${p.accent}26`, borderRadius: px(8) }}>
+                <div
+                  style={{
+                    display: "flex",
+                    width: `${Math.max(6, r.value)}%`,
+                    height: "100%",
+                    background: p.accent,
+                    borderRadius: px(8),
+                    opacity: 1 - i * 0.2,
+                  }}
+                />
+              </div>
+              <div style={{ display: "flex", fontFamily: "Fraunces", fontSize: px(32), fontWeight: 900, color: p.accent }}>
+                {r.value}
+              </div>
             </div>
-            <div style={{ display: "flex", flex: 1, height: px(16), background: `${p.accent}26`, borderRadius: px(8) }}>
-              <div
-                style={{
-                  display: "flex",
-                  width: `${Math.max(6, r.value)}%`,
-                  height: "100%",
-                  background: p.accent,
-                  borderRadius: px(8),
-                  opacity: 1 - i * 0.2,
-                }}
-              />
-            </div>
-            <div style={{ display: "flex", fontFamily: "Fraunces", fontSize: px(32), fontWeight: 900, color: p.accent }}>
-              {r.value}
+          ))}
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: px(12), marginBottom: px(18) }}>
+            {ballSvg(px(34))}
+            <div style={{ display: "flex", fontSize: px(24), letterSpacing: px(5), fontWeight: 700, color: p.accent }}>
+              YOUR STAT LINE
             </div>
           </div>
-        ))}
-      </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: px(16), width: "100%" }}>
+            {sigRows.map((r, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: px(18) }}>
+                <div style={{ display: "flex", width: px(232), fontSize: px(22), fontWeight: 700, letterSpacing: px(1), color: p.text }}>
+                  {r.label.toUpperCase()}
+                </div>
+                <div style={{ display: "flex", flex: 1, height: px(12), background: `${p.accent}26`, borderRadius: px(6) }}>
+                  <div style={{ display: "flex", width: `${Math.max(5, r.value)}%`, height: "100%", background: p.accent, borderRadius: px(6) }} />
+                </div>
+                <div style={{ display: "flex", width: px(78), justifyContent: "flex-end", fontFamily: "Fraunces", fontSize: px(40), fontWeight: 900, color: p.accent }}>
+                  {r.value}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
     ) : sig.length >= 3 ? (
       <div style={{ display: "flex", alignItems: "flex-end", gap: px(10), height: px(72) }}>
         {sig.map((v, i) => (

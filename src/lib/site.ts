@@ -67,7 +67,7 @@ export function cardPath(p: CardParams): string {
   if (p.nation) q.set("nat", p.nation);
   if (p.signature?.length) q.set("sig", p.signature.map((v) => Math.round(v * 100)).join(","));
   if (p.sigRows?.length)
-    q.set("sigr", p.sigRows.slice(0, 3).map((r) => `${r.label}:${r.value}`).join("|"));
+    q.set("sigr", p.sigRows.slice(0, 5).map((r) => `${r.label}:${r.value}`).join("|"));
   if (p.rarity !== undefined) q.set("rar", String(p.rarity));
   return `/api/card?${q.toString()}`;
 }

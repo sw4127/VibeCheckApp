@@ -1,13 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { worldCup } from "@/content/world-cup";
-import { buildProfile, type Answers } from "@/engine";
+import { buildProfile, percentileNormalize, scoreAnswers, type Answers } from "@/engine";
 import { track } from "@/lib/analytics";
 import { encodeChallenger } from "@/lib/vs";
 
 const quiz = worldCup.quiz;
+
+/** Small black/white ball emblem (the §Fix3 forming teaser's football flourish). */
+function Ball({ size }: { size: number }) {
+  const c = size / 2;
+  const r = c - 1.2;
+  const pr = r * 0.42;
+  const pt = (a: number, rad: number) => {
+    const t = ((a - 90) * Math.PI) / 180;
+    return [c + rad * Math.cos(t), c + rad * Math.sin(t)] as const;
+  };
+  const angles = [0, 72, 144, 216, 288];
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden className="shrink-0">
+      <circle cx={c} cy={c} r={r} fill="#f5f5f6" stroke="#0c0d12" strokeWidth={1.3} />
+      <polygon points={angles.map((a) => pt(a, pr).join(",")).join(" ")} fill="#14171d" />
+      {angles.map((a, i) => {
+        const [x1, y1] = pt(a, pr);
+        const [x2, y2] = pt(a, r);
+        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#14171d" strokeWidth={1.1} />;
+      })}
+    </svg>
+  );
+}
 
 export default function QuizPage() {
   const router = useRouter();
@@ -18,6 +41,16 @@ export default function QuizPage() {
 
   const question = quiz.questions[step];
   const total = quiz.questions.length;
+
+  // In-quiz "stat line forming" — abstract horizontal bars that grow as you
+  // answer (a teaser of the FUT-style reveal). Normalized, so low-pole picks
+  // still move them (parity with the music quiz forming). No labels, no numbers,
+  // no axis order tells — the trajectory teases, never spoils the verdict.
+  const forming = useMemo(() => {
+    if (Object.keys(answers).length === 0) return quiz.dimensions.map(() => 0);
+    const norm = percentileNormalize(quiz, scoreAnswers(quiz, answers));
+    return quiz.dimensions.map((d) => norm[d] ?? 0);
+  }, [answers]);
 
   // Funnel entry + capture a challenge token (?vs=) if we arrived from a /vs link.
   useEffect(() => {
@@ -58,7 +91,7 @@ export default function QuizPage() {
           router.push(`/result?${qs.toString()}`);
         }
       }
-    }, 240);
+    }, 300);
   }
 
   return (
@@ -83,6 +116,21 @@ export default function QuizPage() {
             className="h-full rounded-full bg-accent transition-all duration-300"
             style={{ width: `${((step + 1) / total) * 100}%` }}
           />
+        </div>
+        {/* §Fix3 — "stat line forming": abstract bars that grow as you answer
+            (a teaser of the FUT-style reveal). No labels/numbers → no spoiler. */}
+        <div className="mt-3 flex items-center gap-3">
+          <Ball size={26} />
+          <div className="flex flex-1 flex-col gap-1" aria-hidden>
+            {forming.map((v, i) => (
+              <div key={i} className="h-1 w-full overflow-hidden rounded-full bg-white/[0.07]">
+                <div
+                  className="h-full rounded-full bg-accent transition-all duration-500 ease-out"
+                  style={{ width: `${Math.max(6, v * 100)}%`, opacity: 0.9 - i * 0.07 }}
+                />
+              </div>
+            ))}
+          </div>
         </div>
         {/* §18.A permission line (parity with the music quiz) */}
         <p className="mt-2 text-xs text-muted">No wrong answers. First instinct is the real data.</p>

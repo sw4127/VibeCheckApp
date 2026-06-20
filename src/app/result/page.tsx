@@ -14,7 +14,7 @@ import { encodeChallenger } from "@/lib/vs";
 import { buildSignatureRows, FOOTBALL_SIGNATURE_LABELS } from "@/lib/signature";
 import DownloadButton from "./DownloadButton";
 import ShareButton from "./ShareButton";
-import SignatureChart from "@/components/SignatureChart";
+import StatLine from "@/components/StatLine";
 import Track from "@/components/Track";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -89,9 +89,10 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
   const accent = buildCardDesign({ position: meta?.position, nation: meta?.nation }).palette.accent;
   const caption = buildCardDesign({ position: meta?.position, nation: meta?.nation }).caption;
   const signature = signatureOf(data.scores);
+  // Fixed stat-line order (the quiz's dimension order) — NOT ranked. The stat
+  // line shows all 5; the card carries the same.
   const sigRows = buildSignatureRows(worldCup.quiz, answers, data.scores, FOOTBALL_SIGNATURE_LABELS);
-  const topRows = [...sigRows].sort((a, b) => b.value - a.value).slice(0, 3)
-    .map((r) => ({ label: r.label, value: r.value }));
+  const cardRows = sigRows.map((r) => ({ label: r.label, value: r.value }));
 
   const cardArgs = {
     archetype: r.archetype,
@@ -101,7 +102,7 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
     position: meta?.position,
     nation: meta?.nation,
     signature,
-    sigRows: topRows,
+    sigRows: cardRows,
     rarity: data.rarity,
   };
   const storyUrl = cardPath({ format: "story", ...cardArgs });
@@ -167,12 +168,9 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
         ))}
       </div>
 
-      {/* Vibe signature — ranked, labelled, receipted (the proof of real analysis) */}
+      {/* Player stat line — the fun, FUT-style signature (football, not analytics) */}
       <div className="mt-8 pt-6" style={{ borderTop: `1px solid ${accent}33` }}>
-        <div className="text-[10px] font-bold tracking-[0.25em] text-muted">YOUR VIBE SIGNATURE</div>
-        <div className="mt-4">
-          <SignatureChart rows={sigRows} accent={accent} />
-        </div>
+        <StatLine rows={sigRows} accent={accent} />
       </div>
 
       {/* Shareable card preview — long-press to save in app browsers */}
