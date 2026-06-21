@@ -135,7 +135,7 @@ export default function MusicQuizPage() {
     });
     const answered = Object.keys(answers).length;
     if (answered === 0) {
-      return { bars: quiz.dimensions.map(() => 0), lockHue: 250, ...tones(250, 35) };
+      return { bars: quiz.dimensions.map(() => 0), lockHue: 250, muted: false, ...tones(250, 35) };
     }
     // Bars use the NORMALIZED profile (same as the colour/leader), not raw
     // weights — so they move with every answer, including low-pole picks
@@ -143,9 +143,14 @@ export default function MusicQuizPage() {
     const norm = percentileNormalize(quiz, scoreAnswers(quiz, answers));
     const bars = quiz.dimensions.map((d) => norm[d] ?? 0);
     const leader = rankMatches(norm, musicArchetypes.centroids)[0];
-    const targetHue = THEME_HUES[ARCHETYPE_THEMES[leader.id] ?? "midnight"];
+    const themeName = ARCHETYPE_THEMES[leader.id] ?? "midnight";
+    const targetHue = THEME_HUES[themeName];
     const t = (answered / quiz.questions.length) * 0.85;
-    return { bars, lockHue: targetHue, ...tones(Math.round(driftHue(targetHue, t)), Math.round(35 + t * 45)) };
+    // "static" is the neutral/mainstream archetype — it should read SILVER, not a
+    // saturated blue (its hue ~220 collides with midnight). Desaturate it.
+    const muted = themeName === "static";
+    const sat = muted ? 12 : Math.round(35 + t * 45);
+    return { bars, lockHue: targetHue, muted, ...tones(Math.round(driftHue(targetHue, t)), sat) };
   }, [answers]);
 
   // §Fluid: the ambient mesh drifts toward the leading archetype's hue as the
@@ -157,13 +162,15 @@ export default function MusicQuizPage() {
     // near-complementary blob. Bright enough to read in every zone on the dark
     // base. Distributed across the 4 anchors (2 top, 2 bottom).
     const h = forming.hue;
+    const s = forming.muted ? 14 : 72; // silver for the "static" archetype
+    const s2 = forming.muted ? 12 : 68;
     return [
-      `hsl(${h} 72% 56%)`,
-      `hsl(${(h + 30) % 360} 68% 52%)`,
-      `hsl(${(h + 330) % 360} 68% 52%)`,
-      `hsl(${(h + 18) % 360} 64% 50%)`,
+      `hsl(${h} ${s}% 56%)`,
+      `hsl(${(h + 30) % 360} ${s2}% 52%)`,
+      `hsl(${(h + 330) % 360} ${s2}% 52%)`,
+      `hsl(${(h + 18) % 360} ${s2}% 50%)`,
     ];
-  }, [forming.hue]);
+  }, [forming.hue, forming.muted]);
 
   function goToResult(finalAnswers: Answers) {
     const profile = buildMusicProfile(finalAnswers);
@@ -228,7 +235,7 @@ export default function MusicQuizPage() {
   if (phase === "belief") {
     return (
       <main className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center overflow-hidden px-6 py-10">
-        <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.7} scrim={false} />
+        <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.7} scrim={false} vignette />
         <div className="relative z-10">
           <p className="text-xs font-bold tracking-[0.4em] text-accent">VIBE CHECK</p>
           <h1 className="mt-6 font-display text-3xl font-semibold leading-tight">
@@ -262,7 +269,7 @@ export default function MusicQuizPage() {
         className="relative mx-auto flex min-h-dvh w-full max-w-lg cursor-pointer flex-col items-center justify-center overflow-hidden px-6 text-center"
         onClick={advance}
       >
-        <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.78} scrim={false} />
+        <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.78} scrim={false} vignette />
         <div className="relative z-10 flex flex-col items-center">
           {/* §20.C2 — the sigil locks in: the curiosity gap is literal */}
           <div className="mb-8 animate-pulse">
@@ -297,7 +304,7 @@ export default function MusicQuizPage() {
         if (selected) advance();
       }}
     >
-      <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.7} scrim={false} />
+      <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.7} scrim={false} vignette />
       <div className="relative z-10 flex flex-1 flex-col">
       {/* Progress + §18.A permission line */}
       <div className="mb-8">

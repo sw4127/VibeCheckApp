@@ -17,12 +17,14 @@ type Props = {
   /** Top fade to baseColor — helps dark-ink legibility on a LIGHT stage
    *  (football). Turn OFF on dark stages (music) so the top zone keeps colour. */
   scrim?: boolean;
+  /** Radial edge-darkening for painterly depth/chiaroscuro (oil-painting feel). */
+  vignette?: boolean;
 };
 
 // Fixed blob anchors (% positions) — stable across SSR/CSR.
 const ANCHORS = ["14% 16%", "84% 20%", "22% 82%", "80% 74%", "48% 46%", "6% 56%"];
 
-export default function FluidField({ colors, baseColor, intensity = 0.5, animated = true, scrim = true }: Props) {
+export default function FluidField({ colors, baseColor, intensity = 0.5, animated = true, scrim = true, vignette = false }: Props) {
   // Opacity (not per-colour alpha) carries intensity → colours can be any CSS
   // format: hex (football) or hsl() (music's live hue-drift).
   const op = Math.max(0, Math.min(1, intensity));
@@ -41,6 +43,12 @@ export default function FluidField({ colors, baseColor, intensity = 0.5, animate
       {scrim ? (
         <div
           style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(180deg, ${baseColor}E6, ${baseColor}00 30%)` }}
+        />
+      ) : null}
+      {/* Painterly vignette — darker edges focus the centre (chiaroscuro). */}
+      {vignette ? (
+        <div
+          style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(ellipse at 50% 42%, transparent 46%, rgba(0,0,0,0.36) 100%)" }}
         />
       ) : null}
       <style>{`@keyframes vcFluidDrift{0%{transform:translate3d(0,0,0) scale(1.04)}50%{transform:translate3d(2%,-1.5%,0) scale(1.1)}100%{transform:translate3d(0,0,0) scale(1.04)}}.vc-fluid{animation:vcFluidDrift 22s ease-in-out infinite;will-change:transform}@media (prefers-reduced-motion:reduce){.vc-fluid{animation:none}}`}</style>

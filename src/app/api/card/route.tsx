@@ -118,16 +118,19 @@ export async function GET(request: Request) {
   // hue (analogous harmony — mirrors the music quiz's drifted field). hsla so
   // Satori parses the alpha (it can't take a hex suffix on hsl).
   const musicHue = THEME_HUES[theme ?? ""] ?? 250;
+  const musicMuted = theme === "static"; // silver, not a saturated blue
+  const ms = musicMuted ? 14 : 74;
+  const ms2 = musicMuted ? 12 : 70;
   const musicFluidBg = () => {
     const anchors = ["16% 14%", "84% 22%", "20% 84%", "82% 76%"];
-    return [
-      `hsla(${musicHue}, 74%, 58%, 0.62)`,
-      `hsla(${(musicHue + 30) % 360}, 70%, 54%, 0.56)`,
-      `hsla(${(musicHue + 330) % 360}, 70%, 54%, 0.56)`,
-      `hsla(${(musicHue + 18) % 360}, 66%, 52%, 0.5)`,
-    ]
-      .map((c, i) => `radial-gradient(circle at ${anchors[i]}, ${c} 0%, transparent 55%)`)
-      .join(", ");
+    const blobs = [
+      `hsla(${musicHue}, ${ms}%, 58%, 0.62)`,
+      `hsla(${(musicHue + 30) % 360}, ${ms2}%, 54%, 0.56)`,
+      `hsla(${(musicHue + 330) % 360}, ${ms2}%, 54%, 0.56)`,
+      `hsla(${(musicHue + 18) % 360}, ${ms2}%, 52%, 0.5)`,
+    ].map((c, i) => `radial-gradient(circle at ${anchors[i]}, ${c} 0%, transparent 55%)`);
+    // Painterly vignette on top (darker edges → depth/chiaroscuro).
+    return [`radial-gradient(ellipse at 50% 42%, transparent 48%, rgba(0,0,0,0.45) 100%)`, ...blobs].join(", ");
   };
   const rootBg = isMusic ? musicFluidBg() : fluidBg();
 
