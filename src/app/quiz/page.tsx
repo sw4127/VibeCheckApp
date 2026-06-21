@@ -7,8 +7,8 @@ import { buildProfile, percentileNormalize, scoreAnswers, type Answers } from "@
 import { track } from "@/lib/analytics";
 import { encodeChallenger } from "@/lib/vs";
 import TournamentSkin from "./TournamentSkin";
-import { MapleLeaf, Star, SunBurst } from "./motifs";
-import { TOURNAMENT_SKIN, questionAccent, SEGMENT_COLORS, PITCH_BG, HOST } from "./tournament-theme";
+import { Motif } from "./motifs";
+import { TOURNAMENT_SKIN, phaseFor, FORMING_COLORS, SHEET } from "./tournament-theme";
 
 const quiz = worldCup.quiz;
 const BRAND = "#7c6cff"; // fallback accent when the seasonal skin is killed
@@ -50,9 +50,10 @@ export default function QuizPage() {
   const question = quiz.questions[step];
   const total = quiz.questions.length;
 
-  // Per-question focal accent: multi-colour across the flow, ONE vivid accent
-  // per screen. Falls back to the brand violet if the seasonal skin is killed.
-  const accent = TOURNAMENT_SKIN ? questionAccent(step) : BRAND;
+  // The quiz path is segmented across the three hosts; the active phase owns the
+  // accent + motif (Canada → USA → Mexico). Falls back to brand if skin killed.
+  const phase = phaseFor(step);
+  const accent = TOURNAMENT_SKIN ? phase.accent : BRAND;
 
   // In-quiz "stat line forming" — abstract horizontal bars that grow as you
   // answer (a teaser of the FUT-style reveal). Normalized, so low-pole picks
@@ -105,8 +106,10 @@ export default function QuizPage() {
 
   return (
     <main
-      className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden px-6 py-10"
-      style={TOURNAMENT_SKIN ? { background: PITCH_BG } : undefined}
+      className={`relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden py-12 ${
+        TOURNAMENT_SKIN ? "px-9" : "px-6"
+      }`}
+      style={TOURNAMENT_SKIN ? { background: SHEET } : undefined}
     >
       {TOURNAMENT_SKIN ? <TournamentSkin /> : null}
 
@@ -114,14 +117,10 @@ export default function QuizPage() {
         {/* Progress */}
         <div className="mb-10">
           <div className="flex items-center justify-between text-xs font-medium">
+            {/* Active host phase — motif + nation + linear position. */}
             <span className="inline-flex items-center gap-2 font-bold tracking-[0.18em]" style={{ color: accent }}>
-              {/* Host-motif trio — maple leaf (CAN) · star (USA) · sunburst (MEX). */}
-              <span className="inline-flex items-center gap-1">
-                <MapleLeaf size={13} color={HOST.green} />
-                <Star size={11} color={HOST.blue} />
-                <SunBurst size={12} color={HOST.orange} />
-              </span>
-              MATCHDAY {step + 1}/{total}
+              <Motif kind={phase.motif} size={18} color={accent} />
+              {phase.name} · {step + 1}/{total}
             </span>
             <button
               type="button"
@@ -132,22 +131,16 @@ export default function QuizPage() {
               ← Back
             </button>
           </div>
-          {/* Scoreboard progress — 7 segments fill in the host gradient. */}
-          <div className="mt-2 flex gap-1.5">
-            {Array.from({ length: total }).map((_, i) => (
-              <div key={i} className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
-                <div
-                  className="h-full rounded-full transition-all duration-300"
-                  style={{
-                    width: i <= step ? "100%" : "0%",
-                    background: TOURNAMENT_SKIN ? SEGMENT_COLORS[i] ?? accent : BRAND,
-                  }}
-                />
-              </div>
-            ))}
+          {/* Linear progress → clean, solid, single-toned (the phase accent). */}
+          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+            <div
+              className="h-full rounded-full transition-all duration-300"
+              style={{ width: `${((step + 1) / total) * 100}%`, background: accent }}
+            />
           </div>
-          {/* §Fix3 — "stat line forming": abstract bars that grow as you answer
-              (a teaser of the FUT-style reveal). No labels/numbers → no spoiler. */}
+          {/* §Fix3 — "stat line forming": multi-DIMENSIONAL signature. Each bar
+              is a distinct, simultaneous data axis → its own official colour, for
+              a dense algorithmic read-out. No labels/numbers → no spoiler. */}
           <div className="mt-3 flex items-center gap-3">
             <Ball size={26} />
             <div className="flex flex-1 flex-col gap-1" aria-hidden>
@@ -157,8 +150,7 @@ export default function QuizPage() {
                     className="h-full rounded-full transition-all duration-500 ease-out"
                     style={{
                       width: `${Math.max(6, v * 100)}%`,
-                      background: accent,
-                      opacity: 0.92 - i * 0.08,
+                      background: TOURNAMENT_SKIN ? FORMING_COLORS[i % FORMING_COLORS.length] : BRAND,
                     }}
                   />
                 </div>
@@ -185,11 +177,11 @@ export default function QuizPage() {
                 style={isSelected ? { borderColor: accent, background: `${accent}26` } : undefined}
               >
                 <span>{opt.label}</span>
-                {/* Selected → a geometric maple leaf in the host accent; the
-                    leaf woven into the active card. Unselected → a quiet ring. */}
+                {/* Selected → the active host-phase motif in the phase accent,
+                    woven into the active card. Unselected → a quiet ring. */}
                 <span className="ml-3 flex h-6 w-6 shrink-0 items-center justify-center">
                   {isSelected && TOURNAMENT_SKIN ? (
-                    <MapleLeaf size={24} color={accent} />
+                    <Motif kind={phase.motif} size={24} color={accent} />
                   ) : isSelected ? (
                     <span className="flex h-5 w-5 items-center justify-center rounded-full" style={{ background: accent }}>
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none">

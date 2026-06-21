@@ -2,49 +2,66 @@
  * §Tournament-skin (2026) — SEASONAL + STRICTLY DECOUPLED.
  *
  * Scoped to the football quiz (`/quiz`). Nothing in the core music app imports
- * this; it touches NO global tokens (globals.css `--accent` stays brand violet).
- * Deprecate after the tournament: flip TOURNAMENT_SKIN to `false`, or delete
- * this file + motifs.tsx + TournamentSkin.tsx and their imports in page.tsx.
+ * this; it touches NO global tokens. Deprecate after the tournament: flip
+ * TOURNAMENT_SKIN to `false`, or delete this file + motifs.tsx + TournamentSkin
+ * and their imports in page.tsx.
  *
- * This is NOT the moody music quiz — it's a high-energy premium tournament drop.
- * The single-accent Design-Bar rule is INTENTIONALLY overridden here (PM call):
- * a real host-nation palette, green foundation + energetic host accents.
- *
- * IP-safe (§3 / §5 / §13.D): host nations evoked by colour + ABSTRACT geometric
- * motifs (a stylized maple leaf, stars, a sunburst) — no flags, no coats of arms
- * (notably NOT Mexico's legally-restricted eagle), no "World Cup"/"FIFA".
+ * Palette is sampled from the official 2026 identity (concentric high-saturation
+ * bands): volt green, emerald, vivid orange, crimson, sky blue, royal blue, gold.
+ * IP-safe (§13.D): colour + abstract geometric motifs only — no flags, no coats
+ * of arms (notably NOT Mexico's legally-restricted eagle), no "World Cup"/"FIFA".
  */
 
 /** One-line kill switch for the whole seasonal layer. */
 export const TOURNAMENT_SKIN = true;
 
-/**
- * Intentional 2026 host palette. Field green = the FOUNDATION (the pitch); USA
- * blue brings authority, energetic red + warm orange bring the drop energy.
- * Colour identity only — never a flag reproduction.
- */
-export const HOST = {
-  green: "#1FC56B",
-  blue: "#2F6BFF",
-  red: "#FF3B47",
-  orange: "#FF9F1C",
+/** Official-identity palette (sampled from the 2026 concentric-bands artwork). */
+export const BRAND26 = {
+  volt: "#B8FF3B",
+  emerald: "#00A35E",
+  orange: "#FF7A18",
+  crimson: "#FF2E4C",
+  sky: "#38C0FF",
+  royal: "#2A3CD0",
+  gold: "#FBBF3F",
 } as const;
 
-/** Pitch-at-night foundation + structural frame (scoped to /quiz only). */
-export const PITCH_BG = "#07140D";
-export const FRAME = "rgba(31,197,107,0.30)";
+/** Deep-navy content sheet — rich, NOT pure black (the vivid bands carry colour). */
+export const SHEET = "#0B1124";
+
+export type MotifKey = "maple" | "star" | "solar";
 
 /**
- * Per-question energy: green is the constant identity; the ACTIVE accent rotates
- * through the host palette so each question lands like a fresh fixture. One
- * vivid accent per screen still — the rotation lives across the flow.
+ * The quiz path is segmented across the three hosts as the user progresses.
+ * Each phase owns a bright, legible accent (its nation's colour) and a premium
+ * geometric motif. 7 questions → Canada (1–2) · USA (3–5) · Mexico (6–7).
  */
-export const QUESTION_ACCENTS = [HOST.green, HOST.blue, HOST.red, HOST.orange] as const;
-export function questionAccent(step: number): string {
-  return QUESTION_ACCENTS[step % QUESTION_ACCENTS.length];
+export interface Phase {
+  name: string;
+  accent: string;
+  motif: MotifKey;
+}
+export const PHASES: Phase[] = [
+  { name: "CANADA", accent: "#FF3B57", motif: "maple" }, // bright crimson
+  { name: "USA", accent: "#4F74FF", motif: "star" }, //     bright royal
+  { name: "MEXICO", accent: "#19D17A", motif: "solar" }, //  bright emerald
+];
+export function phaseFor(step: number): Phase {
+  if (step <= 1) return PHASES[0];
+  if (step <= 4) return PHASES[1];
+  return PHASES[2];
 }
 
-/** 7-segment scoreboard progress — a host gradient across the whole run. */
-export const SEGMENT_COLORS = [
-  HOST.green, HOST.green, HOST.blue, HOST.blue, HOST.red, HOST.red, HOST.orange,
+/**
+ * Forming-signature bars are MULTI-DIMENSIONAL (distinct simultaneous data
+ * axes) → each bar gets its own official colour for a dense, algorithmic-looking
+ * signature. (The linear progress bar stays single-toned — see page.tsx.)
+ */
+export const FORMING_COLORS = [
+  BRAND26.volt, BRAND26.orange, BRAND26.crimson, BRAND26.sky, BRAND26.royal,
+] as const;
+
+/** Concentric band frame (outer→inner) — the official radiating-bands look. */
+export const BAND_COLORS = [
+  BRAND26.royal, BRAND26.sky, BRAND26.volt, BRAND26.emerald, BRAND26.orange, BRAND26.crimson,
 ] as const;
