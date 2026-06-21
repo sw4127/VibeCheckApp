@@ -14,7 +14,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { buildCardDesign, POSITION_INFO, type Position } from "@/content/world-cup/design";
 import { baseUrl } from "@/lib/site";
-import { Sigil } from "@/lib/sigil";
+import { Sigil, THEME_HUES } from "@/lib/sigil";
 
 export const runtime = "nodejs";
 
@@ -114,7 +114,22 @@ export async function GET(request: Request) {
     );
     return [`linear-gradient(180deg, #E6E6DDE6, #E6E6DD00 28%)`, ...blobs].join(", ");
   };
-  const rootBg = isMusic ? `linear-gradient(160deg, ${p.from}, ${p.to})` : fluidBg();
+  // Music card: the same ambient mesh, dark + moody, in the archetype's theme
+  // hue (analogous harmony — mirrors the music quiz's drifted field). hsla so
+  // Satori parses the alpha (it can't take a hex suffix on hsl).
+  const musicHue = THEME_HUES[theme ?? ""] ?? 250;
+  const musicFluidBg = () => {
+    const anchors = ["16% 14%", "84% 22%", "20% 84%", "82% 76%"];
+    return [
+      `hsla(${musicHue}, 74%, 58%, 0.62)`,
+      `hsla(${(musicHue + 30) % 360}, 70%, 54%, 0.56)`,
+      `hsla(${(musicHue + 330) % 360}, 70%, 54%, 0.56)`,
+      `hsla(${(musicHue + 18) % 360}, 66%, 52%, 0.5)`,
+    ]
+      .map((c, i) => `radial-gradient(circle at ${anchors[i]}, ${c} 0%, transparent 55%)`)
+      .join(", ");
+  };
+  const rootBg = isMusic ? musicFluidBg() : fluidBg();
 
   const { w, h } = SIZES[format];
   const isOg = format === "og";
@@ -344,7 +359,7 @@ export async function GET(request: Request) {
         alignItems: "center",
         gap: px(48),
         padding: pad,
-        ...(isMusic ? {} : { backgroundColor: "#E6E6DD" }),
+        backgroundColor: isMusic ? "#08090d" : "#E6E6DD",
         backgroundImage: rootBg,
         color: p.text,
         fontFamily: "sans-serif",
@@ -370,7 +385,7 @@ export async function GET(request: Request) {
         display: "flex",
         flexDirection: "column",
         padding: pad,
-        ...(isMusic ? {} : { backgroundColor: "#E6E6DD" }),
+        backgroundColor: isMusic ? "#08090d" : "#E6E6DD",
         backgroundImage: rootBg,
         color: p.text,
         fontFamily: "sans-serif",
