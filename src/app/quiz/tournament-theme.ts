@@ -26,15 +26,24 @@ export const BRAND26 = {
   gold: "#FBBF3F",
 } as const;
 
-/** Deep-navy content sheet — rich, NOT pure black (the vivid bands carry colour). */
-export const SHEET = "#0B1124";
+/**
+ * BRIGHT daytime stage (a clean light surface so the vivid bands read as one
+ * intentional poster — no "late-night" blue mood clashing with the frame).
+ */
+export const SHEET = "#ECECE6"; // light warm-grey stage
+export const INK = "#15171C"; // primary text on the bright stage
+export const INK_MUTED = "#5B6573"; // secondary text
+export const CARD_BG = "#FFFFFF"; // raised option tiles
+export const CARD_BORDER = "rgba(0,0,0,0.09)";
+export const TRACK = "rgba(0,0,0,0.08)"; // progress / forming track on light
 
 export type MotifKey = "maple" | "star" | "solar";
 
 /**
- * The quiz path is segmented across the three hosts as the user progresses.
- * Each phase owns a bright, legible accent (its nation's colour) and a premium
- * geometric motif. 7 questions → Canada (1–2) · USA (3–5) · Mexico (6–7).
+ * The quiz path is segmented across the three hosts as the user progresses; the
+ * phase owns an accent + premium motif (the country NAME is intentionally not
+ * shown — it read as misplaced). Accents are deep enough to read on the bright
+ * stage (used on graphics: motif, progress, borders). 7 Qs → 1–2 · 3–5 · 6–7.
  */
 export interface Phase {
   name: string;
@@ -42,9 +51,9 @@ export interface Phase {
   motif: MotifKey;
 }
 export const PHASES: Phase[] = [
-  { name: "CANADA", accent: "#FF3B57", motif: "maple" }, // bright crimson
-  { name: "USA", accent: "#4F74FF", motif: "star" }, //     bright royal
-  { name: "MEXICO", accent: "#19D17A", motif: "solar" }, //  bright emerald
+  { name: "CANADA", accent: "#E11D48", motif: "maple" }, // deep crimson
+  { name: "USA", accent: "#2540D9", motif: "star" }, //     deep royal
+  { name: "MEXICO", accent: "#0E9E63", motif: "solar" }, //  deep emerald
 ];
 export function phaseFor(step: number): Phase {
   if (step <= 1) return PHASES[0];

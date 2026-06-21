@@ -8,7 +8,7 @@ import { track } from "@/lib/analytics";
 import { encodeChallenger } from "@/lib/vs";
 import TournamentSkin from "./TournamentSkin";
 import { Motif } from "./motifs";
-import { TOURNAMENT_SKIN, phaseFor, FORMING_COLORS, SHEET } from "./tournament-theme";
+import { TOURNAMENT_SKIN, phaseFor, FORMING_COLORS, SHEET, INK, INK_MUTED, CARD_BG, CARD_BORDER, TRACK } from "./tournament-theme";
 
 const quiz = worldCup.quiz;
 const BRAND = "#7c6cff"; // fallback accent when the seasonal skin is killed
@@ -109,7 +109,7 @@ export default function QuizPage() {
       className={`relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden py-12 ${
         TOURNAMENT_SKIN ? "px-9" : "px-6"
       }`}
-      style={TOURNAMENT_SKIN ? { background: SHEET } : undefined}
+      style={TOURNAMENT_SKIN ? { background: SHEET, color: INK } : undefined}
     >
       {TOURNAMENT_SKIN ? <TournamentSkin /> : null}
 
@@ -117,22 +117,28 @@ export default function QuizPage() {
         {/* Progress */}
         <div className="mb-10">
           <div className="flex items-center justify-between text-xs font-medium">
-            {/* Active host phase — motif + nation + linear position. */}
-            <span className="inline-flex items-center gap-2 font-bold tracking-[0.18em]" style={{ color: accent }}>
+            {/* Phase motif (rotates with progress) + position. No country name. */}
+            <span className="inline-flex items-center gap-2 font-bold tracking-[0.18em]">
               <Motif kind={phase.motif} size={18} color={accent} />
-              {phase.name} · {step + 1}/{total}
+              <span style={{ color: INK_MUTED }}>
+                {step + 1} / {total}
+              </span>
             </span>
             <button
               type="button"
               onClick={() => step > 0 && !selected && (setStep(step - 1), setSelected(null))}
               disabled={step === 0}
-              className="text-muted transition disabled:opacity-30"
+              className="transition disabled:opacity-30"
+              style={{ color: TOURNAMENT_SKIN ? INK_MUTED : undefined }}
             >
               ← Back
             </button>
           </div>
           {/* Linear progress → clean, solid, single-toned (the phase accent). */}
-          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+          <div
+            className="mt-2 h-1.5 w-full overflow-hidden rounded-full"
+            style={{ background: TOURNAMENT_SKIN ? TRACK : "rgba(255,255,255,0.1)" }}
+          >
             <div
               className="h-full rounded-full transition-all duration-300"
               style={{ width: `${((step + 1) / total) * 100}%`, background: accent }}
@@ -145,7 +151,11 @@ export default function QuizPage() {
             <Ball size={26} />
             <div className="flex flex-1 flex-col gap-1" aria-hidden>
               {forming.map((v, i) => (
-                <div key={i} className="h-1 w-full overflow-hidden rounded-full bg-white/[0.07]">
+                <div
+                  key={i}
+                  className="h-1 w-full overflow-hidden rounded-full"
+                  style={{ background: TOURNAMENT_SKIN ? TRACK : "rgba(255,255,255,0.07)" }}
+                >
                   <div
                     className="h-full rounded-full transition-all duration-500 ease-out"
                     style={{
@@ -158,7 +168,9 @@ export default function QuizPage() {
             </div>
           </div>
           {/* §18.A permission line (parity with the music quiz) */}
-          <p className="mt-2 text-xs text-muted">No wrong answers. First instinct is the real data.</p>
+          <p className="mt-2 text-xs" style={{ color: TOURNAMENT_SKIN ? INK_MUTED : undefined }}>
+            No wrong answers. First instinct is the real data.
+          </p>
         </div>
 
         <h1 className="font-display text-3xl font-semibold leading-tight">{question.prompt}</h1>
@@ -171,10 +183,16 @@ export default function QuizPage() {
                 key={opt.id}
                 type="button"
                 onClick={() => choose(opt.id)}
-                className={`group flex items-center justify-between rounded-2xl border px-5 py-3.5 text-left text-lg backdrop-blur-sm transition active:scale-[0.99] ${
-                  isSelected ? "" : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06]"
+                className={`group flex items-center justify-between rounded-2xl border px-5 py-3.5 text-left text-lg transition active:scale-[0.99] ${
+                  isSelected || TOURNAMENT_SKIN ? "" : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06]"
                 }`}
-                style={isSelected ? { borderColor: accent, background: `${accent}26` } : undefined}
+                style={
+                  isSelected
+                    ? { borderColor: accent, background: TOURNAMENT_SKIN ? `${accent}1A` : `${accent}26` }
+                    : TOURNAMENT_SKIN
+                      ? { borderColor: CARD_BORDER, background: CARD_BG, boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }
+                      : undefined
+                }
               >
                 <span>{opt.label}</span>
                 {/* Selected → the active host-phase motif in the phase accent,
@@ -189,7 +207,10 @@ export default function QuizPage() {
                       </svg>
                     </span>
                   ) : (
-                    <span className="h-5 w-5 rounded-full border" style={{ borderColor: "rgba(255,255,255,0.22)" }} />
+                    <span
+                      className="h-5 w-5 rounded-full border"
+                      style={{ borderColor: TOURNAMENT_SKIN ? "rgba(0,0,0,0.20)" : "rgba(255,255,255,0.22)" }}
+                    />
                   )}
                 </span>
               </button>
