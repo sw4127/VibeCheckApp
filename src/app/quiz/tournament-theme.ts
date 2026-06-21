@@ -48,12 +48,14 @@ export type MotifKey = "maple" | "star" | "solar";
 export interface Phase {
   name: string;
   accent: string;
+  /** Accent hue (deg) — seeds the whole ambient field so it rotates per phase. */
+  hue: number;
   motif: MotifKey;
 }
 export const PHASES: Phase[] = [
-  { name: "CANADA", accent: "#E11D48", motif: "maple" }, // deep crimson
-  { name: "USA", accent: "#2540D9", motif: "star" }, //     deep royal
-  { name: "MEXICO", accent: "#0E9E63", motif: "solar" }, //  deep emerald
+  { name: "CANADA", accent: "#E11D48", hue: 345, motif: "maple" }, // crimson
+  { name: "USA", accent: "#2540D9", hue: 226, motif: "star" }, //     royal
+  { name: "MEXICO", accent: "#0E9E63", hue: 154, motif: "solar" }, //  emerald
 ];
 export function phaseFor(step: number): Phase {
   if (step <= 1) return PHASES[0];
@@ -69,11 +71,3 @@ export function phaseFor(step: number): Phase {
  */
 export const FORMING_COLORS = ["#0E9E63", "#FF7A18", "#E11D48", "#2540D9", "#16A6C9"] as const;
 
-/**
- * Ambient FLUID field colours — the vibrant 2026 palette diffused as a soft mesh
- * behind the bright stage (replaces the old concentric band frame). Volt is left
- * out: too light to read as a blob on the bright base.
- */
-export const FLUID_COLORS = [
-  BRAND26.sky, BRAND26.emerald, BRAND26.orange, BRAND26.crimson, BRAND26.royal, BRAND26.gold,
-] as const;

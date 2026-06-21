@@ -109,7 +109,7 @@ export default function QuizPage() {
       className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden px-6 py-10"
       style={TOURNAMENT_SKIN ? { background: SHEET, color: INK } : undefined}
     >
-      {TOURNAMENT_SKIN ? <TournamentSkin accent={accent} /> : null}
+      {TOURNAMENT_SKIN ? <TournamentSkin hue={phase.hue} /> : null}
 
       <div className="relative z-10 flex flex-1 flex-col">
         {/* Progress */}
