@@ -44,6 +44,9 @@ export default function MusicQuizPage() {
   const [answers, setAnswers] = useState<Answers>({});
   const [selected, setSelected] = useState<string | null>(null);
   const [reverb, setReverb] = useState<string | null>(null);
+  // §22 momentum: which bars moved on THIS tap → they pulse (honest feedback —
+  // the bars reflect a real deterministic re-score, not invented telemetry).
+  const [changedBars, setChangedBars] = useState<boolean[]>([]);
   // §10.A: the premise test begins on the unscored belief step.
   const [phase, setPhase] = useState<"belief" | "taps" | "crystallizer">("belief");
   const [arm, setArm] = useState<OnboardingArm | null>(null);
@@ -91,6 +94,7 @@ export default function MusicQuizPage() {
 
   const total = quiz.questions.length;
   const question = quiz.questions[step];
+  const answered = Object.keys(answers).length; // pulse-replay key for the forming bars
 
   useEffect(() => {
     // §10.A: assign the arm and record arrival at the premise. quiz_start fires
@@ -174,6 +178,13 @@ export default function MusicQuizPage() {
     setSelected(optionId);
     setReverb(REVERB[question.id]?.[optionId] ?? null);
     const next: Answers = { ...answers, [question.id]: optionId };
+    // Pulse the bars that visibly move on this tap: diff the new normalized
+    // vector against the CURRENTLY DISPLAYED bars (forming.bars) so the baseline
+    // matches what the user sees (incl. the 0→value jump on the first tap).
+    // Computed here, not in render → strict-mode safe, batched → no extra render.
+    const nextNorm = percentileNormalize(quiz, scoreAnswers(quiz, next));
+    const nextBars = quiz.dimensions.map((d) => nextNorm[d] ?? 0);
+    setChangedBars(nextBars.map((v, i) => Math.abs(v - (forming.bars[i] ?? 0)) > 0.005));
     setAnswers(next);
     pendingAnswers.current = next;
     // Deref the ref AT FIRE TIME (a bare `advanceRef.current` here would freeze
@@ -281,15 +292,41 @@ export default function MusicQuizPage() {
             style={{ width: `${((step + 1) / total) * 100}%` }}
           />
         </div>
-        <div className="mt-3 flex h-6 items-end gap-1.5" aria-hidden>
-          {forming.bars.map((v, i) => (
-            <div key={i} className="flex w-2 items-end" style={{ height: "100%" }}>
-              <div
-                className="w-full rounded-sm transition-all duration-500"
-                style={{ height: `${Math.max(8, v * 100)}%`, background: forming.color }}
-              />
-            </div>
-          ))}
+        <div className="relative mt-3 flex h-6 items-end gap-1.5" aria-hidden>
+          {forming.bars.map((v, i) => {
+            const h = `${Math.max(8, v * 100)}%`;
+            return (
+              <div key={i} className="relative flex w-2 items-end" style={{ height: "100%" }}>
+                <div
+                  className="w-full rounded-sm"
+                  style={{
+                    height: h,
+                    background: forming.color,
+                    // Snappy ease-out for the height (no vertical overshoot →
+                    // no layout pop); colour drift stays smooth.
+                    transition: "height 520ms cubic-bezier(.2,.85,.25,1), background 700ms ease",
+                  }}
+                />
+                {/* Momentum pulse — only on bars that moved this tap. GPU only
+                    (transform + opacity + glow), staggered L→R, replays via key.
+                    Absolute overlay → never shifts layout. */}
+                {changedBars[i] ? (
+                  <span
+                    key={answered}
+                    className="vc-bar-pulse pointer-events-none absolute inset-x-0 bottom-0 rounded-sm"
+                    style={{
+                      height: h,
+                      background: forming.color,
+                      transformOrigin: "bottom",
+                      animationDelay: `${i * 45}ms`,
+                      boxShadow: `0 0 9px 1px ${forming.color}`,
+                    }}
+                  />
+                ) : null}
+              </div>
+            );
+          })}
+          <style>{`@keyframes vcBarPulse{0%{opacity:.6;transform:scaleY(1.28)}55%{opacity:.32}100%{opacity:0;transform:scaleY(1)}}.vc-bar-pulse{animation:vcBarPulse .62s cubic-bezier(.2,.8,.2,1) both}`}</style>
         </div>
       </div>
 
