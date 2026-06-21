@@ -7,7 +7,8 @@ import { buildProfile, percentileNormalize, scoreAnswers, type Answers } from "@
 import { track } from "@/lib/analytics";
 import { encodeChallenger } from "@/lib/vs";
 import TournamentSkin from "./TournamentSkin";
-import { TOURNAMENT_SKIN, questionAccent, TOURNAMENT_PROGRESS, BAR_COLORS } from "./tournament-theme";
+import { MapleLeaf, Star, SunBurst } from "./motifs";
+import { TOURNAMENT_SKIN, questionAccent, SEGMENT_COLORS, PITCH_BG, HOST } from "./tournament-theme";
 
 const quiz = worldCup.quiz;
 const BRAND = "#7c6cff"; // fallback accent when the seasonal skin is killed
@@ -40,15 +41,18 @@ export default function QuizPage() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [selected, setSelected] = useState<string | null>(null);
-  const [vsToken, setVsToken] = useState<string | null>(null);
+  // Read the ?vs= challenge token once, at mount, via a lazy initializer —
+  // no setState-in-effect (no cascading re-render), and SSR-safe (window guard).
+  const [vsToken] = useState<string | null>(() =>
+    typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("vs"),
+  );
 
   const question = quiz.questions[step];
   const total = quiz.questions.length;
 
-  // Per-question focal accent: multi-colour across the flow, ONE accent per
-  // screen (Design-Bar intact). Falls back to the brand violet if skin killed.
+  // Per-question focal accent: multi-colour across the flow, ONE vivid accent
+  // per screen. Falls back to the brand violet if the seasonal skin is killed.
   const accent = TOURNAMENT_SKIN ? questionAccent(step) : BRAND;
-  const progressBg = TOURNAMENT_SKIN ? TOURNAMENT_PROGRESS : BRAND;
 
   // In-quiz "stat line forming" — abstract horizontal bars that grow as you
   // answer (a teaser of the FUT-style reveal). Normalized, so low-pole picks
@@ -60,12 +64,9 @@ export default function QuizPage() {
     return quiz.dimensions.map((d) => norm[d] ?? 0);
   }, [answers]);
 
-  // Funnel entry + capture a challenge token (?vs=) if we arrived from a /vs link.
+  // Funnel entry (the ?vs= token is read at mount via the initializer above).
   useEffect(() => {
     track("quiz_start");
-    const vs = new URLSearchParams(window.location.search).get("vs");
-    if (vs) setVsToken(vs);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function choose(optionId: string) {
@@ -103,15 +104,23 @@ export default function QuizPage() {
   }
 
   return (
-    <main className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden px-6 py-10">
+    <main
+      className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden px-6 py-10"
+      style={TOURNAMENT_SKIN ? { background: PITCH_BG } : undefined}
+    >
       {TOURNAMENT_SKIN ? <TournamentSkin /> : null}
 
       <div className="relative z-10 flex flex-1 flex-col">
         {/* Progress */}
         <div className="mb-10">
           <div className="flex items-center justify-between text-xs font-medium">
-            <span className="inline-flex items-center gap-1.5 font-bold tracking-[0.18em]" style={{ color: accent }}>
-              <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
+            <span className="inline-flex items-center gap-2 font-bold tracking-[0.18em]" style={{ color: accent }}>
+              {/* Host-motif trio — maple leaf (CAN) · star (USA) · sunburst (MEX). */}
+              <span className="inline-flex items-center gap-1">
+                <MapleLeaf size={13} color={HOST.green} />
+                <Star size={11} color={HOST.blue} />
+                <SunBurst size={12} color={HOST.orange} />
+              </span>
               MATCHDAY {step + 1}/{total}
             </span>
             <button
@@ -123,11 +132,19 @@ export default function QuizPage() {
               ← Back
             </button>
           </div>
-          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-            <div
-              className="h-full rounded-full transition-all duration-300"
-              style={{ width: `${((step + 1) / total) * 100}%`, background: progressBg }}
-            />
+          {/* Scoreboard progress — 7 segments fill in the host gradient. */}
+          <div className="mt-2 flex gap-1.5">
+            {Array.from({ length: total }).map((_, i) => (
+              <div key={i} className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{
+                    width: i <= step ? "100%" : "0%",
+                    background: TOURNAMENT_SKIN ? SEGMENT_COLORS[i] ?? accent : BRAND,
+                  }}
+                />
+              </div>
+            ))}
           </div>
           {/* §Fix3 — "stat line forming": abstract bars that grow as you answer
               (a teaser of the FUT-style reveal). No labels/numbers → no spoiler. */}
@@ -140,8 +157,8 @@ export default function QuizPage() {
                     className="h-full rounded-full transition-all duration-500 ease-out"
                     style={{
                       width: `${Math.max(6, v * 100)}%`,
-                      background: TOURNAMENT_SKIN ? BAR_COLORS[i % BAR_COLORS.length] : BRAND,
-                      opacity: 0.9 - i * 0.07,
+                      background: accent,
+                      opacity: 0.92 - i * 0.08,
                     }}
                   />
                 </div>
@@ -168,19 +185,20 @@ export default function QuizPage() {
                 style={isSelected ? { borderColor: accent, background: `${accent}26` } : undefined}
               >
                 <span>{opt.label}</span>
-                <span
-                  className="ml-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition"
-                  style={
-                    isSelected
-                      ? { borderColor: accent, background: accent }
-                      : { borderColor: "rgba(255,255,255,0.25)" }
-                  }
-                >
-                  {isSelected ? (
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M2.5 6.2l2.3 2.3 4.7-4.8" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  ) : null}
+                {/* Selected → a geometric maple leaf in the host accent; the
+                    leaf woven into the active card. Unselected → a quiet ring. */}
+                <span className="ml-3 flex h-6 w-6 shrink-0 items-center justify-center">
+                  {isSelected && TOURNAMENT_SKIN ? (
+                    <MapleLeaf size={24} color={accent} />
+                  ) : isSelected ? (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full" style={{ background: accent }}>
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M2.5 6.2l2.3 2.3 4.7-4.8" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                  ) : (
+                    <span className="h-5 w-5 rounded-full border" style={{ borderColor: "rgba(255,255,255,0.22)" }} />
+                  )}
                 </span>
               </button>
             );
