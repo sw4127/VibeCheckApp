@@ -127,6 +127,7 @@ export default function MusicQuizPage() {
   const forming = useMemo(() => {
     // hsl helpers (alpha via "/ a" — NOT hex suffix, which is invalid on hsl()).
     const tones = (dh: number, sat: number) => ({
+      hue: dh,
       color: `hsl(${dh} ${sat}% 62%)`,
       ring: `hsl(${dh} ${Math.min(85, sat + 28)}% 60%)`,
       glow: `hsl(${dh} ${Math.min(85, sat + 28)}% 60% / 0.5)`,
@@ -151,14 +152,18 @@ export default function MusicQuizPage() {
   // quiz reads you — dark/moody (the 2am mood), the music counterpart to
   // football's bright field. Same FluidField primitive, opposite mood.
   const fluidColors = useMemo(() => {
-    const h = forming.lockHue;
+    // ANALOGOUS harmony around the LIVE drifted hue (same hue as the bars) — one
+    // cohesive atmosphere that shifts wholesale, instead of a clashing
+    // near-complementary blob. Bright enough to read in every zone on the dark
+    // base. Distributed across the 4 anchors (2 top, 2 bottom).
+    const h = forming.hue;
     return [
-      `hsl(${h} 72% 52%)`,
-      `hsl(${(h + 45) % 360} 64% 46%)`,
-      `hsl(${(h + 315) % 360} 60% 44%)`,
-      `hsl(${(h + 190) % 360} 54% 42%)`,
+      `hsl(${h} 72% 56%)`,
+      `hsl(${(h + 30) % 360} 68% 52%)`,
+      `hsl(${(h + 330) % 360} 68% 52%)`,
+      `hsl(${(h + 18) % 360} 64% 50%)`,
     ];
-  }, [forming.lockHue]);
+  }, [forming.hue]);
 
   function goToResult(finalAnswers: Answers) {
     const profile = buildMusicProfile(finalAnswers);
@@ -223,7 +228,7 @@ export default function MusicQuizPage() {
   if (phase === "belief") {
     return (
       <main className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center overflow-hidden px-6 py-10">
-        <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.5} />
+        <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.7} scrim={false} />
         <div className="relative z-10">
           <p className="text-xs font-bold tracking-[0.4em] text-accent">VIBE CHECK</p>
           <h1 className="mt-6 font-display text-3xl font-semibold leading-tight">
@@ -257,7 +262,7 @@ export default function MusicQuizPage() {
         className="relative mx-auto flex min-h-dvh w-full max-w-lg cursor-pointer flex-col items-center justify-center overflow-hidden px-6 text-center"
         onClick={advance}
       >
-        <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.62} />
+        <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.78} scrim={false} />
         <div className="relative z-10 flex flex-col items-center">
           {/* §20.C2 — the sigil locks in: the curiosity gap is literal */}
           <div className="mb-8 animate-pulse">
@@ -292,7 +297,7 @@ export default function MusicQuizPage() {
         if (selected) advance();
       }}
     >
-      <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.5} />
+      <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.7} scrim={false} />
       <div className="relative z-10 flex flex-1 flex-col">
       {/* Progress + §18.A permission line */}
       <div className="mb-8">

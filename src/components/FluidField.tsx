@@ -14,12 +14,15 @@ type Props = {
   /** 0–1 blob opacity. Lower = subtler field. */
   intensity?: number;
   animated?: boolean;
+  /** Top fade to baseColor — helps dark-ink legibility on a LIGHT stage
+   *  (football). Turn OFF on dark stages (music) so the top zone keeps colour. */
+  scrim?: boolean;
 };
 
 // Fixed blob anchors (% positions) — stable across SSR/CSR.
 const ANCHORS = ["14% 16%", "84% 20%", "22% 82%", "80% 74%", "48% 46%", "6% 56%"];
 
-export default function FluidField({ colors, baseColor, intensity = 0.5, animated = true }: Props) {
+export default function FluidField({ colors, baseColor, intensity = 0.5, animated = true, scrim = true }: Props) {
   // Opacity (not per-colour alpha) carries intensity → colours can be any CSS
   // format: hex (football) or hsl() (music's live hue-drift).
   const op = Math.max(0, Math.min(1, intensity));
@@ -34,10 +37,12 @@ export default function FluidField({ colors, baseColor, intensity = 0.5, animate
         style={{ position: "absolute", inset: "-25%", backgroundImage: layers, opacity: op }}
       />
       {/* Top scrim — calms the header/title zone so dark ink stays legible
-          regardless of which palette blob drifts up there. */}
-      <div
-        style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(180deg, ${baseColor}E6, ${baseColor}00 30%)` }}
-      />
+          regardless of which palette blob drifts up there (light stages only). */}
+      {scrim ? (
+        <div
+          style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(180deg, ${baseColor}E6, ${baseColor}00 30%)` }}
+        />
+      ) : null}
       <style>{`@keyframes vcFluidDrift{0%{transform:translate3d(0,0,0) scale(1.04)}50%{transform:translate3d(2%,-1.5%,0) scale(1.1)}100%{transform:translate3d(0,0,0) scale(1.04)}}.vc-fluid{animation:vcFluidDrift 22s ease-in-out infinite;will-change:transform}@media (prefers-reduced-motion:reduce){.vc-fluid{animation:none}}`}</style>
     </div>
   );
