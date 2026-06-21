@@ -1,30 +1,14 @@
 /**
- * §Tournament-skin background — the official 2026 "concentric bands" look as a
- * vivid rounded-rectangle FRAME around the content (legible centre, bold colour
- * at the edges). Nested filled rounded rects in the official palette; the
- * innermost rect is the content sheet, so the bands read as a multi-colour
- * frame. Decorative: absolute, z-0, pointer-events-none, aria-hidden.
- * Deterministic → no hydration mismatch, no layout shift.
+ * §Tournament-skin background — the seasonal football look. Now an AMBIENT FLUID
+ * field (the official 2026 palette diffused as a soft drifting mesh on the bright
+ * stage) instead of the old heavy concentric frame. Thin wrapper over the shared
+ * FluidField primitive, keeping the football-specific palette scoped + deletable.
  */
-import { BAND_COLORS, SHEET } from "./tournament-theme";
+import FluidField from "@/components/FluidField";
+import { FLUID_COLORS, SHEET } from "./tournament-theme";
 
-const STEP = 6; // band thickness in px (5 bands → ~30px frame)
-const FRAME = BAND_COLORS.slice(0, 5);
-
-export default function TournamentSkin() {
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-      {/* Outer band is square (bleeds into the screen corners → poster-like, not
-          a rounded sticker); inner bands round progressively into the sheet. */}
-      {FRAME.map((c, i) => (
-        <div
-          key={i}
-          style={{ position: "absolute", inset: i * STEP, background: c, borderRadius: i * 5 }}
-        />
-      ))}
-      <div
-        style={{ position: "absolute", inset: FRAME.length * STEP, background: SHEET, borderRadius: FRAME.length * 5 }}
-      />
-    </div>
-  );
+export default function TournamentSkin({ accent }: { accent: string }) {
+  // Lead with the phase accent so the field leans crimson→royal→emerald across
+  // the journey (the "spectrum over time" idea), over the full 2026 palette.
+  return <FluidField colors={[accent, ...FLUID_COLORS]} baseColor={SHEET} intensity={0.46} />;
 }

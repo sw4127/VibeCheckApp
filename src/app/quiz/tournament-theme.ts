@@ -69,7 +69,11 @@ export function phaseFor(step: number): Phase {
  */
 export const FORMING_COLORS = ["#0E9E63", "#FF7A18", "#E11D48", "#2540D9", "#16A6C9"] as const;
 
-/** Concentric band frame (outer→inner) — the official radiating-bands look. */
-export const BAND_COLORS = [
-  BRAND26.royal, BRAND26.sky, BRAND26.volt, BRAND26.emerald, BRAND26.orange, BRAND26.crimson,
+/**
+ * Ambient FLUID field colours — the vibrant 2026 palette diffused as a soft mesh
+ * behind the bright stage (replaces the old concentric band frame). Volt is left
+ * out: too light to read as a blob on the bright base.
+ */
+export const FLUID_COLORS = [
+  BRAND26.sky, BRAND26.emerald, BRAND26.orange, BRAND26.crimson, BRAND26.royal, BRAND26.gold,
 ] as const;

@@ -8,7 +8,7 @@ import { track } from "@/lib/analytics";
 import { encodeChallenger } from "@/lib/vs";
 import TournamentSkin from "./TournamentSkin";
 import { Motif } from "./motifs";
-import { TOURNAMENT_SKIN, phaseFor, FORMING_COLORS, SHEET, INK, INK_MUTED, CARD_BG, CARD_BORDER, TRACK } from "./tournament-theme";
+import { TOURNAMENT_SKIN, phaseFor, FORMING_COLORS, SHEET, INK, INK_MUTED, CARD_BG, TRACK } from "./tournament-theme";
 
 const quiz = worldCup.quiz;
 const BRAND = "#7c6cff"; // fallback accent when the seasonal skin is killed
@@ -106,12 +106,10 @@ export default function QuizPage() {
 
   return (
     <main
-      className={`relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden py-12 ${
-        TOURNAMENT_SKIN ? "px-9" : "px-6"
-      }`}
+      className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden px-6 py-10"
       style={TOURNAMENT_SKIN ? { background: SHEET, color: INK } : undefined}
     >
-      {TOURNAMENT_SKIN ? <TournamentSkin /> : null}
+      {TOURNAMENT_SKIN ? <TournamentSkin accent={accent} /> : null}
 
       <div className="relative z-10 flex flex-1 flex-col">
         {/* Progress */}
@@ -141,7 +139,11 @@ export default function QuizPage() {
           >
             <div
               className="h-full rounded-full transition-all duration-300"
-              style={{ width: `${((step + 1) / total) * 100}%`, background: accent }}
+              style={{
+                width: `${((step + 1) / total) * 100}%`,
+                background: accent,
+                boxShadow: TOURNAMENT_SKIN ? `0 0 8px ${accent}99` : undefined,
+              }}
             />
           </div>
           {/* §Fix3 — "stat line forming": multi-DIMENSIONAL signature. Each bar
@@ -183,18 +185,20 @@ export default function QuizPage() {
                 key={opt.id}
                 type="button"
                 onClick={() => choose(opt.id)}
-                className={`group flex items-center justify-between rounded-2xl border px-5 py-3.5 text-left text-lg transition active:scale-[0.99] ${
+                className={`group flex items-center justify-between rounded-2xl px-5 py-3.5 text-left text-lg transition active:scale-[0.99] ${
                   isSelected
                     ? ""
                     : TOURNAMENT_SKIN
                       ? "hover:-translate-y-0.5"
-                      : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06]"
+                      : "border border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06]"
                 }`}
                 style={
                   isSelected
-                    ? { borderColor: accent, background: TOURNAMENT_SKIN ? `${accent}1A` : `${accent}26` }
+                    ? TOURNAMENT_SKIN
+                      ? { background: CARD_BG, boxShadow: `0 0 0 1.5px ${accent}, 0 10px 30px ${accent}55` }
+                      : { borderColor: accent, background: `${accent}26`, borderWidth: 1, borderStyle: "solid" }
                     : TOURNAMENT_SKIN
-                      ? { borderColor: CARD_BORDER, background: CARD_BG, boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }
+                      ? { background: CARD_BG, boxShadow: "0 1px 2px rgba(0,0,0,0.06), 0 8px 20px rgba(0,0,0,0.06)" }
                       : undefined
                 }
               >
