@@ -6,8 +6,11 @@ import { worldCup } from "@/content/world-cup";
 import { buildProfile, percentileNormalize, scoreAnswers, type Answers } from "@/engine";
 import { track } from "@/lib/analytics";
 import { encodeChallenger } from "@/lib/vs";
+import TournamentSkin from "./TournamentSkin";
+import { TOURNAMENT_SKIN, questionAccent, TOURNAMENT_PROGRESS, BAR_COLORS } from "./tournament-theme";
 
 const quiz = worldCup.quiz;
+const BRAND = "#7c6cff"; // fallback accent when the seasonal skin is killed
 
 /** Small black/white ball emblem (the §Fix3 forming teaser's football flourish). */
 function Ball({ size }: { size: number }) {
@@ -41,6 +44,11 @@ export default function QuizPage() {
 
   const question = quiz.questions[step];
   const total = quiz.questions.length;
+
+  // Per-question focal accent: multi-colour across the flow, ONE accent per
+  // screen (Design-Bar intact). Falls back to the brand violet if skin killed.
+  const accent = TOURNAMENT_SKIN ? questionAccent(step) : BRAND;
+  const progressBg = TOURNAMENT_SKIN ? TOURNAMENT_PROGRESS : BRAND;
 
   // In-quiz "stat line forming" — abstract horizontal bars that grow as you
   // answer (a teaser of the FUT-style reveal). Normalized, so low-pole picks
@@ -95,78 +103,89 @@ export default function QuizPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col px-6 py-10">
-      {/* Progress */}
-      <div className="mb-10">
-        <div className="flex justify-between text-xs font-medium text-muted">
-          <span>
-            Question {step + 1} of {total}
-          </span>
-          <button
-            type="button"
-            onClick={() => step > 0 && !selected && (setStep(step - 1), setSelected(null))}
-            disabled={step === 0}
-            className="transition disabled:opacity-30"
-          >
-            ← Back
-          </button>
-        </div>
-        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/10">
-          <div
-            className="h-full rounded-full bg-accent transition-all duration-300"
-            style={{ width: `${((step + 1) / total) * 100}%` }}
-          />
-        </div>
-        {/* §Fix3 — "stat line forming": abstract bars that grow as you answer
-            (a teaser of the FUT-style reveal). No labels/numbers → no spoiler. */}
-        <div className="mt-3 flex items-center gap-3">
-          <Ball size={26} />
-          <div className="flex flex-1 flex-col gap-1" aria-hidden>
-            {forming.map((v, i) => (
-              <div key={i} className="h-1 w-full overflow-hidden rounded-full bg-white/[0.07]">
-                <div
-                  className="h-full rounded-full bg-accent transition-all duration-500 ease-out"
-                  style={{ width: `${Math.max(6, v * 100)}%`, opacity: 0.9 - i * 0.07 }}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-        {/* §18.A permission line (parity with the music quiz) */}
-        <p className="mt-2 text-xs text-muted">No wrong answers. First instinct is the real data.</p>
-      </div>
+    <main className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden px-6 py-10">
+      {TOURNAMENT_SKIN ? <TournamentSkin /> : null}
 
-      <h1 className="font-display text-3xl font-semibold leading-tight">{question.prompt}</h1>
-
-      <div className="mt-8 flex flex-col gap-3">
-        {question.options.map((opt) => {
-          const isSelected = selected === opt.id;
-          return (
+      <div className="relative z-10 flex flex-1 flex-col">
+        {/* Progress */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between text-xs font-medium">
+            <span className="inline-flex items-center gap-1.5 font-bold tracking-[0.18em]" style={{ color: accent }}>
+              <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
+              MATCHDAY {step + 1}/{total}
+            </span>
             <button
-              key={opt.id}
               type="button"
-              onClick={() => choose(opt.id)}
-              className={`group flex items-center justify-between rounded-2xl border px-5 py-3.5 text-left text-lg transition active:scale-[0.99] ${
-                isSelected
-                  ? "border-accent bg-accent/15"
-                  : "border-white/10 bg-white/[0.03] hover:border-accent/50 hover:bg-white/[0.06]"
-              }`}
+              onClick={() => step > 0 && !selected && (setStep(step - 1), setSelected(null))}
+              disabled={step === 0}
+              className="text-muted transition disabled:opacity-30"
             >
-              <span>{opt.label}</span>
-              <span
-                className={`ml-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition ${
-                  isSelected ? "border-accent bg-accent" : "border-white/25"
-                }`}
-              >
-                {isSelected ? (
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <path d="M2.5 6.2l2.3 2.3 4.7-4.8" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                ) : null}
-              </span>
+              ← Back
             </button>
-          );
-        })}
+          </div>
+          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+            <div
+              className="h-full rounded-full transition-all duration-300"
+              style={{ width: `${((step + 1) / total) * 100}%`, background: progressBg }}
+            />
+          </div>
+          {/* §Fix3 — "stat line forming": abstract bars that grow as you answer
+              (a teaser of the FUT-style reveal). No labels/numbers → no spoiler. */}
+          <div className="mt-3 flex items-center gap-3">
+            <Ball size={26} />
+            <div className="flex flex-1 flex-col gap-1" aria-hidden>
+              {forming.map((v, i) => (
+                <div key={i} className="h-1 w-full overflow-hidden rounded-full bg-white/[0.07]">
+                  <div
+                    className="h-full rounded-full transition-all duration-500 ease-out"
+                    style={{
+                      width: `${Math.max(6, v * 100)}%`,
+                      background: TOURNAMENT_SKIN ? BAR_COLORS[i % BAR_COLORS.length] : BRAND,
+                      opacity: 0.9 - i * 0.07,
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* §18.A permission line (parity with the music quiz) */}
+          <p className="mt-2 text-xs text-muted">No wrong answers. First instinct is the real data.</p>
+        </div>
+
+        <h1 className="font-display text-3xl font-semibold leading-tight">{question.prompt}</h1>
+
+        <div className="mt-8 flex flex-col gap-3">
+          {question.options.map((opt) => {
+            const isSelected = selected === opt.id;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => choose(opt.id)}
+                className={`group flex items-center justify-between rounded-2xl border px-5 py-3.5 text-left text-lg backdrop-blur-sm transition active:scale-[0.99] ${
+                  isSelected ? "" : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06]"
+                }`}
+                style={isSelected ? { borderColor: accent, background: `${accent}26` } : undefined}
+              >
+                <span>{opt.label}</span>
+                <span
+                  className="ml-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition"
+                  style={
+                    isSelected
+                      ? { borderColor: accent, background: accent }
+                      : { borderColor: "rgba(255,255,255,0.25)" }
+                  }
+                >
+                  {isSelected ? (
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2.5 6.2l2.3 2.3 4.7-4.8" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  ) : null}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </main>
   );
