@@ -82,10 +82,39 @@ export async function GET(request: Request) {
   });
   // Music mode: accent comes from the archetype's designed theme (§16.E), on
   // the same neutral chrome; WC mode keeps the nationality accent.
-  const p =
-    isMusic && theme && THEME_ACCENTS[theme]
-      ? { ...design.palette, accent: THEME_ACCENTS[theme] }
-      : design.palette;
+  // Music keeps its dark theme palette. FOOTBALL now mirrors the bright fluid
+  // quiz: a light stage + dark ink (the 2026 palette lives in the mesh below).
+  const basePalette =
+    isMusic && theme && THEME_ACCENTS[theme] ? { ...design.palette, accent: THEME_ACCENTS[theme] } : design.palette;
+  const p = isMusic
+    ? basePalette
+    : { from: "#E6E6DD", to: "#E6E6DD", accent: design.palette.accent, text: "#15171C", sub: "#5B6573" };
+
+  // §Fluid background for the football card — layered radial gradients (a static,
+  // Satori-safe mirror of the quiz's FluidField), leaning toward the nation
+  // accent. Palette is an intentional decoupled copy so deleting the seasonal
+  // /quiz never breaks this route.
+  // Darken light nationality accents (BRA/ESP golds, etc.) so they read as a
+  // stat bar + mesh lead on the bright card. Numbers/labels are already ink.
+  const readableAccent = (() => {
+    if (isMusic) return p.accent;
+    const m = p.accent.replace("#", "");
+    const r = parseInt(m.slice(0, 2), 16), g = parseInt(m.slice(2, 4), 16), b = parseInt(m.slice(4, 6), 16);
+    const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    if (lum <= 0.62) return p.accent;
+    const d = (v: number) => Math.round(v * 0.55).toString(16).padStart(2, "0");
+    return `#${d(r)}${d(g)}${d(b)}`;
+  })();
+
+  const FB_FLUID = ["#38C0FF", "#00A35E", "#FF7A18", "#FF2E4C", "#2A3CD0", "#FBBF3F"];
+  const fluidBg = () => {
+    const anchors = ["14% 16%", "84% 20%", "22% 82%", "80% 74%", "48% 46%", "6% 56%"];
+    const blobs = [readableAccent, ...FB_FLUID].map(
+      (c, i) => `radial-gradient(circle at ${anchors[i % anchors.length]}, ${c}73 0%, transparent 46%)`,
+    );
+    return [`linear-gradient(180deg, #E6E6DDE6, #E6E6DD00 28%)`, ...blobs].join(", ");
+  };
+  const rootBg = isMusic ? `linear-gradient(160deg, ${p.from}, ${p.to})` : fluidBg();
 
   const { w, h } = SIZES[format];
   const isOg = format === "og";
@@ -156,7 +185,7 @@ export async function GET(request: Request) {
         <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: px(12), marginBottom: px(18) }}>
             {ballSvg(px(34))}
-            <div style={{ display: "flex", fontSize: px(24), letterSpacing: px(5), fontWeight: 700, color: p.accent }}>
+            <div style={{ display: "flex", fontSize: px(24), letterSpacing: px(5), fontWeight: 700, color: p.text }}>
               YOUR STAT LINE
             </div>
           </div>
@@ -166,10 +195,10 @@ export async function GET(request: Request) {
                 <div style={{ display: "flex", width: px(232), fontSize: px(22), fontWeight: 700, letterSpacing: px(1), color: p.text }}>
                   {r.label.toUpperCase()}
                 </div>
-                <div style={{ display: "flex", flex: 1, height: px(12), background: `${p.accent}26`, borderRadius: px(6) }}>
-                  <div style={{ display: "flex", width: `${Math.max(5, r.value)}%`, height: "100%", background: p.accent, borderRadius: px(6) }} />
+                <div style={{ display: "flex", flex: 1, height: px(12), background: "rgba(0,0,0,0.10)", borderRadius: px(6) }}>
+                  <div style={{ display: "flex", width: `${Math.max(5, r.value)}%`, height: "100%", background: readableAccent, borderRadius: px(6) }} />
                 </div>
-                <div style={{ display: "flex", width: px(78), justifyContent: "flex-end", fontFamily: "Fraunces", fontSize: px(40), fontWeight: 900, color: p.accent }}>
+                <div style={{ display: "flex", width: px(78), justifyContent: "flex-end", fontFamily: "Fraunces", fontSize: px(40), fontWeight: 900, color: p.text }}>
                   {r.value}
                 </div>
               </div>
@@ -181,7 +210,7 @@ export async function GET(request: Request) {
       <div style={{ display: "flex", alignItems: "flex-end", gap: px(10), height: px(72) }}>
         {sig.map((v, i) => (
           <div key={i} style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", width: px(20), height: "100%" }}>
-            <div style={{ display: "flex", width: "100%", height: `${Math.max(8, v)}%`, background: p.accent, borderRadius: px(4) }} />
+            <div style={{ display: "flex", width: "100%", height: `${Math.max(8, v)}%`, background: isMusic ? p.accent : readableAccent, borderRadius: px(4) }} />
           </div>
         ))}
       </div>
@@ -210,7 +239,7 @@ export async function GET(request: Request) {
   const PlayerBlock = isMusic ? null : (
     <div style={{ display: "flex", flexDirection: "column" }}>
       {Label("YOU PLAY LIKE")}
-      <div style={{ display: "flex", fontFamily: "Fraunces", fontWeight: 600, fontSize: px(56), color: p.accent, marginTop: px(4) }}>
+      <div style={{ display: "flex", fontFamily: "Fraunces", fontWeight: 600, fontSize: px(56), color: isMusic ? p.accent : p.text, marginTop: px(4) }}>
         {player}
       </div>
       {design.caption ? (
@@ -235,7 +264,7 @@ export async function GET(request: Request) {
             fontSize: px(26),
             fontWeight: 700,
             color: p.text,
-            border: `${px(2)}px solid ${p.accent}55`,
+            border: `${px(2)}px solid ${isMusic ? `${p.accent}55` : "rgba(0,0,0,0.16)"}`,
             borderRadius: px(999),
             padding: `${px(9)}px ${px(24)}px`,
           }}
@@ -250,7 +279,7 @@ export async function GET(request: Request) {
     <div
       style={{
         display: "flex",
-        borderTop: `${px(1)}px solid ${p.accent}26`,
+        borderTop: `${px(1)}px solid ${isMusic ? `${p.accent}26` : "rgba(0,0,0,0.12)"}`,
         paddingTop: px(28),
       }}
     >
@@ -273,13 +302,13 @@ export async function GET(request: Request) {
       {/* §20.C2 — the locked sigil, the user's collectible mark (music only) */}
       {isMusic ? <Sigil size={px(52)} filled={7} colors={p.accent} /> : null}
       <span style={{ display: "flex", color: p.sub }}>Find yours →</span>
-      <span style={{ display: "flex", color: p.accent }}>{host}</span>
+      <span style={{ display: "flex", color: isMusic ? p.accent : p.text }}>{host}</span>
     </div>
   );
 
   const Wordmark = (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "flex", fontSize: px(28), letterSpacing: px(8), fontWeight: 800, color: p.accent }}>
+      <div style={{ display: "flex", fontSize: px(28), letterSpacing: px(8), fontWeight: 800, color: isMusic ? p.accent : p.text }}>
         {isPaid ? "VIBE CHECK · THE FULL READ" : "VIBE CHECK"}
       </div>
       {isMusic && !isPaid ? (
@@ -315,13 +344,14 @@ export async function GET(request: Request) {
         alignItems: "center",
         gap: px(48),
         padding: pad,
-        backgroundImage: `linear-gradient(160deg, ${p.from}, ${p.to})`,
+        ...(isMusic ? {} : { backgroundColor: "#E6E6DD" }),
+        backgroundImage: rootBg,
         color: p.text,
         fontFamily: "sans-serif",
         overflow: "hidden",
       }}
     >
-      {AccentGlow}
+      {isMusic ? AccentGlow : null}
       <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: px(22) }}>
         {Wordmark}
         {Hero}
@@ -340,14 +370,15 @@ export async function GET(request: Request) {
         display: "flex",
         flexDirection: "column",
         padding: pad,
-        backgroundImage: `linear-gradient(160deg, ${p.from}, ${p.to})`,
+        ...(isMusic ? {} : { backgroundColor: "#E6E6DD" }),
+        backgroundImage: rootBg,
         color: p.text,
         fontFamily: "sans-serif",
         overflow: "hidden",
         justifyContent: "space-between",
       }}
     >
-      {AccentGlow}
+      {isMusic ? AccentGlow : null}
       {/* Three balanced zones fill the height — no dead middle. */}
       <div style={{ display: "flex", flexDirection: "column", gap: px(22) }}>
         {Wordmark}
