@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { musicQuiz, CUES, REVERB, buildMusicProfile, musicArchetypes, ARCHETYPE_THEMES } from "@/content/music";
 import { percentileNormalize, rankMatches, scoreAnswers, type Answers } from "@/engine";
 import { Sigil, THEME_HUES, driftHue } from "@/lib/sigil";
+import FluidField from "@/components/FluidField";
 import { track } from "@/lib/analytics";
 import {
   getOnboardingArm,
@@ -124,9 +125,16 @@ export default function MusicQuizPage() {
   // leading archetype's theme. The ring itself lives at the crystallizer lock
   // and on the card. No labels, no verdict — the trajectory teases, never tells.
   const forming = useMemo(() => {
+    // hsl helpers (alpha via "/ a" — NOT hex suffix, which is invalid on hsl()).
+    const tones = (dh: number, sat: number) => ({
+      color: `hsl(${dh} ${sat}% 62%)`,
+      ring: `hsl(${dh} ${Math.min(85, sat + 28)}% 60%)`,
+      glow: `hsl(${dh} ${Math.min(85, sat + 28)}% 60% / 0.5)`,
+      tint: `hsl(${dh} ${sat}% 55% / 0.16)`,
+    });
     const answered = Object.keys(answers).length;
     if (answered === 0) {
-      return { bars: quiz.dimensions.map(() => 0), color: "hsl(250 35% 62%)", lockHue: 250 };
+      return { bars: quiz.dimensions.map(() => 0), lockHue: 250, ...tones(250, 35) };
     }
     // Bars use the NORMALIZED profile (same as the colour/leader), not raw
     // weights — so they move with every answer, including low-pole picks
@@ -136,9 +144,21 @@ export default function MusicQuizPage() {
     const leader = rankMatches(norm, musicArchetypes.centroids)[0];
     const targetHue = THEME_HUES[ARCHETYPE_THEMES[leader.id] ?? "midnight"];
     const t = (answered / quiz.questions.length) * 0.85;
-    const color = `hsl(${Math.round(driftHue(targetHue, t))} ${Math.round(35 + t * 45)}% 62%)`;
-    return { bars, color, lockHue: targetHue };
+    return { bars, lockHue: targetHue, ...tones(Math.round(driftHue(targetHue, t)), Math.round(35 + t * 45)) };
   }, [answers]);
+
+  // §Fluid: the ambient mesh drifts toward the leading archetype's hue as the
+  // quiz reads you — dark/moody (the 2am mood), the music counterpart to
+  // football's bright field. Same FluidField primitive, opposite mood.
+  const fluidColors = useMemo(() => {
+    const h = forming.lockHue;
+    return [
+      `hsl(${h} 72% 52%)`,
+      `hsl(${(h + 45) % 360} 64% 46%)`,
+      `hsl(${(h + 315) % 360} 60% 44%)`,
+      `hsl(${(h + 190) % 360} 54% 42%)`,
+    ];
+  }, [forming.lockHue]);
 
   function goToResult(finalAnswers: Answers) {
     const profile = buildMusicProfile(finalAnswers);
@@ -202,27 +222,30 @@ export default function MusicQuizPage() {
   // common to both so the contrast isolates the framing.
   if (phase === "belief") {
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center px-6 py-10">
-        <p className="text-xs font-bold tracking-[0.4em] text-accent">VIBE CHECK</p>
-        <h1 className="mt-6 font-display text-3xl font-semibold leading-tight">
-          Be honest — does your music taste actually say something about who you are?
-        </h1>
-        <p className="mt-3 text-sm text-muted">
-          {persuasive
-            ? "Most people underestimate this. Your ears have been keeping notes."
-            : "Quick gut check before we start."}
-        </p>
-        <div className="mt-7 flex flex-col gap-3">
-          {BELIEF_OPTIONS.map((opt) => (
-            <button
-              key={opt.id}
-              type="button"
-              onClick={() => chooseBelief(opt.id)}
-              className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3.5 text-left text-lg transition hover:border-accent/50 hover:bg-white/[0.06] active:scale-[0.99]"
-            >
-              {opt.label}
-            </button>
-          ))}
+      <main className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center overflow-hidden px-6 py-10">
+        <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.5} />
+        <div className="relative z-10">
+          <p className="text-xs font-bold tracking-[0.4em] text-accent">VIBE CHECK</p>
+          <h1 className="mt-6 font-display text-3xl font-semibold leading-tight">
+            Be honest — does your music taste actually say something about who you are?
+          </h1>
+          <p className="mt-3 text-sm text-muted">
+            {persuasive
+              ? "Most people underestimate this. Your ears have been keeping notes."
+              : "Quick gut check before we start."}
+          </p>
+          <div className="mt-7 flex flex-col gap-3">
+            {BELIEF_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => chooseBelief(opt.id)}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3.5 text-left text-lg transition hover:border-white/25 hover:bg-white/[0.06] active:scale-[0.99]"
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
       </main>
     );
@@ -231,41 +254,46 @@ export default function MusicQuizPage() {
   if (phase === "crystallizer") {
     return (
       <main
-        className="mx-auto flex min-h-dvh w-full max-w-lg cursor-pointer flex-col items-center justify-center px-6 text-center"
+        className="relative mx-auto flex min-h-dvh w-full max-w-lg cursor-pointer flex-col items-center justify-center overflow-hidden px-6 text-center"
         onClick={advance}
       >
-        {/* §20.C2 — the sigil locks in: the curiosity gap is literal */}
-        <div className="mb-8 animate-pulse">
-          <Sigil
-            size={96}
-            filled={7}
-            colors={`hsl(${Math.round(forming.lockHue)} 80% 62%)`}
-          />
+        <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.62} />
+        <div className="relative z-10 flex flex-col items-center">
+          {/* §20.C2 — the sigil locks in: the curiosity gap is literal */}
+          <div className="mb-8 animate-pulse">
+            <Sigil
+              size={96}
+              filled={7}
+              colors={`hsl(${Math.round(forming.lockHue)} 80% 62%)`}
+            />
+          </div>
+          {/* §17.A P3 crystallizer + §20.A1 Hume clause — persuasive arm only (§10.A) */}
+          {persuasive ? (
+            <>
+              <p className="font-display text-3xl font-semibold leading-snug">
+                You answered in seconds — that&apos;s sentiment.
+              </p>
+              <p className="mt-4 font-display text-3xl font-semibold leading-snug text-accent">
+                The pattern in those answers is the training.
+              </p>
+            </>
+          ) : null}
+          <p className="mt-8 text-sm tracking-[0.3em] text-muted">READING YOU NOW…</p>
         </div>
-        {/* §17.A P3 crystallizer + §20.A1 Hume clause — persuasive arm only (§10.A) */}
-        {persuasive ? (
-          <>
-            <p className="font-display text-3xl font-semibold leading-snug">
-              You answered in seconds — that&apos;s sentiment.
-            </p>
-            <p className="mt-4 font-display text-3xl font-semibold leading-snug text-accent">
-              The pattern in those answers is the training.
-            </p>
-          </>
-        ) : null}
-        <p className="mt-8 text-sm tracking-[0.3em] text-muted">READING YOU NOW…</p>
       </main>
     );
   }
 
   return (
     <main
-      className="mx-auto flex min-h-dvh w-full max-w-lg flex-col px-6 py-10"
+      className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden px-6 py-10"
       onClick={() => {
         // §20.C3 tap-through: any tap during the beat advances immediately.
         if (selected) advance();
       }}
     >
+      <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.5} />
+      <div className="relative z-10 flex flex-1 flex-col">
       {/* Progress + §18.A permission line */}
       <div className="mb-8">
         <div className="flex items-center justify-between text-xs font-medium text-muted">
@@ -288,8 +316,8 @@ export default function MusicQuizPage() {
         <p className="mt-1.5 text-xs text-muted">No wrong answers. First instinct is the real data.</p>
         <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/10">
           <div
-            className="h-full rounded-full bg-accent transition-all duration-300"
-            style={{ width: `${((step + 1) / total) * 100}%` }}
+            className="h-full rounded-full transition-all duration-300"
+            style={{ width: `${((step + 1) / total) * 100}%`, background: forming.color, boxShadow: `0 0 8px ${forming.color}` }}
           />
         </div>
         <div className="relative mt-3 flex h-6 items-end gap-1.5" aria-hidden>
@@ -361,10 +389,13 @@ export default function MusicQuizPage() {
                 choose(opt.id);
               }}
               className={`flex items-center justify-between rounded-2xl border px-5 py-3.5 text-left text-lg transition active:scale-[0.99] ${
-                isSelected
-                  ? "border-accent bg-accent/15"
-                  : "border-white/10 bg-white/[0.03] hover:border-accent/50 hover:bg-white/[0.06]"
+                isSelected ? "border-transparent" : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06]"
               }`}
+              style={
+                isSelected
+                  ? { background: forming.tint, boxShadow: `0 0 0 1.5px ${forming.ring}, 0 10px 30px ${forming.glow}` }
+                  : undefined
+              }
             >
               <span>{opt.label}</span>
             </button>
@@ -380,6 +411,7 @@ export default function MusicQuizPage() {
       >
         {reverb ?? "…"}
       </p>
+      </div>
     </main>
   );
 }

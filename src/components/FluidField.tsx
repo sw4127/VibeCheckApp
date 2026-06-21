@@ -20,18 +20,18 @@ type Props = {
 const ANCHORS = ["14% 16%", "84% 20%", "22% 82%", "80% 74%", "48% 46%", "6% 56%"];
 
 export default function FluidField({ colors, baseColor, intensity = 0.5, animated = true }: Props) {
-  const a = Math.round(Math.max(0, Math.min(1, intensity)) * 255)
-    .toString(16)
-    .padStart(2, "0");
+  // Opacity (not per-colour alpha) carries intensity → colours can be any CSS
+  // format: hex (football) or hsl() (music's live hue-drift).
+  const op = Math.max(0, Math.min(1, intensity));
   const layers = colors
-    .map((c, i) => `radial-gradient(circle at ${ANCHORS[i % ANCHORS.length]}, ${c}${a} 0%, transparent 46%)`)
+    .map((c, i) => `radial-gradient(circle at ${ANCHORS[i % ANCHORS.length]}, ${c} 0%, transparent 46%)`)
     .join(", ");
 
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden" style={{ background: baseColor }}>
       <div
         className={animated ? "vc-fluid" : undefined}
-        style={{ position: "absolute", inset: "-25%", backgroundImage: layers }}
+        style={{ position: "absolute", inset: "-25%", backgroundImage: layers, opacity: op }}
       />
       {/* Top scrim — calms the header/title zone so dark ink stays legible
           regardless of which palette blob drifts up there. */}
