@@ -30,7 +30,7 @@ export const BRAND26 = {
  * BRIGHT daytime stage (a clean light surface so the vivid bands read as one
  * intentional poster — no "late-night" blue mood clashing with the frame).
  */
-export const SHEET = "#ECECE6"; // light warm-grey stage
+export const SHEET = "#E6E6DD"; // light warm-grey stage (white tiles pop on it)
 export const INK = "#15171C"; // primary text on the bright stage
 export const INK_MUTED = "#5B6573"; // secondary text
 export const CARD_BG = "#FFFFFF"; // raised option tiles
@@ -63,12 +63,11 @@ export function phaseFor(step: number): Phase {
 
 /**
  * Forming-signature bars are MULTI-DIMENSIONAL (distinct simultaneous data
- * axes) → each bar gets its own official colour for a dense, algorithmic-looking
- * signature. (The linear progress bar stays single-toned — see page.tsx.)
+ * axes) → each bar gets its own colour for a dense, algorithmic-looking
+ * signature. Deeper official-family tones (not raw volt/sky) so every bar reads
+ * on the BRIGHT stage. (The linear progress bar stays single-toned — page.tsx.)
  */
-export const FORMING_COLORS = [
-  BRAND26.volt, BRAND26.orange, BRAND26.crimson, BRAND26.sky, BRAND26.royal,
-] as const;
+export const FORMING_COLORS = ["#0E9E63", "#FF7A18", "#E11D48", "#2540D9", "#16A6C9"] as const;
 
 /** Concentric band frame (outer→inner) — the official radiating-bands look. */
 export const BAND_COLORS = [

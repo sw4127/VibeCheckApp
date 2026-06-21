@@ -184,7 +184,11 @@ export default function QuizPage() {
                 type="button"
                 onClick={() => choose(opt.id)}
                 className={`group flex items-center justify-between rounded-2xl border px-5 py-3.5 text-left text-lg transition active:scale-[0.99] ${
-                  isSelected || TOURNAMENT_SKIN ? "" : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06]"
+                  isSelected
+                    ? ""
+                    : TOURNAMENT_SKIN
+                      ? "hover:-translate-y-0.5"
+                      : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06]"
                 }`}
                 style={
                   isSelected
