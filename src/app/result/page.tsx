@@ -48,21 +48,24 @@ type ReadingData = {
 };
 
 /**
- * Reading for the result. Happy path hits the CDN-cached /api/reading (dedupes
- * the model call across identical answers). But that self-fetch depends on
- * baseUrl() resolving to a reachable, non-protected host — on a deployment-
- * protected preview it returns a 401 HTML page, and `res.json()` would blow up
- * with "Unexpected token '<'". So: if the response isn't OK JSON, compute the
- * exact same result in-process (no HTTP, no baseUrl) — the page never crashes.
+ * Reading for the result. In PROD the happy path hits the CDN-cached
+ * /api/reading (dedupes the model call across identical answers). That self-fetch
+ * is skipped in dev: there's no CDN cache to gain, and a server component
+ * fetching its own dev server mid-compile/HMR can transiently return an HTML
+ * error page → `res.json()` blows up with "Unexpected token '<'". Either way, if
+ * the response isn't OK JSON we compute the exact same result in-process (no
+ * HTTP, no baseUrl) — so the page can't crash on the reading.
  */
 async function getReading(answers: Answers): Promise<ReadingData> {
-  try {
-    const res = await fetch(`${baseUrl()}/api/reading?${orderedQuery(answers)}`, { cache: "force-cache" });
-    if (res.ok && (res.headers.get("content-type") ?? "").includes("application/json")) {
-      return (await res.json()) as ReadingData;
+  if (process.env.NODE_ENV === "production") {
+    try {
+      const res = await fetch(`${baseUrl()}/api/reading?${orderedQuery(answers)}`, { cache: "force-cache" });
+      if (res.ok && (res.headers.get("content-type") ?? "").includes("application/json")) {
+        return (await res.json()) as ReadingData;
+      }
+    } catch {
+      /* fall through to the in-process path */
     }
-  } catch {
-    /* fall through to the in-process path */
   }
   const profile = buildProfile(worldCup.quiz, worldCup.archetypes, worldCup.roster, answers);
   const { reading, source } = await narrateWorldCup(profile, worldCup.quiz.dimensions);

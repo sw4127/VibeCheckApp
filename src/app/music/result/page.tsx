@@ -70,22 +70,25 @@ type MusicData = {
 };
 
 /**
- * Reading for the music result. Happy path hits the CDN-cached
- * /api/music-reading; if that self-fetch returns anything but OK JSON (e.g. a
- * deployment-protected preview serves a 401 HTML page → "Unexpected token '<'"),
+ * Reading for the music result. In PROD the happy path hits the CDN-cached
+ * /api/music-reading; the self-fetch is skipped in dev (no cache to gain, and a
+ * server component fetching its own dev server mid-compile can return an HTML
+ * error page → "Unexpected token '<'"). On dev, or any non-OK-JSON response,
  * compute the identical result in-process so the page never crashes. Names are
  * cleanNames-sanitized here too (parity with the route, §23.A).
  */
 async function getMusicReading(answers: Answers, ar: string[], ad: string[], voice: "online" | "classic"): Promise<MusicData> {
-  try {
-    const res = await fetch(`${baseUrl()}/api/music-reading?${orderedQuery(answers, ar, ad)}&voice=${voice}`, {
-      cache: "force-cache",
-    });
-    if (res.ok && (res.headers.get("content-type") ?? "").includes("application/json")) {
-      return (await res.json()) as MusicData;
+  if (process.env.NODE_ENV === "production") {
+    try {
+      const res = await fetch(`${baseUrl()}/api/music-reading?${orderedQuery(answers, ar, ad)}&voice=${voice}`, {
+        cache: "force-cache",
+      });
+      if (res.ok && (res.headers.get("content-type") ?? "").includes("application/json")) {
+        return (await res.json()) as MusicData;
+      }
+    } catch {
+      /* fall through to the in-process path */
     }
-  } catch {
-    /* fall through to the in-process path */
   }
   const profile = buildMusicProfile(answers);
   const lanes = splitLanes(profile);
