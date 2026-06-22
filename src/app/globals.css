@@ -11,6 +11,9 @@
   --foreground: #f4f5f8;
   --muted: #8b91a3;
   --accent: #7c6cff;
+  /* Per-route surface luminance — eased on navigation so dark↔bright never
+   * flash-bangs. Set by RouteBackground (src/components/RouteBackground.tsx). */
+  --app-bg: #08090d;
 }
 
 @theme inline {
@@ -24,7 +27,34 @@
 }
 
 body {
-  background: var(--background);
+  background: var(--app-bg);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+  /* The luminance floor: the page surface eases between dark and bright on every
+   * route change, so the eyes adjust instead of getting flash-banged. */
+  transition: background-color 480ms ease;
+}
+
+/* Content cross-fade — the new page (re-keyed by route) fades in over the eased
+ * surface, so navigation reads as a graceful blend, not a hard cut. Universal
+ * (no View Transitions API needed). */
+@keyframes routeFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.route-fade {
+  animation: routeFade 360ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+  .route-fade {
+    animation: none;
+  }
 }

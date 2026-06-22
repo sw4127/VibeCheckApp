@@ -8,7 +8,7 @@ import { track } from "@/lib/analytics";
 import { encodeChallenger } from "@/lib/vs";
 import TournamentSkin from "./TournamentSkin";
 import { Motif } from "./motifs";
-import { TOURNAMENT_SKIN, phaseFor, FORMING_COLORS, SHEET, INK, INK_MUTED, CARD_BG, TRACK } from "./tournament-theme";
+import { TOURNAMENT_SKIN, phaseFor, FORMING_COLORS, INK, INK_MUTED, CARD_BG, TRACK } from "./tournament-theme";
 
 const quiz = worldCup.quiz;
 const BRAND = "#7c6cff"; // fallback accent when the seasonal skin is killed
@@ -107,7 +107,7 @@ export default function QuizPage() {
   return (
     <main
       className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden px-6 py-10"
-      style={TOURNAMENT_SKIN ? { background: SHEET, color: INK } : undefined}
+      style={TOURNAMENT_SKIN ? { color: INK } : undefined}
     >
       {TOURNAMENT_SKIN ? <TournamentSkin hue={phase.hue} /> : null}
 
