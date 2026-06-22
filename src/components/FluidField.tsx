@@ -39,6 +39,9 @@ export default function FluidField({ colors, baseColor, intensity = 0.5, animate
 
   // Two layers; the front one shows `op`, the back one 0. On a colour change we
   // load the new stack onto the back layer and flip — it fades in over the old.
+  // Both layers stay mounted so opacity can transition both ways (a fresh mount
+  // would pop in, not fade). The idle layer sits at opacity 0 → paint-skipped,
+  // so the cost is negligible.
   const [a, setA] = useState(target);
   const [b, setB] = useState(target);
   const [front, setFront] = useState<"a" | "b">("a");
@@ -82,7 +85,7 @@ export default function FluidField({ colors, baseColor, intensity = 0.5, animate
           style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(ellipse at 50% 42%, transparent 46%, rgba(0,0,0,0.36) 100%)" }}
         />
       ) : null}
-      <style>{`@keyframes vcFluidDrift{0%{transform:translate3d(0,0,0) scale(1.04)}50%{transform:translate3d(2%,-1.5%,0) scale(1.1)}100%{transform:translate3d(0,0,0) scale(1.04)}}.vc-fluid{animation:vcFluidDrift 22s ease-in-out infinite;will-change:transform}@media (prefers-reduced-motion:reduce){.vc-fluid{animation:none}}`}</style>
+      <style>{`@keyframes vcFluidDrift{0%{transform:translate3d(0,0,0) scale(1.04)}50%{transform:translate3d(2%,-1.5%,0) scale(1.1)}100%{transform:translate3d(0,0,0) scale(1.04)}}.vc-fluid{animation:vcFluidDrift 22s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.vc-fluid{animation:none}}`}</style>
     </div>
   );
 }
