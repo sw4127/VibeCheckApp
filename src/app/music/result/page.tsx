@@ -13,8 +13,9 @@ import {
   ARCHETYPE_THEMES,
 } from "@/content/music";
 import SharpenRead from "./SharpenRead";
-import type { MusicReading } from "@/llm";
+import { narrateMusic, type MusicReading } from "@/llm";
 import { baseUrl, cardPath } from "@/lib/site";
+import { cleanNames } from "@/lib/sanitize";
 import { encodePremiumToken } from "@/lib/premiumToken";
 import { buildSignatureRows, MUSIC_SIGNATURE_LABELS } from "@/lib/signature";
 import ShareButton from "@/app/result/ShareButton";
@@ -59,6 +60,46 @@ function orderedQuery(answers: Answers, ar: string[], ad: string[]): string {
   return qs.toString();
 }
 
+type MusicData = {
+  archetype: { id: string; label: string; tags?: string[] };
+  theme: string;
+  scores: Record<string, number | undefined>;
+  rarity: number;
+  reading: MusicReading;
+  source: string;
+};
+
+/**
+ * Reading for the music result. Happy path hits the CDN-cached
+ * /api/music-reading; if that self-fetch returns anything but OK JSON (e.g. a
+ * deployment-protected preview serves a 401 HTML page → "Unexpected token '<'"),
+ * compute the identical result in-process so the page never crashes. Names are
+ * cleanNames-sanitized here too (parity with the route, §23.A).
+ */
+async function getMusicReading(answers: Answers, ar: string[], ad: string[], voice: "online" | "classic"): Promise<MusicData> {
+  try {
+    const res = await fetch(`${baseUrl()}/api/music-reading?${orderedQuery(answers, ar, ad)}&voice=${voice}`, {
+      cache: "force-cache",
+    });
+    if (res.ok && (res.headers.get("content-type") ?? "").includes("application/json")) {
+      return (await res.json()) as MusicData;
+    }
+  } catch {
+    /* fall through to the in-process path */
+  }
+  const profile = buildMusicProfile(answers);
+  const lanes = splitLanes(profile);
+  const { reading, source } = await narrateMusic(profile, lanes, cleanNames(ar, 3), cleanNames(ad, 1), voice);
+  return {
+    archetype: profile.archetype,
+    theme: ARCHETYPE_THEMES[profile.archetype.id] ?? "midnight",
+    scores: profile.normalized,
+    rarity: archetypeRarityPct(musicQuiz, musicArchetypes, profile.archetype.id),
+    reading,
+    source,
+  };
+}
+
 export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
   const sp = await searchParams;
   const answers = answersFrom(sp);
@@ -93,18 +134,7 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
   // §26 — the voice arm rides the URL (stateless); separate cache key per voice.
   const voice = sp.voice === "online" ? "online" : "classic";
 
-  const res = await fetch(
-    `${baseUrl()}/api/music-reading?${orderedQuery(answers, ar, ad)}&voice=${voice}`,
-    { cache: "force-cache" },
-  );
-  const data: {
-    archetype: { id: string; label: string; tags?: string[] };
-    theme: string;
-    scores: Record<string, number | undefined>;
-    rarity: number;
-    reading: MusicReading;
-    source: string;
-  } = await res.json();
+  const data = await getMusicReading(answers, ar, ad, voice);
   const r = data.reading;
   const accent = THEME_ACCENTS[data.theme] ?? THEME_ACCENTS.midnight;
   const signature = musicQuiz.dimensions.map((d) => data.scores[d] ?? 0.5);

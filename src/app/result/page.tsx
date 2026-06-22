@@ -8,7 +8,7 @@ import {
   type Answers,
 } from "@/engine";
 import { worldCup, playerMeta, buildCardDesign } from "@/content/world-cup";
-import { type WorldCupReading } from "@/llm";
+import { narrateWorldCup, type WorldCupReading } from "@/llm";
 import { baseUrl, cardPath } from "@/lib/site";
 import { encodeChallenger } from "@/lib/vs";
 import { buildSignatureRows, FOOTBALL_SIGNATURE_LABELS } from "@/lib/signature";
@@ -36,6 +36,44 @@ function orderedQuery(answers: Answers): string {
 
 function signatureOf(scores: Record<string, number | undefined>): number[] {
   return worldCup.quiz.dimensions.map((d) => scores[d] ?? 0.5);
+}
+
+type ReadingData = {
+  archetype: { id: string; label: string };
+  match: { id: string; label: string; tags?: string[] };
+  scores: Record<string, number | undefined>;
+  rarity: number;
+  source: string;
+  reading: WorldCupReading;
+};
+
+/**
+ * Reading for the result. Happy path hits the CDN-cached /api/reading (dedupes
+ * the model call across identical answers). But that self-fetch depends on
+ * baseUrl() resolving to a reachable, non-protected host — on a deployment-
+ * protected preview it returns a 401 HTML page, and `res.json()` would blow up
+ * with "Unexpected token '<'". So: if the response isn't OK JSON, compute the
+ * exact same result in-process (no HTTP, no baseUrl) — the page never crashes.
+ */
+async function getReading(answers: Answers): Promise<ReadingData> {
+  try {
+    const res = await fetch(`${baseUrl()}/api/reading?${orderedQuery(answers)}`, { cache: "force-cache" });
+    if (res.ok && (res.headers.get("content-type") ?? "").includes("application/json")) {
+      return (await res.json()) as ReadingData;
+    }
+  } catch {
+    /* fall through to the in-process path */
+  }
+  const profile = buildProfile(worldCup.quiz, worldCup.archetypes, worldCup.roster, answers);
+  const { reading, source } = await narrateWorldCup(profile, worldCup.quiz.dimensions);
+  return {
+    archetype: profile.archetype,
+    match: profile.match,
+    scores: profile.normalized,
+    rarity: archetypeRarityPct(worldCup.quiz, worldCup.archetypes, profile.archetype.id),
+    reading,
+    source,
+  };
 }
 
 export async function generateMetadata({
@@ -74,15 +112,7 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
   if (missingAnswers(worldCup.quiz, answers).length > 0) redirect("/quiz");
   const referred = typeof sp.ref === "string" ? sp.ref : undefined;
 
-  const res = await fetch(`${baseUrl()}/api/reading?${orderedQuery(answers)}`, { cache: "force-cache" });
-  const data: {
-    archetype: { id: string; label: string };
-    match: { id: string; label: string; tags?: string[] };
-    scores: Record<string, number>;
-    rarity: number;
-    source: string;
-    reading: WorldCupReading;
-  } = await res.json();
+  const data = await getReading(answers);
   const r = data.reading;
 
   const meta = playerMeta[data.match.id];
