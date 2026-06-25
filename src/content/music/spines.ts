@@ -65,7 +65,7 @@ export const musicSpines: SpineSet = {
       "You build the playlist for the version of the day you've decided to have.",
     ],
     reframe:
-      "Call it control-freakery if you want. Feeling something on purpose just beats feeling it by ambush, every time.",
+      "A playlist isn't a mood — it's a thermostat. You'd rather schedule a feeling than be ambushed by one; the ones that arrive are the ones that have reached you.",
     split:
       "The dosing is the gift. Never letting a song surprise you is the tax. Once, leave it on shuffle and see what finds you.",
     closer: "You've got a playlist for every mood but the one you're actually in.",
@@ -124,7 +124,7 @@ export const musicSpines: SpineSet = {
       "Asked your favourite artist, you give a different answer every time and mean all of them.",
     ],
     reframe:
-      "Listening to everything isn't a missing opinion — every room has one song worth keeping, and you intend to find it.",
+      "Liking a bit of everything isn't a missing opinion — a taste with hard edges can be predicted, and you'd rather not be.",
     split:
       "The range is the gift. Having no song that's unmistakably yours is the tax. Pick one nobody would guess. Let it be yours.",
     closer: "You're not the person without a taste. You're the one who never got boxed.",
