@@ -23,4 +23,5 @@ export const worldCup: VariantBundle = {
 
 export { worldCupQuiz, worldCupArchetypes, worldCupRoster, playerMeta, WC_DIMENSIONS };
 export { worldCupSpines } from "./spines";
+export { fanVerdicts, fanVerdict, fanVerdictRoster, type FanVerdict } from "./fan-verdicts";
 export * from "./design";
