@@ -1,6 +1,8 @@
 import { localPremiumReport } from "@/llm";
-import { DEFAULT_SAMPLE, type PremiumProfile } from "@/content/sample-profile";
+import { DEFAULT_SAMPLE } from "@/content/sample-profile";
+import { lawForArchetypeLabel } from "@/content/music";
 import { decodePremiumToken } from "@/lib/premiumToken";
+import { buildPreviewHook } from "../previewHook";
 import Track from "@/components/Track";
 import UnlockButton from "../UnlockButton";
 
@@ -13,18 +15,6 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
  * the page with the user's REAL profile; without it (direct visits / Slice-0
  * testing) it falls back to the sample.
  */
-function hook(p: PremiumProfile): string {
-  const extremes = p.bigFive.filter((b) => b.level !== "Medium").slice(0, 2);
-  const artist = p.artistsRecent[0] ?? p.artistsDurable[0];
-  if (extremes.length === 0) {
-    return `Reading you as ${p.attachmentStyle} and ${p.stateLine} — and that's just the un-blurred part.`;
-  }
-  const traits = extremes.map((b) => `${b.level} ${b.trait}`).join(" / ");
-  return artist
-    ? `You scored ${traits} — which is why ${artist} is in your rotation, and you already know what that means.`
-    : `You scored ${traits} — and your listening already told us why.`;
-}
-
 export default async function PreviewPage({ searchParams }: { searchParams: SearchParams }) {
   const sp = await searchParams;
   const token = typeof sp.t === "string" ? sp.t : undefined;
@@ -32,6 +22,9 @@ export default async function PreviewPage({ searchParams }: { searchParams: Sear
   const profile = decoded ?? DEFAULT_SAMPLE;
   const checkoutProfile = decoded && token ? token : profile.id;
 
+  // A1a: the deterministic LAW dangled by the hook is the FIRST blurred line
+  // below — so "it's the first line below" is honest, not a fabricated receipt.
+  const law = lawForArchetypeLabel(profile.archetype);
   const report = localPremiumReport(profile);
   const devUnlockHref =
     process.env.NODE_ENV !== "production"
@@ -54,11 +47,19 @@ export default async function PreviewPage({ searchParams }: { searchParams: Sear
       <h1 className="mt-2 font-display text-5xl font-black leading-[0.95]">{profile.archetype}</h1>
 
       {/* Un-blurred self-verification hook */}
-      <p className="mt-6 text-lg leading-relaxed">{hook(profile)}</p>
+      <p className="mt-6 text-lg leading-relaxed">{buildPreviewHook(profile, !!law)}</p>
 
       {/* The blurred analysis (curiosity gap) — v2 blocks (§20.B) */}
       <div className="relative mt-8">
         <div className="flex flex-col gap-5">
+          {law && (
+            <section>
+              <p className="text-xs font-bold tracking-[0.3em] text-accent">THE RULE YOU LIVE BY</p>
+              <Blur>
+                <p className="mt-2 font-display text-xl font-semibold leading-snug">{law}</p>
+              </Blur>
+            </section>
+          )}
           <section>
             <p className="text-xs font-bold tracking-[0.3em] text-accent">LATELY vs ALWAYS · the split</p>
             <p className="mt-1 text-xs text-muted">what the last few weeks say · what never changes</p>

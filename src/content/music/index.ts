@@ -49,6 +49,12 @@ export function themeForArchetypeLabel(label: string): string {
   return (c && ARCHETYPE_THEMES[c.id]) || "midnight";
 }
 
+/** The shortcut LAW for an archetype LABEL (§6: deterministic, by id). Unknown → undefined. */
+export function lawForArchetypeLabel(label: string): string | undefined {
+  const c = musicArchetypes.centroids.find((x) => x.label === label);
+  return c ? musicSpines[c.id]?.law : undefined;
+}
+
 export interface Lanes {
   /** Recent/mood (→ Red Flags). */
   state: Record<string, Level>;
