@@ -70,6 +70,15 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         Find my match
       </Link>
       <p className="mt-6 text-xs text-muted">Free · ~30 seconds · no sign-up</p>
+
+      <Link
+        href="/fan-verdict"
+        className="mt-7 text-sm text-muted underline underline-offset-4 transition hover:text-accent"
+      >
+        Or: what does your favourite player say about{" "}
+        <span className="text-accent">you</span>?
+      </Link>
+
       <p className="mt-8 text-[11px] text-muted/70">
         <Link href="/legal" className="underline">
           Terms · Privacy

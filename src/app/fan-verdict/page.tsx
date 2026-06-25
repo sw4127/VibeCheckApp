@@ -6,7 +6,9 @@ import {
   playerMeta,
   buildCardDesign,
 } from "@/content/world-cup";
+import { baseUrl, cardPath } from "@/lib/site";
 import Track from "@/components/Track";
+import ShareButton from "../result/ShareButton";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -31,9 +33,14 @@ export async function generateMetadata({
   if (!v || !label) {
     return { title: "What does your favourite footballer say about you? — Vibe Check" };
   }
+  const og =
+    baseUrl() +
+    cardPath({ format: "og", mode: "fan", archetype: v.law, player: label, nation: playerMeta[id!]?.nation });
   return {
     title: `${label} fans, exposed — Vibe Check`,
     description: v.law,
+    openGraph: { title: `${label} fans, exposed`, images: [{ url: og, width: 1200, height: 630 }] },
+    twitter: { card: "summary_large_image", images: [og] },
   };
 }
 
@@ -94,6 +101,18 @@ export default async function FanVerdictPage({ searchParams }: { searchParams: S
         <p className="mt-2 font-display text-3xl font-black leading-[1.05]">
           {verdict.law}
         </p>
+      </div>
+
+      {/* Share — the whole point of the front door (link unfurls the OG card) */}
+      <div className="mt-6 flex justify-center">
+        <ShareButton
+          url={`${baseUrl()}/fan-verdict?player=${id ?? ""}`}
+          text={`Apparently being a ${label} fan means: "${verdict.law}" 💀 What does your team say about you?`}
+          label="Share this"
+          event="fan_verdict_share"
+          accent={accent}
+          primary
+        />
       </div>
 
       {/* Funnel into the paid music read (§16.A) */}

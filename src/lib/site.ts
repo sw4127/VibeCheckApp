@@ -31,8 +31,12 @@ export function baseUrl(): string {
 export interface CardParams {
   format: "story" | "square" | "og";
   archetype: string;
-  /** "music" hides the player block and uses the theme accent (§16.E). */
-  mode?: "music";
+  /**
+   * "music" hides the player block and uses the theme accent (§16.E).
+   * "fan" (A2): the archetype slot carries the LAW; the label becomes
+   * "IF YOU STAN <player>" — the /fan-verdict share card.
+   */
+  mode?: "music" | "fan";
   /** Music theme (ember|midnight|neon|bloom|static) → accent colour. */
   theme?: string;
   /** "paid" = the §20.B5 collector card ("THE FULL READ" wordmark). */

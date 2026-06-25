@@ -73,6 +73,7 @@ export async function GET(request: Request) {
   // §23.E — the rarity % (`rar`) is no longer rendered (implied a population
   // stat we don't have). Param tolerated for old links, ignored.
   const isMusic = searchParams.get("mode") === "music";
+  const isFan = searchParams.get("mode") === "fan"; // A2 /fan-verdict card
   const theme = searchParams.get("theme");
   const isPaid = searchParams.get("tier") === "paid"; // §20.B5 collector card
 
@@ -139,7 +140,13 @@ export async function GET(request: Request) {
   const s = isOg ? 0.6 : format === "square" ? 0.9 : 1;
   const px = (n: number) => Math.round(n * s);
   const pad = px(isOg ? 56 : 84);
-  const heroSize = archetype.length > 12 ? px(120) : px(150);
+  // Fan card: the hero carries the LAW (longer than an archetype name). Keep it
+  // big so it dominates and wraps to fill the frame; ease down for long laws.
+  const heroSize = isFan
+    ? px(archetype.length > 34 ? 92 : 108)
+    : archetype.length > 12
+      ? px(120)
+      : px(150);
 
   const Label = (text: string) => (
     <div style={{ display: "flex", fontSize: px(24), letterSpacing: px(5), color: p.sub, fontWeight: 700 }}>
@@ -236,14 +243,14 @@ export async function GET(request: Request) {
 
   const Hero = (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      {Label("YOUR VIBE IS")}
+      {Label(isFan ? `IF YOU STAN ${player.toUpperCase()}` : "YOUR VIBE IS")}
       <div
         style={{
           display: "flex",
           fontFamily: "Fraunces",
           fontWeight: 900,
           fontSize: heroSize,
-          lineHeight: 0.92,
+          lineHeight: isFan ? 1.02 : 0.92,
           letterSpacing: px(-2),
           color: p.text,
           marginTop: px(10),
@@ -254,7 +261,7 @@ export async function GET(request: Request) {
     </div>
   );
 
-  const PlayerBlock = isMusic ? null : (
+  const PlayerBlock = isMusic || isFan ? null : (
     <div style={{ display: "flex", flexDirection: "column" }}>
       {Label("YOU PLAY LIKE")}
       <div style={{ display: "flex", fontFamily: "Fraunces", fontWeight: 600, fontSize: px(56), color: isMusic ? p.accent : p.text, marginTop: px(4) }}>
