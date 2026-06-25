@@ -13,6 +13,7 @@ import type { Level } from "@/llm/premiumSchema";
 import type { PremiumProfile } from "@/content/sample-profile";
 import { fnv1a } from "@/engine";
 import { musicArchetypes, ARCHETYPE_THEMES } from "./archetypes";
+import { musicSpines } from "./spines";
 import {
   musicQuiz,
   CUES,
@@ -26,6 +27,7 @@ import {
 export {
   musicQuiz,
   musicArchetypes,
+  musicSpines,
   ARCHETYPE_THEMES,
   CUES,
   REVERB,
