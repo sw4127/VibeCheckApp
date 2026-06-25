@@ -3,11 +3,8 @@ import { musicSpines } from "./spines";
 import { musicArchetypes } from "./archetypes";
 import type { Spine } from "@/content/spine";
 
-const ARCHETYPE_ID_SET = new Set(musicArchetypes.centroids.map((c) => c.id));
-const BATCH_1 = [
-  "time_capsule", "aux_tyrant", "mood_engineer",
-  "catharsis_chaser", "deep_diver", "omnivore",
-];
+const ARCHETYPE_IDS = musicArchetypes.centroids.map((c) => c.id);
+const ARCHETYPE_ID_SET = new Set(ARCHETYPE_IDS);
 
 // §21.D banned list + §7/§21.A4 hedges. "eclectic" is the music-specific trap.
 const BANNED = [
@@ -19,8 +16,8 @@ const words = (s: string) => s.trim().split(/\s+/).filter(Boolean);
 const allText = (sp: Spine) => [sp.law, ...sp.tells, sp.reframe, sp.split, sp.closer].join(" ");
 
 describe("Music spines (Slice 1b · Batch 1)", () => {
-  it("covers exactly the 6 Batch-1 archetypes (Batch 2 lands the other 5)", () => {
-    expect(Object.keys(musicSpines).sort()).toEqual([...BATCH_1].sort());
+  it("covers every reachable music archetype (Batches 1–2 complete)", () => {
+    expect(Object.keys(musicSpines).sort()).toEqual([...ARCHETYPE_IDS].sort());
   });
 
   it("only keys real, reachable archetype ids (no typos)", () => {

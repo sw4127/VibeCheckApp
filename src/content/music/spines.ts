@@ -2,10 +2,11 @@
  * Music shortcut spines (Slice 1b) — the deterministic reusable LENS per music
  * archetype (§6: selected by id, never LLM-classified). Authored to §21.
  *
- * BATCH 1 (this file, for review): the 6 highest-traffic verdicts + the new
- * moderate type — time_capsule · aux_tyrant · mood_engineer · catharsis_chaser ·
- * deep_diver · omnivore. BATCH 2: escape_artist · easy_listener · main_character ·
- * maximalist · velvet_cynic.
+ * BATCH 1: the 6 highest-traffic verdicts + the new moderate type —
+ * time_capsule · aux_tyrant · mood_engineer · catharsis_chaser · deep_diver ·
+ * omnivore. BATCH 2: escape_artist · easy_listener · main_character ·
+ * maximalist · velvet_cynic. Together they cover all 11 reachable music
+ * archetypes (asserted in the test).
  *
  * Voice (§21): the read is about their TASTE and inner life, sharper and more
  * intimate than the football read. Tells describe real listening behaviour
@@ -130,6 +131,106 @@ export const musicSpines: SpineSet = {
     slots: {
       reframe: "two clashing {artist}s that surprise people",
       tells: "their most genre-crossing pick",
+    },
+  },
+
+  // --- Batch 2 -------------------------------------------------------------
+
+  // The Escape Artist — music as a wall/boundary, disappears, low extraversion.
+  escape_artist: {
+    law: "Headphones in means the door is closed.",
+    tells: [
+      "You put headphones on to make a room stop being a room.",
+      "You've left a party early and felt relief the second the music was yours again.",
+      "Your most honest hours happen with the volume up and nobody around.",
+    ],
+    reframe:
+      "The headphones aren't antisocial. They're the one wall thin enough to feel safe behind, solid enough to keep the rest out.",
+    split:
+      "The escape is the gift. Mistaking the exit for a home is the tax. You can come back — the door wasn't locked from the outside.",
+    closer: "The party's still happening. You're just attending it from behind the glass.",
+    slots: {
+      reframe: "{artist} they retreat into",
+      tells: "their 'drowning the world out' pick",
+    },
+  },
+
+  // The Easy Listener — low-stakes, background, peace over edge.
+  easy_listener: {
+    law: "You'd rather it be pleasant than important.",
+    tells: [
+      "You let an album end and don't reach for the next thing.",
+      "You can't name the last song that ruined or rescued your day, and that's the point.",
+      "You pick the playlist that asks the least of you.",
+    ],
+    reframe:
+      "You're not indifferent. You decided early which things get to move you, and music didn't make the cut — by choice.",
+    split:
+      "The ease is the gift. Never letting anything in is the tax. One song, once, all the way up — see if you miss it after.",
+    closer:
+      "Everyone's hunting for the song that changes everything. You already decided nothing has to.",
+    slots: {
+      reframe: "their 'calm / background' pick",
+      tells: "their 'no skips' pick",
+    },
+  },
+
+  // The Main Character — soundtracks life, performative, skip-button optimist.
+  main_character: {
+    law: "Every walk is a scene. Every song scores it.",
+    tells: [
+      "You've queued a song to match a moment that hadn't happened yet.",
+      "You skip the second a song stops earning its place in the montage.",
+      "Your music sounds best when you can picture someone watching you to it.",
+    ],
+    reframe:
+      "Scoring your life isn't vanity. An ordinary Tuesday needs a reason to count, and you give it one.",
+    split:
+      "The momentum is the gift. Needing an audience for the scene is the tax. The walk's still good when nobody's filming.",
+    closer:
+      "You're the main character. The quiet question is who you're performing the soundtrack for.",
+    slots: {
+      reframe: "their 'bright + loud / main-character energy' pick",
+      tells: "{artist} that scores their entrance",
+    },
+  },
+
+  // The Maximalist — volume as a lifestyle, more is more, drowns the quiet.
+  maximalist: {
+    law: "If it's worth playing, it's worth too loud.",
+    tells: [
+      "You turn it up past 'good' to 'felt in your chest'.",
+      "A song with empty space makes you reach to fill it.",
+      "You'd take the overwhelming version over the tasteful one every time.",
+    ],
+    reframe:
+      "It's not that you can't do subtle. Quiet is where the thinking starts, and you'd rather feel than think for a while.",
+    split:
+      "The intensity is the gift. Drowning out the quiet is the tax. Some things only say it once, and softly — don't miss them.",
+    closer:
+      "At full volume there's no room for the day, the thought, or the doubt. That's the point.",
+    slots: {
+      reframe: "their 'heavy + intense / feel-everything volume' pick",
+      tells: "{artist} they max the volume for",
+    },
+  },
+
+  // The Velvet Cynic — overfeels elegantly, lyric-first, guards the feeling.
+  velvet_cynic: {
+    law: "You feel everything and admit to none of it.",
+    tells: [
+      "You've replayed one line until it stopped being a lyric and started being evidence.",
+      "You feel things at a depth you'd never say out loud, then make a joke about it.",
+      "You trust a sad song more than the person who'd ask if you're okay.",
+    ],
+    reframe:
+      "The detachment isn't coldness. You feel too much to leave it unguarded, so you dress it in someone else's words.",
+    split:
+      "The depth is the gift. Outsourcing every feeling to a lyricist is the tax. At some point the words have to be yours.",
+    closer: "You don't relate to the song. You let it say the thing so you never have to.",
+    slots: {
+      reframe: "{artist} whose lyrics they hide behind",
+      tells: "their 'turn it up and sit in it' pick",
     },
   },
 };
