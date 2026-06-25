@@ -3,8 +3,8 @@ import { worldCupSpines } from "./spines";
 import { worldCupArchetypes } from "./archetypes";
 import type { Spine } from "@/content/spine";
 
-const ARCHETYPE_IDS = new Set(worldCupArchetypes.centroids.map((c) => c.id));
-const BATCH_1 = ["maverick", "firestarter", "rock", "iceman", "equilibrist"];
+const ARCHETYPE_IDS = worldCupArchetypes.centroids.map((c) => c.id);
+const ARCHETYPE_ID_SET = new Set(ARCHETYPE_IDS);
 
 // §21.D banned list + §7/§21.A4 hedges. Word-boundaried, case-insensitive.
 const BANNED = [
@@ -16,13 +16,13 @@ const words = (s: string) => s.trim().split(/\s+/).filter(Boolean);
 const allText = (sp: Spine) => [sp.law, ...sp.tells, sp.reframe, sp.split, sp.closer].join(" ");
 
 describe("World Cup spines (Slice 1b · Batch 1)", () => {
-  it("covers exactly the 5 Batch-1 archetypes (others land in later batches)", () => {
-    expect(Object.keys(worldCupSpines).sort()).toEqual([...BATCH_1].sort());
+  it("covers every reachable football archetype (Batches 1–2 complete)", () => {
+    expect(Object.keys(worldCupSpines).sort()).toEqual([...ARCHETYPE_IDS].sort());
   });
 
   it("only keys real, reachable archetype ids (no typos)", () => {
     for (const id of Object.keys(worldCupSpines))
-      expect(ARCHETYPE_IDS.has(id), `unknown archetype id: ${id}`).toBe(true);
+      expect(ARCHETYPE_ID_SET.has(id), `unknown archetype id: ${id}`).toBe(true);
   });
 
   for (const [id, sp] of Object.entries(worldCupSpines)) {
