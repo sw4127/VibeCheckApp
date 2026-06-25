@@ -11,6 +11,7 @@ import type {
   CentroidSet,
   Profile,
   QuizConfig,
+  ScoreVector,
 } from "./types";
 
 /** Question ids the user has not answered yet (empty = ready to score). */
@@ -29,6 +30,32 @@ export function isComplete(config: QuizConfig, answers: Answers): boolean {
 }
 
 /**
+ * Shared assembly: a raw score vector + a precomputed cache hash → the full
+ * deterministic verdict. The single-pick (`buildProfile`) and weighted
+ * (`buildWeightedProfile`, Slice 2) paths both feed this, so the
+ * normalize → match → assemble logic has ONE source of truth (§6).
+ */
+export function assembleProfile(
+  config: QuizConfig,
+  archetypes: CentroidSet,
+  roster: CentroidSet,
+  raw: ScoreVector,
+  hash: string,
+): Profile {
+  // Percentile-normalized so users spread across the space and the roster gets
+  // used evenly (see score.ts). This is the vector everything matches against.
+  const normalized = percentileNormalize(config, raw);
+  return {
+    hash,
+    raw,
+    normalized,
+    archetype: nearestMatch(normalized, archetypes.centroids),
+    match: nearestMatch(normalized, roster.centroids),
+    rankedMatches: rankMatches(normalized, roster.centroids),
+  };
+}
+
+/**
  * Compute the full verdict. Requires a complete answer set so the score vector
  * is whole (spec §10: "force completion of every tap question").
  */
@@ -44,18 +71,11 @@ export function buildProfile(
       `buildProfile: incomplete answers; missing/invalid: ${missing.join(", ")}`,
     );
   }
-
-  const raw = scoreAnswers(config, answers);
-  // Percentile-normalized so users spread across the space and the roster gets
-  // used evenly (see score.ts). This is the vector everything matches against.
-  const normalized = percentileNormalize(config, raw);
-
-  return {
-    hash: hashAnswers(config, answers),
-    raw,
-    normalized,
-    archetype: nearestMatch(normalized, archetypes.centroids),
-    match: nearestMatch(normalized, roster.centroids),
-    rankedMatches: rankMatches(normalized, roster.centroids),
-  };
+  return assembleProfile(
+    config,
+    archetypes,
+    roster,
+    scoreAnswers(config, answers),
+    hashAnswers(config, answers),
+  );
 }

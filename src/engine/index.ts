@@ -9,6 +9,20 @@ export {
 } from "./score";
 export { distance, rankMatches, nearestMatch } from "./match";
 export { canonicalAnswers, fnv1a, hashAnswers } from "./hash";
-export { buildProfile, isComplete, missingAnswers } from "./profile";
+export { buildProfile, assembleProfile, isComplete, missingAnswers } from "./profile";
+export {
+  buildWeightedProfile,
+  scoreWeightedAnswers,
+  missingWeighted,
+  primaryAnswers,
+  primaryOf,
+  canonicalWeighted,
+  hashWeighted,
+  SPLIT_PRIMARY,
+  SPLIT_SECONDARY,
+  type WeightedAnswer,
+  type AnswerChoice,
+  type WeightedAnswers,
+} from "./weighted";
 export { archetypeFrequencies, archetypeRarityPct } from "./rarity";
 export { levelOf, type LevelBucket } from "./levels";
