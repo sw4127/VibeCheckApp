@@ -115,9 +115,10 @@ export default async function FanVerdictPage({ searchParams }: { searchParams: S
         />
       </div>
 
-      {/* Funnel into the paid music read (§16.A) */}
+      {/* Funnel into the paid music read (§16.A). ref=fan tags the session so the
+          whole downstream funnel is attributable to the fan-verdict front door. */}
       <Link
-        href="/music/quiz"
+        href={`/music/quiz?ref=fan&from=${id ?? ""}`}
         className="mt-10 block rounded-2xl p-6 text-center transition hover:opacity-95"
         style={{ background: `${accent}14`, border: `1px solid ${accent}40` }}
       >

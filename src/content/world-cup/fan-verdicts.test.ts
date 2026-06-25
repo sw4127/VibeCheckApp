@@ -3,15 +3,21 @@ import { fanVerdicts, fanVerdict, fanVerdictRoster } from "./fan-verdicts";
 import { worldCupRoster } from "./roster";
 
 const ROSTER_IDS = new Set(worldCupRoster.centroids.map((c) => c.id));
-const BATCH_1 = ["messi", "ronaldo", "mbappe", "haaland", "bellingham", "yamal"];
+// Authored so far (Batches 1–2). The remaining 15 land in later batches; when
+// every roster player has a verdict this becomes the full-coverage gate.
+const AUTHORED = [
+  "messi", "ronaldo", "mbappe", "haaland", "bellingham", "yamal",
+  "vinicius", "debruyne", "modric", "kane", "saka", "vandijk",
+  "griezmann", "valverde", "rice", "lautaro",
+];
 
 // §3/§21 guardrails: no hedges, no protected-attribute words.
 const BANNED = ["might", "maybe", "perhaps", "probably"];
 const words = (s: string) => s.trim().split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w));
 
-describe("A2 — fan verdicts (Batch 1)", () => {
-  it("covers exactly the 6 Batch-1 players", () => {
-    expect(Object.keys(fanVerdicts).sort()).toEqual([...BATCH_1].sort());
+describe("A2 — fan verdicts", () => {
+  it("covers exactly the authored set (Batches 1–2)", () => {
+    expect(Object.keys(fanVerdicts).sort()).toEqual([...AUTHORED].sort());
   });
 
   it("only keys real roster players (no typos / off-roster names)", () => {
@@ -20,7 +26,7 @@ describe("A2 — fan verdicts (Batch 1)", () => {
   });
 
   it("fanVerdictRoster is built from the roster and carries labels", () => {
-    expect(fanVerdictRoster.map((p) => p.id).sort()).toEqual([...BATCH_1].sort());
+    expect(fanVerdictRoster.map((p) => p.id).sort()).toEqual([...AUTHORED].sort());
     for (const p of fanVerdictRoster) expect(p.label.length).toBeGreaterThan(0);
   });
 

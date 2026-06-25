@@ -54,6 +54,58 @@ export const fanVerdicts: Record<string, FanVerdict> = {
       "You're already rehearsing the 'I liked him before you' speech for 2030.",
     law: "Calling it early is your whole personality.",
   },
+
+  // --- Batch 2 (marquee) ---------------------------------------------------
+  vinicius: {
+    verdict:
+      "You've called three different referees corrupt this season and you'd do it again.",
+    law: "Everything is a conspiracy against your guy.",
+  },
+  debruyne: {
+    verdict:
+      "You think the assist is morally superior to the goal and bring it up unprompted.",
+    law: "Underrated is your favourite word for everything.",
+  },
+  modric: {
+    verdict:
+      "You preface every point with 'at his age' like it's a personality trait.",
+    law: "You mistake nostalgia for analysis, repeatedly.",
+  },
+  kane: {
+    verdict:
+      "You've built a whole identity around defending someone else's trophy cabinet.",
+    law: "Stats are your coping mechanism, not an argument.",
+  },
+  saka: {
+    verdict:
+      "You treat criticism of him like a personal attack on your little brother.",
+    law: "You adopted a stranger and got defensive.",
+  },
+  vandijk: {
+    verdict:
+      "You think appreciating a defender makes you smarter than everyone watching the striker.",
+    law: "You confuse liking defence with having taste.",
+  },
+  griezmann: {
+    verdict:
+      "You measure devotion in kilometres covered and have decided that's depth.",
+    law: "You call invisible work the real work.",
+  },
+  valverde: {
+    verdict:
+      "You respect anyone who never stops running, to a slightly worrying degree.",
+    law: "You think tiredness is the same as value.",
+  },
+  rice: {
+    verdict:
+      "You defend a transfer fee like it came out of your own account.",
+    law: "You'd die on a hill nobody's attacking.",
+  },
+  lautaro: {
+    verdict:
+      "You call him a warrior and mean it more than you've meant most things.",
+    law: "You outsource your aggression to a striker.",
+  },
 };
 
 /** Players that currently have a verdict, in roster order (for the picker). */
