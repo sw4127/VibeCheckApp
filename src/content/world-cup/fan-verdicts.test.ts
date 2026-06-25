@@ -2,31 +2,25 @@ import { describe, it, expect } from "vitest";
 import { fanVerdicts, fanVerdict, fanVerdictRoster } from "./fan-verdicts";
 import { worldCupRoster } from "./roster";
 
-const ROSTER_IDS = new Set(worldCupRoster.centroids.map((c) => c.id));
-// Authored so far (Batches 1–2). The remaining 15 land in later batches; when
-// every roster player has a verdict this becomes the full-coverage gate.
-const AUTHORED = [
-  "messi", "ronaldo", "mbappe", "haaland", "bellingham", "yamal",
-  "vinicius", "debruyne", "modric", "kane", "saka", "vandijk",
-  "griezmann", "valverde", "rice", "lautaro",
-];
+const ROSTER_IDS = worldCupRoster.centroids.map((c) => c.id);
+const ROSTER_ID_SET = new Set(ROSTER_IDS);
 
 // §3/§21 guardrails: no hedges, no protected-attribute words.
 const BANNED = ["might", "maybe", "perhaps", "probably"];
 const words = (s: string) => s.trim().split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w));
 
 describe("A2 — fan verdicts", () => {
-  it("covers exactly the authored set (Batches 1–2)", () => {
-    expect(Object.keys(fanVerdicts).sort()).toEqual([...AUTHORED].sort());
+  it("covers EVERY roster player (complete — no player without a verdict)", () => {
+    expect(Object.keys(fanVerdicts).sort()).toEqual([...ROSTER_IDS].sort());
   });
 
   it("only keys real roster players (no typos / off-roster names)", () => {
     for (const id of Object.keys(fanVerdicts))
-      expect(ROSTER_IDS.has(id), `unknown player id: ${id}`).toBe(true);
+      expect(ROSTER_ID_SET.has(id), `unknown player id: ${id}`).toBe(true);
   });
 
   it("fanVerdictRoster is built from the roster and carries labels", () => {
-    expect(fanVerdictRoster.map((p) => p.id).sort()).toEqual([...AUTHORED].sort());
+    expect(fanVerdictRoster.map((p) => p.id).sort()).toEqual([...ROSTER_IDS].sort());
     for (const p of fanVerdictRoster) expect(p.label.length).toBeGreaterThan(0);
   });
 

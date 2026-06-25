@@ -10,8 +10,8 @@
  * GUARDRAIL (§3 / §13.D): roast the FAN's behaviour, never the real player.
  * Playing-style / public persona only; no protected attributes; no hedges.
  *
- * BATCH 1 (this file): the 6 iconic players. The remaining 25 land in review
- * batches (the resolver + route already work for any id with a verdict).
+ * COMPLETE: all 31 roster players have a verdict (asserted in the test — a new
+ * roster player without one fails CI). Authored in review batches.
  */
 
 import { worldCupRoster } from "./roster";
@@ -105,6 +105,68 @@ export const fanVerdicts: Record<string, FanVerdict> = {
     verdict:
       "You call him a warrior and mean it more than you've meant most things.",
     law: "You outsource your aggression to a striker.",
+  },
+
+  // --- Batch 3 (the rest — completes the 31-player roster) -----------------
+  pedri: {
+    verdict: "You'd watch ten sideways passes in a row and call it poetry.",
+    law: "You call avoiding risk 'controlling the game'.",
+  },
+  rodri: {
+    verdict: "You enjoy explaining why the boring player is secretly the most important one.",
+    law: "Noticing the boring guy is your flex.",
+  },
+  rodrygo: {
+    verdict: "You've defended a quiet season with the same three big-game clips on loop.",
+    law: "You grade on the curve you drew.",
+  },
+  raphinha: {
+    verdict: "You were quiet about him for years and now you won't shut up.",
+    law: "Your loudest takes are your newest ones.",
+  },
+  cherki: {
+    verdict: "You think a step-over is a substitute for a trophy and you'll argue it.",
+    law: "You confuse potential with achievement, fondly.",
+  },
+  wirtz: {
+    verdict: "You've got a 'told you so' loaded for whenever everyone else catches up.",
+    law: "You hoard credit for other people's rise.",
+  },
+  mora: {
+    verdict: "You've decided a teenager is the future and tagged everyone to prove it.",
+    law: "You crown children and call it vision.",
+  },
+  balogun: {
+    verdict: "You like the idea of him more than any actual match he's played.",
+    law: "You support the projection, not the player.",
+  },
+  davies: {
+    verdict: "Your entire scouting report is the word 'pace', said louder each time.",
+    law: "Speed impresses you more than it should.",
+  },
+  nicopaz: {
+    verdict: "You say 'between the lines' in conversations that did not require it.",
+    law: "You learned three phrases and deploy them endlessly.",
+  },
+  diomande: {
+    verdict: "You back the boom-or-bust guy because his boom feels like your win.",
+    law: "You mistake someone's risk for your courage.",
+  },
+  nusa: {
+    verdict: "You've watched the compilation more times than you've watched a full match.",
+    law: "Highlights are the only stat you trust.",
+  },
+  sadiki: {
+    verdict: "You love him precisely because nobody else has noticed him yet.",
+    law: "Obscurity is the thing you actually like.",
+  },
+  maza: {
+    verdict: "You know his stats because a video game told you, not a match.",
+    law: "Your scouting happens entirely on a console.",
+  },
+  vozinha: {
+    verdict: "You think loving a goalkeeper makes you a football intellectual.",
+    law: "Liking keepers isn't the personality you think.",
   },
 };
 
