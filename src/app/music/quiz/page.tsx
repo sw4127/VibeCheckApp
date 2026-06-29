@@ -2,8 +2,15 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { musicQuiz, CUES, REVERB, buildMusicProfile, musicArchetypes, ARCHETYPE_THEMES } from "@/content/music";
-import { percentileNormalize, rankMatches, scoreAnswers, type Answers } from "@/engine";
+import { musicQuiz, CUES, REVERB, buildWeightedMusicProfile, musicArchetypes, ARCHETYPE_THEMES } from "@/content/music";
+import {
+  percentileNormalize,
+  rankMatches,
+  scoreWeightedAnswers,
+  encodeAnswerChoice,
+  type WeightedAnswers,
+  type AnswerChoice,
+} from "@/engine";
 import { Sigil, THEME_HUES, driftHue } from "@/lib/sigil";
 import FluidField from "@/components/FluidField";
 import { track } from "@/lib/analytics";
@@ -42,8 +49,12 @@ const RESOLVE = [523.25, 659.25, 783.99]; // C5–E5–G5
 export default function MusicQuizPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Answers>({});
+  const [answers, setAnswers] = useState<WeightedAnswers>({});
   const [selected, setSelected] = useState<string | null>(null);
+  // §slice-2b — opt-in blend: a per-question "torn? pick two" mode (default off,
+  // so the single-tap rhythm is untouched). `secondary` is the 30% pick.
+  const [secondary, setSecondary] = useState<string | null>(null);
+  const [blendMode, setBlendMode] = useState(false);
   const [reverb, setReverb] = useState<string | null>(null);
   // §22 momentum: which bars moved on THIS tap → they pulse (honest feedback —
   // the bars reflect a real deterministic re-score, not invented telemetry).
@@ -54,7 +65,7 @@ export default function MusicQuizPage() {
   const persuasive = arm !== "control"; // default to persuasive copy pre-hydration
   const [soundOn, setSoundOn] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pendingAnswers = useRef<Answers>({});
+  const pendingAnswers = useRef<WeightedAnswers>({});
   const audioCtx = useRef<AudioContext | null>(null);
 
   /** Soft synth note (sine + quick decay). Never throws; silent when off. */
@@ -140,7 +151,7 @@ export default function MusicQuizPage() {
     // Bars use the NORMALIZED profile (same as the colour/leader), not raw
     // weights — so they move with every answer, including low-pole picks
     // (calm/mainstream) that add zero raw weight. (Bug fix.)
-    const norm = percentileNormalize(quiz, scoreAnswers(quiz, answers));
+    const norm = percentileNormalize(quiz, scoreWeightedAnswers(quiz, answers));
     const bars = quiz.dimensions.map((d) => norm[d] ?? 0);
     const leader = rankMatches(norm, musicArchetypes.centroids)[0];
     const themeName = ARCHETYPE_THEMES[leader.id] ?? "midnight";
@@ -172,11 +183,11 @@ export default function MusicQuizPage() {
     ];
   }, [forming.hue, forming.muted]);
 
-  function goToResult(finalAnswers: Answers) {
-    const profile = buildMusicProfile(finalAnswers);
+  function goToResult(finalAnswers: WeightedAnswers) {
+    const profile = buildWeightedMusicProfile(finalAnswers);
     track("quiz_complete", { variant: "music", archetype: profile.archetype.id });
     const qs = new URLSearchParams();
-    for (const q of quiz.questions) qs.set(q.id, finalAnswers[q.id]);
+    for (const q of quiz.questions) qs.set(q.id, encodeAnswerChoice(finalAnswers[q.id]));
     qs.set("voice", getVoiceArm()); // §26 — carry the voice arm into the read (stateless)
     router.push(`/music/result?${qs.toString()}`);
   }
@@ -194,6 +205,8 @@ export default function MusicQuizPage() {
     if (!selected) return;
     setSelected(null);
     setReverb(null);
+    setSecondary(null);
+    setBlendMode(false);
     if (step < total - 1) {
       setStep(step + 1);
     } else {
@@ -205,16 +218,32 @@ export default function MusicQuizPage() {
   }
 
   function choose(optionId: string) {
-    if (!question || selected || phase !== "taps") return;
+    if (!question || phase !== "taps") return;
+
+    // §slice-2b blend mode: first tap = primary (70%), a second DIFFERENT tap =
+    // secondary (30%); tapping the secondary again clears it. No auto-advance —
+    // the user commits with the explicit "Next" (commitBlend).
+    if (blendMode) {
+      if (!selected) {
+        note(SCALE[step] ?? SCALE[SCALE.length - 1]);
+        setSelected(optionId);
+        setReverb(REVERB[question.id]?.[optionId] ?? null);
+      } else if (optionId !== selected) {
+        setSecondary((cur) => (cur === optionId ? null : optionId));
+      }
+      return;
+    }
+
+    if (selected) return; // single-pick: ignore taps during the confirm beat
     note(SCALE[step] ?? SCALE[SCALE.length - 1]); // §22 — one step up per answer
     setSelected(optionId);
     setReverb(REVERB[question.id]?.[optionId] ?? null);
-    const next: Answers = { ...answers, [question.id]: optionId };
+    const next: WeightedAnswers = { ...answers, [question.id]: optionId };
     // Pulse the bars that visibly move on this tap: diff the new normalized
     // vector against the CURRENTLY DISPLAYED bars (forming.bars) so the baseline
     // matches what the user sees (incl. the 0→value jump on the first tap).
     // Computed here, not in render → strict-mode safe, batched → no extra render.
-    const nextNorm = percentileNormalize(quiz, scoreAnswers(quiz, next));
+    const nextNorm = percentileNormalize(quiz, scoreWeightedAnswers(quiz, next));
     const nextBars = quiz.dimensions.map((d) => nextNorm[d] ?? 0);
     setChangedBars(nextBars.map((v, i) => Math.abs(v - (forming.bars[i] ?? 0)) > 0.005));
     setAnswers(next);
@@ -223,6 +252,19 @@ export default function MusicQuizPage() {
     // the pre-click closure, where `selected` is still null → the auto-advance
     // would no-op and every question would need a second tap).
     timer.current = setTimeout(() => advanceRef.current(), REVERB_MS);
+  }
+
+  // §slice-2b — commit a blend (or a single primary if no secondary) and advance.
+  function commitBlend() {
+    if (!selected) return;
+    const choice: AnswerChoice = secondary ? { primary: selected, secondary } : selected;
+    const next: WeightedAnswers = { ...answers, [question.id]: choice };
+    const nextNorm = percentileNormalize(quiz, scoreWeightedAnswers(quiz, next));
+    const nextBars = quiz.dimensions.map((d) => nextNorm[d] ?? 0);
+    setChangedBars(nextBars.map((v, i) => Math.abs(v - (forming.bars[i] ?? 0)) > 0.005));
+    setAnswers(next);
+    pendingAnswers.current = next;
+    advance(); // resets selected/secondary/blendMode + steps forward
   }
 
   // Keep the timer callback pointing at the latest advance() closure.
@@ -301,7 +343,8 @@ export default function MusicQuizPage() {
       className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden px-6 py-10"
       onClick={() => {
         // §20.C3 tap-through: any tap during the beat advances immediately.
-        if (selected) advance();
+        // (Disabled in blend mode — the user commits with the explicit Next.)
+        if (selected && !blendMode) advance();
       }}
     >
       <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.7} scrim={false} vignette />
@@ -387,12 +430,19 @@ export default function MusicQuizPage() {
 
       <div className="mt-7 flex flex-col gap-3">
         {question.options.map((opt) => {
-          const isSelected = selected === opt.id;
+          const isPrimary = selected === opt.id;
+          const isSecondary = secondary === opt.id;
+          const isSel = isPrimary || isSecondary;
           return (
             <button
               key={opt.id}
               type="button"
               onClick={(e) => {
+                if (blendMode) {
+                  e.stopPropagation();
+                  choose(opt.id); // set primary, then toggle a secondary
+                  return;
+                }
                 if (selected) {
                   e.stopPropagation();
                   advance(); // tap-through even when tapping an option mid-beat
@@ -401,19 +451,61 @@ export default function MusicQuizPage() {
                 choose(opt.id);
               }}
               className={`flex items-center justify-between rounded-2xl border px-5 py-3.5 text-left text-lg transition active:scale-[0.99] ${
-                isSelected ? "border-transparent" : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06]"
+                isSel ? "border-transparent" : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06]"
               }`}
               style={
-                isSelected
+                isPrimary
                   ? { background: forming.tint, boxShadow: `0 0 0 1.5px ${forming.ring}, 0 10px 30px ${forming.glow}` }
-                  : undefined
+                  : isSecondary
+                    ? { background: forming.tint, boxShadow: `0 0 0 1.5px ${forming.ring}88` }
+                    : undefined
               }
             >
               <span>{opt.label}</span>
+              {/* §slice-2b — show the split weight in blend mode */}
+              {blendMode && isSel ? (
+                <span className="ml-3 shrink-0 text-xs font-bold tracking-wide" style={{ color: forming.ring }}>
+                  {isPrimary ? "70%" : "30%"}
+                </span>
+              ) : null}
             </button>
           );
         })}
       </div>
+
+      {/* §slice-2b — opt-in blend control. Default-off → the single-tap rhythm
+          is completely untouched for everyone who ignores it. */}
+      {phase === "taps" && !blendMode && !selected ? (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setBlendMode(true);
+          }}
+          className="mt-5 self-start text-sm text-muted underline underline-offset-4 transition hover:text-accent"
+        >
+          Torn between two? Blend them →
+        </button>
+      ) : null}
+      {blendMode ? (
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <span className="text-sm text-muted">
+            {selected ? "Tap a second to split it 70/30 — or just continue." : "Pick your main one first."}
+          </span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              commitBlend();
+            }}
+            disabled={!selected}
+            className="shrink-0 rounded-full px-6 py-2.5 text-sm font-bold text-white transition disabled:opacity-40"
+            style={{ background: forming.ring }}
+          >
+            Next →
+          </button>
+        </div>
+      ) : null}
 
       {/* §17.A reverb — the quiz talks back during the beat */}
       <p
