@@ -259,9 +259,12 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
         </div>
       </div>
 
-      {/* The funnel (§16.A): WC card is the front-door; this CTA feeds the paid music read */}
+      {/* The funnel (§16.A): WC card is the front-door; this CTA feeds the paid
+          music read. §slice-5 — carry the football archetype as a stateless hook
+          (?from=); it seeds a "does your taste agree?" line and NEVER touches the
+          music verdict. */}
       <Link
-        href="/music/quiz"
+        href={`/music/quiz?from=${encodeURIComponent(data.archetype.label)}`}
         className="mt-10 block rounded-2xl p-6 text-center transition hover:opacity-95"
         style={{ background: `${accent}14`, border: `1px solid ${accent}40` }}
       >

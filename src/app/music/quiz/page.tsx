@@ -64,6 +64,13 @@ export default function MusicQuizPage() {
   const [arm, setArm] = useState<OnboardingArm | null>(null);
   const persuasive = arm !== "control"; // default to persuasive copy pre-hydration
   const [soundOn, setSoundOn] = useState(false);
+  // §slice-5 — football→music bridge: the carried football archetype (?from=),
+  // read once at mount. Display-only — it NEVER enters the score or the verdict.
+  const [fromVibe] = useState<string | null>(() =>
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("from")?.slice(0, 40) ?? null,
+  );
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingAnswers = useRef<WeightedAnswers>({});
   const audioCtx = useRef<AudioContext | null>(null);
@@ -280,6 +287,12 @@ export default function MusicQuizPage() {
         <FluidField colors={fluidColors} baseColor="#0A0A11" intensity={0.7} scrim={false} vignette />
         <div className="relative z-10">
           <p className="text-xs font-bold tracking-[0.4em] text-accent">VIBE CHECK</p>
+          {/* §slice-5 — the disagreement hook: football read it as <X>; will taste agree? */}
+          {fromVibe ? (
+            <p className="mt-4 inline-block rounded-full border border-white/10 px-4 py-1.5 text-sm text-muted">
+              On the pitch you read as <span className="font-semibold text-accent">{fromVibe}</span>. Your taste might disagree.
+            </p>
+          ) : null}
           <h1 className="mt-6 font-display text-3xl font-semibold leading-tight">
             Be honest — does your music taste actually say something about who you are?
           </h1>
