@@ -204,10 +204,12 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
         ))}
       </div>
 
-      {/* The TELLS + CLOSER — deterministic "caught you" read (§1b spine, $0) */}
+      {/* The REFRAME (bridge) + TELLS + CLOSER — deterministic "caught you" read
+          (§1b spine, $0). Football has no paywall, so the bridge ships free too. */}
       {spine ? (
         <div className="mt-8">
-          <p className="text-[10px] font-bold tracking-[0.25em] text-muted">YOUR TELLS</p>
+          <p className="leading-relaxed">{spine.reframe}</p>
+          <p className="mt-6 text-[10px] font-bold tracking-[0.25em] text-muted">YOUR TELLS</p>
           <ul className="mt-3 flex flex-col gap-2.5">
             {spine.tells.map((t) => (
               <li key={t} className="flex gap-2.5 leading-relaxed">
