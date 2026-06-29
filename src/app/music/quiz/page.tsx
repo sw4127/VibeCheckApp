@@ -8,6 +8,7 @@ import {
   rankMatches,
   scoreWeightedAnswers,
   encodeAnswerChoice,
+  SPLIT_PCTS,
   type WeightedAnswers,
   type AnswerChoice,
 } from "@/engine";
@@ -55,6 +56,8 @@ export default function MusicQuizPage() {
   // so the single-tap rhythm is untouched). `secondary` is the 30% pick.
   const [secondary, setSecondary] = useState<string | null>(null);
   const [blendMode, setBlendMode] = useState(false);
+  // The chosen split as the PRIMARY's percentage (95/70/50) — "how often each?".
+  const [splitPct, setSplitPct] = useState(70);
   const [reverb, setReverb] = useState<string | null>(null);
   // §22 momentum: which bars moved on THIS tap → they pulse (honest feedback —
   // the bars reflect a real deterministic re-score, not invented telemetry).
@@ -214,6 +217,7 @@ export default function MusicQuizPage() {
     setReverb(null);
     setSecondary(null);
     setBlendMode(false);
+    setSplitPct(70);
     if (step < total - 1) {
       setStep(step + 1);
     } else {
@@ -264,7 +268,9 @@ export default function MusicQuizPage() {
   // §slice-2b — commit a blend (or a single primary if no secondary) and advance.
   function commitBlend() {
     if (!selected) return;
-    const choice: AnswerChoice = secondary ? { primary: selected, secondary } : selected;
+    const choice: AnswerChoice = secondary
+      ? { primary: selected, secondary, primaryWeight: splitPct / 100 }
+      : selected;
     const next: WeightedAnswers = { ...answers, [question.id]: choice };
     const nextNorm = percentileNormalize(quiz, scoreWeightedAnswers(quiz, next));
     const nextBars = quiz.dimensions.map((d) => nextNorm[d] ?? 0);
@@ -478,7 +484,7 @@ export default function MusicQuizPage() {
               {/* §slice-2b — show the split weight in blend mode */}
               {blendMode && isSel ? (
                 <span className="ml-3 shrink-0 text-xs font-bold tracking-wide" style={{ color: forming.ring }}>
-                  {isPrimary ? "70%" : "30%"}
+                  {isPrimary ? `${splitPct}%` : `${100 - splitPct}%`}
                 </span>
               ) : null}
             </button>
@@ -501,10 +507,37 @@ export default function MusicQuizPage() {
         </button>
       ) : null}
       {blendMode ? (
-        <div className="mt-5 flex items-center justify-between gap-3">
-          <span className="text-sm text-muted">
-            {selected ? "Tap a second to split it 70/30 — or just continue." : "Pick your main one first."}
-          </span>
+        <div className="mt-5 flex flex-col gap-3">
+          {!selected ? (
+            <span className="text-sm text-muted">Pick your main one first.</span>
+          ) : !secondary ? (
+            <span className="text-sm text-muted">Now tap a second — or just continue with one.</span>
+          ) : (
+            <div>
+              {/* The split = "statistically, how often would you pick each?" */}
+              <p className="text-sm text-muted">Be honest — how often would you actually pick each?</p>
+              <div className="mt-2 flex gap-2">
+                {SPLIT_PCTS.map((pct) => (
+                  <button
+                    key={pct}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSplitPct(pct);
+                    }}
+                    className="flex-1 rounded-xl border px-3 py-2 text-sm font-bold transition"
+                    style={
+                      splitPct === pct
+                        ? { borderColor: forming.ring, background: forming.tint, color: forming.ring }
+                        : { borderColor: "rgba(255,255,255,0.14)" }
+                    }
+                  >
+                    {pct}/{100 - pct}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <button
             type="button"
             onClick={(e) => {
@@ -512,7 +545,7 @@ export default function MusicQuizPage() {
               commitBlend();
             }}
             disabled={!selected}
-            className="shrink-0 rounded-full px-6 py-2.5 text-sm font-bold text-white transition disabled:opacity-40"
+            className="self-end shrink-0 rounded-full px-6 py-2.5 text-sm font-bold text-white transition disabled:opacity-40"
             style={{ background: forming.ring }}
           >
             Next →

@@ -114,6 +114,46 @@ describe("Slice 2a — weighted answers (engine)", () => {
     for (const v of ["calm", "calm~heavy"]) expect(encodeAnswerChoice(parseAnswerChoice(v))).toBe(v);
   });
 
+  it("SPLIT LEVELS: primaryWeight controls the mix (95/5, 70/30, 50/50)", () => {
+    const rawA = scoreAnswers(WC.quiz, { ...wcAnswers, weekend: "plan" });
+    const rawB = scoreAnswers(WC.quiz, { ...wcAnswers, weekend: "chaos" });
+    for (const pw of [0.95, 0.7, 0.5]) {
+      const raw = scoreWeightedAnswers(WC.quiz, {
+        ...wcAnswers, weekend: { primary: "plan", secondary: "chaos", primaryWeight: pw },
+      });
+      for (const dim of WC.quiz.dimensions) {
+        const expected = pw * (rawA[dim] ?? 0) + (1 - pw) * (rawB[dim] ?? 0);
+        expect(raw[dim] ?? 0, `axis ${dim} @ ${pw}`).toBeCloseTo(expected, 10);
+      }
+    }
+    // 50/50 sits exactly at the midpoint of the two pure picks.
+    const mid = scoreWeightedAnswers(WC.quiz, {
+      ...wcAnswers, weekend: { primary: "plan", secondary: "chaos", primaryWeight: 0.5 },
+    });
+    for (const dim of WC.quiz.dimensions)
+      expect(mid[dim] ?? 0).toBeCloseTo(((rawA[dim] ?? 0) + (rawB[dim] ?? 0)) / 2, 10);
+  });
+
+  it("URL split levels round-trip; default 70 omits the pct", () => {
+    expect(parseAnswerChoice("calm~heavy~95")).toEqual({ primary: "calm", secondary: "heavy", primaryWeight: 0.95 });
+    expect(parseAnswerChoice("calm~heavy~50")).toEqual({ primary: "calm", secondary: "heavy", primaryWeight: 0.5 });
+    expect(parseAnswerChoice("calm~heavy~70")).toEqual({ primary: "calm", secondary: "heavy" }); // default normalised
+    expect(parseAnswerChoice("calm~heavy")).toEqual({ primary: "calm", secondary: "heavy" });
+    expect(encodeAnswerChoice({ primary: "calm", secondary: "heavy", primaryWeight: 0.95 })).toBe("calm~heavy~95");
+    expect(encodeAnswerChoice({ primary: "calm", secondary: "heavy", primaryWeight: 0.5 })).toBe("calm~heavy~50");
+    expect(encodeAnswerChoice({ primary: "calm", secondary: "heavy", primaryWeight: 0.7 })).toBe("calm~heavy");
+    for (const v of ["calm~heavy~95", "calm~heavy~50", "calm~heavy"])
+      expect(encodeAnswerChoice(parseAnswerChoice(v))).toBe(v);
+  });
+
+  it("CACHE SEPARATION: each split level hashes distinctly", () => {
+    const mk = (pw?: number): WeightedAnswers => ({
+      ...wcAnswers, weekend: pw ? { primary: "plan", secondary: "chaos", primaryWeight: pw } : { primary: "plan", secondary: "chaos" },
+    });
+    const hashes = [mk(0.95), mk(), mk(0.5)].map((a) => hashWeighted(WC.quiz, a));
+    expect(new Set(hashes).size).toBe(3); // all distinct
+  });
+
   it("a blend still resolves to a real archetype + roster match (no crash)", () => {
     const p = buildWeightedProfile(WC.quiz, WC.archetypes, WC.roster, {
       ...wcAnswers, group: { primary: "glue", secondary: "idea" },

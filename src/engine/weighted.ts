@@ -18,15 +18,25 @@ import { fnv1a } from "./hash";
 import { assembleProfile } from "./profile";
 import type { Answers, CentroidSet, Profile, QuizConfig, ScoreVector } from "./types";
 
-/** The fixed blend. Quantized on purpose: keeps the answer space finite, so
- *  determinism-by-enumeration, caching, and the rarity stat all still hold. */
+/** Default blend (a two-part `a~b` with no explicit split). */
 export const SPLIT_PRIMARY = 0.7;
 export const SPLIT_SECONDARY = 0.3;
 
-/** A 70/30 blend of two options on one question. */
+/** The offered split levels, as the PRIMARY option's percentage. Quantized on
+ *  purpose (3 levels) — the answer space stays finite, so determinism-by-
+ *  enumeration, caching, and the rarity stat all still hold. The UI frames these
+ *  as "how often would you actually pick each?" (95/5 · 70/30 · 50/50). */
+export const SPLIT_PCTS = [95, 70, 50] as const;
+const splitWeight = (pct: number): number =>
+  (SPLIT_PCTS as readonly number[]).includes(pct) ? pct / 100 : SPLIT_PRIMARY;
+
+/** A blend of two options on one question. `primaryWeight` is the share the
+ *  PRIMARY option gets (the secondary gets the rest); omitted ⇒ the 0.7 default,
+ *  so old two-part blends still mean 70/30. */
 export interface WeightedAnswer {
   primary: string;
   secondary: string;
+  primaryWeight?: number;
 }
 
 /** A question's answer: a single option id (100%) OR a 70/30 blend. */
@@ -62,8 +72,9 @@ export function missingWeighted(config: QuizConfig, answers: WeightedAnswers): s
 
 /**
  * Sum weights with the blend: a single pick contributes its option at 1.0; a
- * blend contributes 0.7·primary + 0.3·secondary. A blended question's vector is
- * therefore a convex combination of the two options (it lands BETWEEN them).
+ * blend contributes primaryWeight·primary + (1−primaryWeight)·secondary (default
+ * 0.7/0.3). A blended question's vector is a convex combination of the two
+ * options (it lands BETWEEN them; how far depends on the chosen split).
  */
 export function scoreWeightedAnswers(config: QuizConfig, answers: WeightedAnswers): ScoreVector {
   const raw: ScoreVector = {};
@@ -80,8 +91,9 @@ export function scoreWeightedAnswers(config: QuizConfig, answers: WeightedAnswer
       }
     };
     if (isBlend(v)) {
-      add(v.primary, SPLIT_PRIMARY);
-      add(v.secondary, SPLIT_SECONDARY);
+      const pw = v.primaryWeight ?? SPLIT_PRIMARY;
+      add(v.primary, pw);
+      add(v.secondary, 1 - pw);
     } else {
       add(v, 1);
     }
@@ -89,16 +101,28 @@ export function scoreWeightedAnswers(config: QuizConfig, answers: WeightedAnswer
   return raw;
 }
 
+/** The PRIMARY pct to serialise, or null when it's the default (then omitted —
+ *  so a 70/30 blend keeps its original two-part key and cache entry). */
+const blendPct = (v: WeightedAnswer): number | null => {
+  const pw = v.primaryWeight;
+  return pw === undefined || pw === SPLIT_PRIMARY ? null : Math.round(pw * 100);
+};
+
 /**
- * Canonical string INCLUDING the split, so a blend caches separately from a
- * pure pick. Crucially, an all-single-pick set serialises identically to
- * `canonicalAnswers` → same hash → existing single-pick cache entries are reused.
+ * Canonical string INCLUDING the split level, so each split caches separately
+ * from the others and from a pure pick. An all-single-pick set (and a default
+ * 70/30 blend) serialise exactly as before → existing cache entries are reused.
  */
 export function canonicalWeighted(config: QuizConfig, answers: WeightedAnswers): string {
   const parts = config.questions
     .map((q) => {
       const v = answers[q.id];
-      const s = v === undefined ? "" : isBlend(v) ? `${v.primary}+${v.secondary}` : v;
+      const s =
+        v === undefined
+          ? ""
+          : isBlend(v)
+            ? `${v.primary}+${v.secondary}${blendPct(v) === null ? "" : `+${blendPct(v)}`}`
+            : v;
       return `${q.id}=${s}`;
     })
     .sort();
@@ -113,18 +137,21 @@ export const hashWeighted = (config: QuizConfig, answers: WeightedAnswers): stri
  *  survives URLSearchParams round-trips unencoded). */
 export const BLEND_DELIM = "~";
 
-/** Parse one query value into a choice: "a~b" → blend, "a" → single pick. */
+/** Parse a query value into a choice: "a" → pick · "a~b" → 70/30 blend ·
+ *  "a~b~95" → 95/5 blend (the 3rd part is the PRIMARY pct; default 70 omitted). */
 export function parseAnswerChoice(value: string): AnswerChoice {
-  const i = value.indexOf(BLEND_DELIM);
-  if (i < 0) return value;
-  const primary = value.slice(0, i);
-  const secondary = value.slice(i + BLEND_DELIM.length);
-  return secondary ? { primary, secondary } : primary;
+  const [primary, secondary, pctRaw] = value.split(BLEND_DELIM);
+  if (!secondary) return primary; // "a" or "a~"
+  const pw = pctRaw === undefined ? SPLIT_PRIMARY : splitWeight(Number(pctRaw));
+  return pw === SPLIT_PRIMARY ? { primary, secondary } : { primary, secondary, primaryWeight: pw };
 }
 
-/** Encode a choice back to its query value (round-trips `parseAnswerChoice`). */
+/** Encode a choice back to its query value (round-trips `parseAnswerChoice`;
+ *  the default 70/30 omits the pct so old `a~b` links are unchanged). */
 export function encodeAnswerChoice(v: AnswerChoice): string {
-  return typeof v === "string" ? v : `${v.primary}${BLEND_DELIM}${v.secondary}`;
+  if (typeof v === "string") return v;
+  const base = `${v.primary}${BLEND_DELIM}${v.secondary}`;
+  return blendPct(v) === null ? base : `${base}${BLEND_DELIM}${blendPct(v)}`;
 }
 
 /**

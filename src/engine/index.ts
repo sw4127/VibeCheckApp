@@ -23,6 +23,7 @@ export {
   BLEND_DELIM,
   SPLIT_PRIMARY,
   SPLIT_SECONDARY,
+  SPLIT_PCTS,
   type WeightedAnswer,
   type AnswerChoice,
   type WeightedAnswers,
