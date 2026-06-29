@@ -24,7 +24,7 @@ export const worldCupSpines: SpineSet = {
       "You replay the one time the gamble landed and quietly file the five times it didn't.",
     ],
     reframe:
-      "The risks people call reckless were never confidence — they're the toll you pay to be looked at.",
+      "Reckless is what they call it. Really it's the toll you pay to be looked at — and you always pay.",
     split:
       "The audacity isn't the flaw — the audience is. Keep the nerve; stop auditioning for it.",
     closer:
@@ -44,7 +44,7 @@ export const worldCupSpines: SpineSet = {
       "When the energy in a room drops, you take it personally.",
     ],
     reframe:
-      "The intensity people call 'too much' was never a temper — it's the only volume your caring comes in.",
+      "Your caring doesn't come with a quiet setting. What they call 'too much' is just the only volume it has.",
     split:
       "Don't turn the fire down. Just stop letting whoever's nearest decide where it points.",
     closer: "You're not dramatic. You just refuse to feel anything quietly.",
@@ -103,7 +103,7 @@ export const worldCupSpines: SpineSet = {
       "People struggle to describe you in one word, and you've decided that's a win.",
     ],
     reframe:
-      "Filling every role was never indecision — you'd rather the whole thing work than win your one part of it.",
+      "You'd rather the whole thing work than win your one part of it — so you quietly became a little of all of them.",
     split:
       "You can play anywhere — that's the gift. The shadow: nobody knows what YOU'd pick if the room needed nothing. Pick something anyway.",
     closer:
@@ -125,7 +125,7 @@ export const worldCupSpines: SpineSet = {
       "When a plan starts to wobble, people look at you before they say anything.",
     ],
     reframe:
-      "The control was never about being in charge — it's that chaos costs you more than it costs everyone else.",
+      "Being in charge isn't the appeal. Chaos costs you more than it costs everyone else — so you head it off before it starts.",
     split:
       "Reading the game early is the gift. Refusing to play until you've solved it is the tax. Sometimes you just pass it.",
     closer:

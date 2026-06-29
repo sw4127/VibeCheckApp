@@ -84,7 +84,7 @@ export const musicSpines: SpineSet = {
       "You'd rather feel it all at once than let it leak out for weeks.",
     ],
     reframe:
-      "Chasing the sad ones was never being dramatic — it's the only place you let the feeling all the way out before it goes stale.",
+      "Most people skip the sad ones. You chase them — they're the one place you let the feeling all the way out before it goes stale.",
     split:
       "Metabolising it in three minutes is the gift. Needing a song's permission to feel is the tax. You can cry without a soundtrack.",
     closer: "Most people skip the song that hurts. You turn it up and call it healing.",
