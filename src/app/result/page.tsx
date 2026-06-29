@@ -7,7 +7,7 @@ import {
   missingAnswers,
   type Answers,
 } from "@/engine";
-import { worldCup, playerMeta, buildCardDesign } from "@/content/world-cup";
+import { worldCup, playerMeta, buildCardDesign, worldCupSpines } from "@/content/world-cup";
 import { narrateWorldCup, type WorldCupReading } from "@/llm";
 import { baseUrl, cardPath } from "@/lib/site";
 import { encodeChallenger } from "@/lib/vs";
@@ -119,6 +119,9 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
   const r = data.reading;
 
   const meta = playerMeta[data.match.id];
+  // §slice-1b surfaced: the deterministic spine for this archetype (TELLS + CLOSER
+  // on the free read — the "caught" hooks + the kicker; $0, no LLM).
+  const spine = worldCupSpines[data.archetype.id];
   const accent = buildCardDesign({ position: meta?.position, nation: meta?.nation }).palette.accent;
   const caption = buildCardDesign({ position: meta?.position, nation: meta?.nation }).caption;
   const signature = signatureOf(data.scores);
@@ -200,6 +203,24 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
           </span>
         ))}
       </div>
+
+      {/* The TELLS + CLOSER — deterministic "caught you" read (§1b spine, $0) */}
+      {spine ? (
+        <div className="mt-8">
+          <p className="text-[10px] font-bold tracking-[0.25em] text-muted">YOUR TELLS</p>
+          <ul className="mt-3 flex flex-col gap-2.5">
+            {spine.tells.map((t) => (
+              <li key={t} className="flex gap-2.5 leading-relaxed">
+                <span aria-hidden className="select-none font-bold" style={{ color: accent }}>—</span>
+                <span>{t}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-5 font-display text-xl font-semibold leading-snug" style={{ color: accent }}>
+            {spine.closer}
+          </p>
+        </div>
+      ) : null}
 
       {/* Player stat line — the fun, FUT-style signature (football, not analytics) */}
       <div className="mt-8 pt-6" style={{ borderTop: `1px solid ${accent}33` }}>
