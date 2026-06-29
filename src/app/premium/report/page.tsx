@@ -5,7 +5,7 @@ import { SAMPLE_PROFILES, DEFAULT_SAMPLE } from "@/content/sample-profile";
 import { decodePremiumToken } from "@/lib/premiumToken";
 import { applyPaidTaps, neededTaps } from "@/lib/paidTaps";
 import { paymentProvider } from "@/lib/payments";
-import { themeForArchetypeLabel } from "@/content/music";
+import { themeForArchetypeLabel, spineForArchetypeLabel } from "@/content/music";
 import { cardPath } from "@/lib/site";
 import DownloadButton from "@/app/result/DownloadButton";
 import Calibration from "./Calibration";
@@ -55,6 +55,9 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
     n: param(sp, "n"),
   });
   const { report, source } = await narratePremium(profile);
+  // §1b spine, paid side: the LAW the paywall dangled — now revealed — plus the
+  // REFRAME (the bridge) and SPLIT (the shadow kept as an instrument). $0, no LLM.
+  const spine = spineForArchetypeLabel(profile.archetype);
 
   // §20.B5 — the collector card (the paid vanity artifact).
   const collectorPath = cardPath({
@@ -88,6 +91,18 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
       <p className="mt-3 text-center text-xs text-muted">
         🔖 Bookmark this page — it&apos;s your permanent link to this read.
       </p>
+
+      {/* THE RULE YOU LIVE BY — the §1b spine, revealed (the payoff of A1's
+          paywall dangle): the LAW + the REFRAME (bridge) + the SPLIT (shadow
+          kept as an instrument). Deterministic, $0. */}
+      {spine ? (
+        <section className="mt-9 rounded-2xl border p-5" style={{ borderColor: "var(--accent)" }}>
+          <p className="text-xs font-bold tracking-[0.3em] text-accent">THE RULE YOU LIVE BY</p>
+          <p className="mt-2 font-display text-2xl font-black leading-tight">{spine.law}</p>
+          <p className="mt-4 leading-relaxed">{spine.reframe}</p>
+          <p className="mt-3 leading-relaxed text-slate-300">{spine.split}</p>
+        </section>
+      ) : null}
 
       {/* THE SPLIT — the centerpiece (§20.B1): LATELY vs ALWAYS, engine-routed */}
       <section className="mt-9">

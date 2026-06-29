@@ -16,6 +16,7 @@ import type { PremiumProfile } from "@/content/sample-profile";
 import { fnv1a } from "@/engine";
 import { musicArchetypes, ARCHETYPE_THEMES } from "./archetypes";
 import { musicSpines } from "./spines";
+import type { Spine } from "@/content/spine";
 import {
   musicQuiz,
   CUES,
@@ -61,6 +62,12 @@ export function themeForArchetypeLabel(label: string): string {
 export function lawForArchetypeLabel(label: string): string | undefined {
   const c = musicArchetypes.centroids.find((x) => x.label === label);
   return c ? musicSpines[c.id]?.law : undefined;
+}
+
+/** The full shortcut spine for an archetype LABEL (§6: deterministic). Unknown → undefined. */
+export function spineForArchetypeLabel(label: string): Spine | undefined {
+  const c = musicArchetypes.centroids.find((x) => x.label === label);
+  return c ? musicSpines[c.id] : undefined;
 }
 
 export interface Lanes {
