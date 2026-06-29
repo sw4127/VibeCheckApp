@@ -15,6 +15,7 @@ import {
   buildWeightedMusicProfile,
   musicQuiz,
   musicArchetypes,
+  musicSpines,
   musicPremiumProfile,
   splitLanes,
   describeState,
@@ -149,6 +150,9 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
   const data = await getMusicReading(answers, ar, ad, voice);
   const r = data.reading;
   const accent = THEME_ACCENTS[data.theme] ?? THEME_ACCENTS.midnight;
+  // §1b spine surfaced (free side): TELLS + CLOSER. The deeper REFRAME/SPLIT
+  // stay behind the paywall (firewall §12/§17.D); $0, no LLM.
+  const spine = musicSpines[data.archetype.id];
   const signature = musicQuiz.dimensions.map((d) => data.scores[d] ?? 0.5);
   const sigRows = buildSignatureRows(musicQuiz, primary, data.scores, MUSIC_SIGNATURE_LABELS);
   const topRows = [...sigRows].sort((a, b) => b.value - a.value).slice(0, 3)
@@ -205,6 +209,25 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
           </span>
         ))}
       </div>
+
+      {/* The TELLS + CLOSER — deterministic "caught you" read (§1b spine, $0).
+          REFRAME/SPLIT stay paid (the firewall). */}
+      {spine ? (
+        <div className="mt-8">
+          <p className="text-[10px] font-bold tracking-[0.25em] text-muted">YOUR TELLS</p>
+          <ul className="mt-3 flex flex-col gap-2.5">
+            {spine.tells.map((t) => (
+              <li key={t} className="flex gap-2.5 leading-relaxed">
+                <span aria-hidden className="select-none font-bold" style={{ color: accent }}>—</span>
+                <span>{t}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-5 font-display text-xl font-semibold leading-snug" style={{ color: accent }}>
+            {spine.closer}
+          </p>
+        </div>
+      ) : null}
 
       {/* §20.C1 — relocated artist field: effort asked only of the hooked */}
       <Suspense fallback={null}>
