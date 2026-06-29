@@ -5,9 +5,9 @@
  * §17.B), then narrates (vibe_check mode, Haiku, §16.C). Artists are flavor
  * only (§6). Long CDN cache headers — same mechanism as /api/reading (§19.A).
  */
-import { archetypeRarityPct, missingAnswers, type Answers } from "@/engine";
+import { archetypeRarityPct, missingWeighted, parseAnswerChoice, type WeightedAnswers } from "@/engine";
 import {
-  buildMusicProfile,
+  buildWeightedMusicProfile,
   musicQuiz,
   musicArchetypes,
   splitLanes,
@@ -26,12 +26,12 @@ function csv(v: string | null): string[] {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
-  const answers: Answers = {};
+  const answers: WeightedAnswers = {};
   for (const q of musicQuiz.questions) {
     const v = searchParams.get(q.id);
-    if (v !== null) answers[q.id] = v;
+    if (v !== null) answers[q.id] = parseAnswerChoice(v); // "a~b" → 70/30 blend
   }
-  const missing = missingAnswers(musicQuiz, answers);
+  const missing = missingWeighted(musicQuiz, answers);
   if (missing.length > 0) {
     return Response.json({ error: "incomplete_answers", missing }, { status: 400 });
   }
@@ -39,7 +39,7 @@ export async function GET(request: Request) {
   const artistsRecent = csv(searchParams.get("ar"));
   const artistsDurable = csv(searchParams.get("ad")).slice(0, 1);
 
-  const profile = buildMusicProfile(answers);
+  const profile = buildWeightedMusicProfile(answers);
   const lanes = splitLanes(profile);
   // §26 — voice arm (default classic); separate query → separate CDN cache entry.
   const voice = searchParams.get("voice") === "online" ? "online" : "classic";

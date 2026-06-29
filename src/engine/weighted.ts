@@ -109,6 +109,24 @@ export function canonicalWeighted(config: QuizConfig, answers: WeightedAnswers):
 export const hashWeighted = (config: QuizConfig, answers: WeightedAnswers): string =>
   fnv1a(canonicalWeighted(config, answers));
 
+/** URL syntax for a blend: `primary~secondary` ("~" is URL-unreserved, so it
+ *  survives URLSearchParams round-trips unencoded). */
+export const BLEND_DELIM = "~";
+
+/** Parse one query value into a choice: "a~b" → blend, "a" → single pick. */
+export function parseAnswerChoice(value: string): AnswerChoice {
+  const i = value.indexOf(BLEND_DELIM);
+  if (i < 0) return value;
+  const primary = value.slice(0, i);
+  const secondary = value.slice(i + BLEND_DELIM.length);
+  return secondary ? { primary, secondary } : primary;
+}
+
+/** Encode a choice back to its query value (round-trips `parseAnswerChoice`). */
+export function encodeAnswerChoice(v: AnswerChoice): string {
+  return typeof v === "string" ? v : `${v.primary}${BLEND_DELIM}${v.secondary}`;
+}
+
 /**
  * The weighted twin of `buildProfile`. Same deterministic verdict pipeline,
  * fed by the blended scorer + the split-aware hash. An all-single-pick input

@@ -2,9 +2,17 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { archetypeRarityPct, missingAnswers, type Answers } from "@/engine";
 import {
-  buildMusicProfile,
+  archetypeRarityPct,
+  missingWeighted,
+  primaryAnswers,
+  parseAnswerChoice,
+  encodeAnswerChoice,
+  type Answers,
+  type WeightedAnswers,
+} from "@/engine";
+import {
+  buildWeightedMusicProfile,
   musicQuiz,
   musicArchetypes,
   musicPremiumProfile,
@@ -35,11 +43,11 @@ const THEME_ACCENTS: Record<string, string> = {
   static: "#e8e8ea",
 };
 
-function answersFrom(sp: Record<string, string | string[] | undefined>): Answers {
-  const answers: Answers = {};
+function weightedFrom(sp: Record<string, string | string[] | undefined>): WeightedAnswers {
+  const answers: WeightedAnswers = {};
   for (const q of musicQuiz.questions) {
     const v = sp[q.id];
-    if (typeof v === "string") answers[q.id] = v;
+    if (typeof v === "string") answers[q.id] = parseAnswerChoice(v); // "a~b" → 70/30 blend
   }
   return answers;
 }
@@ -52,9 +60,9 @@ function csv(v: string | string[] | undefined): string[] {
     .slice(0, 3);
 }
 
-function orderedQuery(answers: Answers, ar: string[], ad: string[]): string {
+function orderedQuery(answers: WeightedAnswers, ar: string[], ad: string[]): string {
   const qs = new URLSearchParams();
-  for (const q of musicQuiz.questions) qs.set(q.id, answers[q.id]);
+  for (const q of musicQuiz.questions) qs.set(q.id, encodeAnswerChoice(answers[q.id])); // preserves blends
   if (ar.length) qs.set("ar", ar.join(","));
   if (ad.length) qs.set("ad", ad.join(","));
   return qs.toString();
@@ -77,7 +85,7 @@ type MusicData = {
  * compute the identical result in-process so the page never crashes. Names are
  * cleanNames-sanitized here too (parity with the route, §23.A).
  */
-async function getMusicReading(answers: Answers, ar: string[], ad: string[], voice: "online" | "classic"): Promise<MusicData> {
+async function getMusicReading(answers: WeightedAnswers, ar: string[], ad: string[], voice: "online" | "classic"): Promise<MusicData> {
   if (process.env.NODE_ENV === "production") {
     try {
       const res = await fetch(`${baseUrl()}/api/music-reading?${orderedQuery(answers, ar, ad)}&voice=${voice}`, {
@@ -90,7 +98,7 @@ async function getMusicReading(answers: Answers, ar: string[], ad: string[], voi
       /* fall through to the in-process path */
     }
   }
-  const profile = buildMusicProfile(answers);
+  const profile = buildWeightedMusicProfile(answers);
   const lanes = splitLanes(profile);
   const { reading, source } = await narrateMusic(profile, lanes, cleanNames(ar, 3), cleanNames(ad, 1), voice);
   return {
@@ -105,9 +113,9 @@ async function getMusicReading(answers: Answers, ar: string[], ad: string[], voi
 
 export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
   const sp = await searchParams;
-  const answers = answersFrom(sp);
-  if (missingAnswers(musicQuiz, answers).length > 0) return { title: "Vibe Check" };
-  const profile = buildMusicProfile(answers);
+  const answers = weightedFrom(sp);
+  if (missingWeighted(musicQuiz, answers).length > 0) return { title: "Vibe Check" };
+  const profile = buildWeightedMusicProfile(answers);
   const theme = ARCHETYPE_THEMES[profile.archetype.id] ?? "midnight";
   const og =
     baseUrl() +
@@ -130,8 +138,9 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
 
 export default async function MusicResultPage({ searchParams }: { searchParams: SearchParams }) {
   const sp = await searchParams;
-  const answers = answersFrom(sp);
-  if (missingAnswers(musicQuiz, answers).length > 0) redirect("/music/quiz");
+  const answers = weightedFrom(sp);
+  if (missingWeighted(musicQuiz, answers).length > 0) redirect("/music/quiz");
+  const primary = primaryAnswers(answers); // single-pick projection for proofs
   const ar = csv(sp.ar);
   const ad = csv(sp.ad).slice(0, 1);
   // §26 — the voice arm rides the URL (stateless); separate cache key per voice.
@@ -141,12 +150,12 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
   const r = data.reading;
   const accent = THEME_ACCENTS[data.theme] ?? THEME_ACCENTS.midnight;
   const signature = musicQuiz.dimensions.map((d) => data.scores[d] ?? 0.5);
-  const sigRows = buildSignatureRows(musicQuiz, answers, data.scores, MUSIC_SIGNATURE_LABELS);
+  const sigRows = buildSignatureRows(musicQuiz, primary, data.scores, MUSIC_SIGNATURE_LABELS);
   const topRows = [...sigRows].sort((a, b) => b.value - a.value).slice(0, 3)
     .map((row) => ({ label: row.label, value: row.value }));
 
   // Thread the REAL profile to the paywall, statelessly (§17.B routing applied).
-  const profile = buildMusicProfile(answers);
+  const profile = buildWeightedMusicProfile(answers);
   const token = encodePremiumToken(musicPremiumProfile(profile, ar, ad));
   // §20.C4 — the un-blurred LATELY tease: emotional proof BEFORE the ask.
   const stateLine = describeState(splitLanes(profile).state);

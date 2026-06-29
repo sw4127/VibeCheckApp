@@ -7,6 +7,8 @@ import {
   hashAnswers,
   hashWeighted,
   missingWeighted,
+  parseAnswerChoice,
+  encodeAnswerChoice,
   SPLIT_PRIMARY,
   SPLIT_SECONDARY,
   type Answers,
@@ -101,6 +103,15 @@ describe("Slice 2a — weighted answers (engine)", () => {
     expect(missingWeighted(WC.quiz, missingOne)).toContain("pressure");
 
     expect(missingWeighted(WC.quiz, wcAnswers)).toEqual([]); // all good
+  });
+
+  it("URL SYNTAX: parse/encode round-trips both a pick and a blend", () => {
+    expect(parseAnswerChoice("calm")).toBe("calm");
+    expect(parseAnswerChoice("calm~heavy")).toEqual({ primary: "calm", secondary: "heavy" });
+    expect(parseAnswerChoice("calm~")).toBe("calm"); // empty secondary degrades to a pick
+    expect(encodeAnswerChoice("calm")).toBe("calm");
+    expect(encodeAnswerChoice({ primary: "calm", secondary: "heavy" })).toBe("calm~heavy");
+    for (const v of ["calm", "calm~heavy"]) expect(encodeAnswerChoice(parseAnswerChoice(v))).toBe(v);
   });
 
   it("a blend still resolves to a real archetype + roster match (no crash)", () => {

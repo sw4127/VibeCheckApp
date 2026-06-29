@@ -5,9 +5,11 @@
 
 import {
   buildProfile,
+  buildWeightedProfile,
   levelOf,
   type Answers,
   type Profile,
+  type WeightedAnswers,
 } from "@/engine";
 import type { Level } from "@/llm/premiumSchema";
 import type { PremiumProfile } from "@/content/sample-profile";
@@ -41,6 +43,12 @@ export {
  *  match-target set so the generic engine signature is satisfied. */
 export function buildMusicProfile(answers: Answers): Profile {
   return buildProfile(musicQuiz, musicArchetypes, musicArchetypes, answers);
+}
+
+/** Weighted twin (Slice 2b): same verdict pipeline, with opt-in 70/30 blends.
+ *  An all-single-pick set is identical to buildMusicProfile (same hash/verdict). */
+export function buildWeightedMusicProfile(answers: WeightedAnswers): Profile {
+  return buildWeightedProfile(musicQuiz, musicArchetypes, musicArchetypes, answers);
 }
 
 /** Theme for an archetype LABEL (tokens carry labels, not ids). Unknown → midnight. */
