@@ -81,6 +81,12 @@ export async function narratePaywallHook(
     if (response.stop_reason === "refusal" || !line) {
       return { hook: null, source: "fallback" };
     }
+    // Enforce the D2 contract server-side: the polish MUST quote the signal and
+    // name an artist. Otherwise fall back to A1a — and, because only "model" is
+    // cached, an off-spec line is never edge-cached.
+    const obeysD2 =
+      line.includes(input.topSignal) && input.artists.some((a) => line.includes(a));
+    if (!obeysD2) return { hook: null, source: "fallback" };
     return { hook: line, source: "model" };
   } catch {
     return { hook: null, source: "fallback" };
