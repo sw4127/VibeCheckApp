@@ -19,10 +19,11 @@ export default function Calibration({ taps }: { taps: PaidTap[] }) {
 
   if (taps.length === 0) return null;
 
-  function go(merged: Record<string, string>, via: "taps" | "text") {
+  function go(merged: Record<string, string>, via: "taps" | "text", extra?: Record<string, string>) {
     track("paid_calibration", { taps: taps.length, via });
     const qs = new URLSearchParams(params.toString());
     for (const [k, v] of Object.entries(merged)) qs.set(k, v);
+    for (const [k, v] of Object.entries(extra ?? {})) qs.set(k, v);
     router.push(`/premium/report?${qs.toString()}`);
   }
 
@@ -47,7 +48,8 @@ export default function Calibration({ taps }: { taps: PaidTap[] }) {
     } catch {
       /* no map → fall back to whatever was tapped (untapped stay Medium) */
     }
-    go({ ...ids, ...answers }, "text"); // manual taps override the text
+    // manual taps override the text; carry the raw line for the §slice-4 receipt
+    go({ ...ids, ...answers }, "text", { cal: clean });
   }
 
   return (

@@ -58,6 +58,9 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
   // §1b spine, paid side: the LAW the paywall dangled — now revealed — plus the
   // REFRAME (the bridge) and SPLIT (the shadow kept as an instrument). $0, no LLM.
   const spine = spineForArchetypeLabel(profile.archetype);
+  // §slice-4 — the NLP receipt: the user's own words, quoted back as proof under
+  // the lens. Flavor ONLY — it never scores (§6); React escapes it; length-capped.
+  const cal = param(sp, "cal")?.trim().slice(0, 240);
 
   // §20.B5 — the collector card (the paid vanity artifact).
   const collectorPath = cardPath({
@@ -101,6 +104,11 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
           <p className="mt-2 font-display text-2xl font-black leading-tight">{spine.law}</p>
           <p className="mt-4 leading-relaxed">{spine.reframe}</p>
           <p className="mt-3 leading-relaxed text-slate-300">{spine.split}</p>
+          {cal ? (
+            <p className="mt-4 border-t border-white/10 pt-3 text-sm text-muted">
+              In your words: <span className="text-slate-300">&ldquo;{cal}&rdquo;</span>
+            </p>
+          ) : null}
         </section>
       ) : null}
 
