@@ -36,3 +36,10 @@ export {
   type PremiumResult,
   type PremiumSource,
 } from "./premium";
+export {
+  narratePaywallHook,
+  buildHookUserMessage,
+  paywallHookSchema,
+  type HookInput,
+  type HookSource,
+} from "./paywallHook";
