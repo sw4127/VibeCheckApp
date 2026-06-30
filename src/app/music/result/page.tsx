@@ -144,6 +144,8 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
   const primary = primaryAnswers(answers); // single-pick projection for proofs
   const ar = csv(sp.ar);
   const ad = csv(sp.ad).slice(0, 1);
+  // §slice-5b — the carried football archetype (display-only; never scores §6).
+  const fromVibe = typeof sp.from === "string" ? sp.from.slice(0, 40) : undefined;
   // §26 — the voice arm rides the URL (stateless); separate cache key per voice.
   const voice = sp.voice === "online" ? "online" : "classic";
 
@@ -197,6 +199,18 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
       </div>
 
       <p className="mt-7 text-xl leading-relaxed">{r.vibe_check}</p>
+
+      {/* §slice-5b — the disagreement reveal: pitch vibe vs taste vibe. Two
+          lenses on the same person; display-only, never feeds the verdict. */}
+      {fromVibe ? (
+        <p
+          className="mt-5 rounded-2xl border p-3 text-sm leading-relaxed"
+          style={{ borderColor: `${accent}40`, background: `${accent}14` }}
+        >
+          On the pitch you read as <span className="font-semibold" style={{ color: accent }}>{fromVibe}</span>. Your taste says{" "}
+          <span className="font-semibold" style={{ color: accent }}>{r.archetype}</span>. Same person — two tells.
+        </p>
+      ) : null}
 
       <div className="mt-5 flex flex-wrap gap-2">
         {r.tags.map((t) => (

@@ -199,6 +199,7 @@ export default function MusicQuizPage() {
     const qs = new URLSearchParams();
     for (const q of quiz.questions) qs.set(q.id, encodeAnswerChoice(finalAnswers[q.id]));
     qs.set("voice", getVoiceArm()); // §26 — carry the voice arm into the read (stateless)
+    if (fromVibe) qs.set("from", fromVibe); // §slice-5b — carry the football vibe for the reveal
     router.push(`/music/result?${qs.toString()}`);
   }
 
