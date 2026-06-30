@@ -17,6 +17,8 @@ import { fnv1a } from "@/engine";
 import { musicArchetypes, ARCHETYPE_THEMES } from "./archetypes";
 import { musicSpines } from "./spines";
 import type { Spine } from "@/content/spine";
+
+export { composeMusicIdentity, MUSIC_TABLES } from "./compose";
 import {
   musicQuiz,
   CUES,

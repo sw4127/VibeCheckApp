@@ -28,5 +28,14 @@ export {
   type AnswerChoice,
   type WeightedAnswers,
 } from "./weighted";
+export {
+  composeIdentity,
+  type ComposeTables,
+  type Composite,
+  type CoreRef,
+  type ModifierDef,
+  type TiltDef,
+  type AxisPair,
+} from "./compose";
 export { archetypeFrequencies, archetypeRarityPct } from "./rarity";
 export { levelOf, type LevelBucket } from "./levels";
