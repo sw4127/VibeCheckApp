@@ -9,10 +9,20 @@
  */
 import { narrateCalibration } from "@/llm";
 import { PAID_TAPS } from "@/lib/paidTaps";
+import { rateLimit, clientKey } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
+  // Burst guard: on a block, return no ids (page falls back to the manual
+  // calibration taps — $0). 10 / IP / minute is generous for humans.
+  if (!rateLimit(`cal:${clientKey(request)}`, 10, 60_000)) {
+    return Response.json(
+      { ids: {}, source: "local" },
+      { status: 429, headers: { "Cache-Control": "no-store", "Retry-After": "60" } },
+    );
+  }
+
   const { searchParams } = new URL(request.url);
   const text = searchParams.get("text") ?? "";
   const requested = new Set((searchParams.get("taps") ?? "").split(",").map((s) => s.trim()));

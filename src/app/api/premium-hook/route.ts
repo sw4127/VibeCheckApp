@@ -9,10 +9,20 @@
  */
 import { narratePaywallHook } from "@/llm";
 import { cleanNames } from "@/lib/sanitize";
+import { rateLimit, clientKey } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
+  // Burst guard: on a block, return the null result (page falls back to the
+  // deterministic A1a hook — $0). 10 / IP / minute is generous for humans.
+  if (!rateLimit(`hook:${clientKey(request)}`, 10, 60_000)) {
+    return Response.json(
+      { hook: null, source: "local" },
+      { status: 429, headers: { "Cache-Control": "no-store", "Retry-After": "60" } },
+    );
+  }
+
   const { searchParams } = new URL(request.url);
   const archetype = (searchParams.get("a") ?? "").slice(0, 40);
   const topSignal = (searchParams.get("s") ?? "").slice(0, 40);
