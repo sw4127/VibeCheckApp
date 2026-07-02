@@ -853,3 +853,34 @@ A long visual-design arc that converged the football and music surfaces onto ONE
 - **Desktop:** the bright football column shows the dark page body in the side margins on wide screens (mobile-first; unaddressed).
 - **Not re-exercised this session:** the `?vs=` challenge flow and a full tap-through to a *live* result.
 - **Standing (pre-existing):** rotate the exposed Anthropic key; Dodo live env vars; device matrix / F&F beta; the §26 voice A/B is still dormant behind `NEXT_PUBLIC_VOICE_AB`.
+
+---
+
+## 28. Session log — the algorithm overhaul: tracks A+B, spines, matrix (2026-06-24 → 2026-07-02)
+
+*The "most ambitious update" body of work, shipped as ~35 small commits on `main` (all pushed). §6 held throughout: every verdict-bearing computation is engine arithmetic; the LLM only writes.*
+
+### A. Track B — the reading engine
+- **Slice 0 (diagnose):** full-space enumeration instrument (`scripts/diagnose-archetypes.test.ts`). Findings: football `iceman` dogpile 24.7% + centrist default; 4 never-matched roster players; music healthier. Reframed slice 1 from "remove a magnitude gate" (none exists) to centroid geometry.
+- **Slice 1a (rebalance):** re-tiled both centroid sets + revived dead players. Locked by 9 regression gates: 0 unreachable (archetypes AND players), floor ≥5%, top:bottom ≤3.0x, the named moderate types (`equilibrist`, `omnivore`) own the most-moderate decile. Key lesson: mass concentrates centrally — extremes are sparse; a lone centre centroid swallows the space (the first equilibrist hit 33% before re-tiling).
+- **Slice 1b (spines):** hand-authored LAW/TELLS/REFRAME/SPLIT/CLOSER for all 20 reachable archetypes (§21 voice; tests enforce word budgets + banned words + full coverage). Surfaced: TELLS+CLOSER on both free results (+ REFRAME on football — no paywall to gate it); LAW+REFRAME+SPLIT revealed on the paid report ("THE RULE YOU LIVE BY", paying off the paywall dangle).
+- **Slice 2 (weighted answers):** opt-in blends — primary + secondary option at 95/5 · 70/30 · 50/50 ("how often would you actually pick each?"). Additive engine layer (`buildWeightedProfile`; all-single-pick = byte-identical to `buildProfile`); URL syntax `q=a~b~95`; music-quiz-only UI (the football front door stays pure taps — friction call). Blends land between the pure picks (convex); rarity/percentile baselines stay single-pick.
+- **Slices 3+4 (the words loop):** paid free-text calibration — Haiku maps a ≤240-char self-description onto the EXISTING C/A/N tap option ids (enum-locked twice; `applyPaidTaps` scores; translator-never-judge), as an ADDITION (manual taps win). The raw line rides `?cal=` and is quoted back verbatim under the spine ("In your words: …") — flavor only, $0.
+- **Slice 5 (bridge):** football→music handoff — `?from=` hook on the quiz entry + the "On the pitch you read as X. Your taste says Y. Same person — two tells." reveal on the music result. Display-only, stateless, never scores.
+
+### B. Track A — conversion + acquisition
+- **A1a/A1b (paywall hook):** deterministic receipt (trait + typed artist + LAW dangle, D2 ≤35 words) as the $0 floor; optional cached Haiku polish (`/api/premium-hook`) — artist-gated, only real model hooks CDN-cached, off-spec output (missing verbatim signal/artist) rejected server-side → falls back to the floor.
+- **A2 (`/fan-verdict`):** the free front door — all 31 roster players carry a hand-authored fan VERDICT + quotable LAW (roast the fan, never the player, §3). Shareable (ShareButton + a `fan` mode on `/api/card` — the LAW as typographic poster), reachable (landing entry), attributed (`ref=fan&from=<player>` session attribution through to purchase). 31 PNG cards exported for seeding (`fan-cards/`, local).
+
+### C. The composed-identity matrix (the §16.F engine, upgraded)
+- **{CORE archetype} × {MODIFIER} × {STATE-TILT}**, all pure arithmetic (`src/engine/compose.ts`; music tables in `src/content/music/compose.ts`). Modifier = trait-lane axis of max deviation from the core's own centroid (margin+deadband gated); tilt = dominant state-lane axis (§9 lanes).
+- **Decision B (PM):** the flip-rate test (enumerated: modifier churns 34% on a one-tap perturbation even when the core holds — quiz coarseness, not tie-breaking) killed modifier-in-the-NAME. The shareable handle stays the core label (zero added instability, proven `handleFlip == coreFlip`); modifier+tilt drive the CACHE KEY and the PROSE, where variance is resolution.
+- **Narration cutover (§19.A):** `narrateMusic` is a pure function of (composite, voice); `/api/music-reading` flips answers-in → composite-in, enum-locked (junk → 400). ~250 reachable composites × 2 voices ≈ a ~$1 lifetime worst case; the CDN collapses 3,456 answer-combos 13.8×. Artists left the free-read prompt entirely (decision (i)) — the page renders a deterministic artist receipt, so typed artists no longer fragment the cache. 12 PM-approved texture lines anchor the prose (+ the $0 fallback's second sentence). Online-voice slang is composite-gated (`crash-out` joined the held-out set).
+- **UI:** the result renders the readout — "Lately: <tilt>" + "Your twist: <modifier> — <line>" (deduped against the fallback prose).
+
+### D. Safety / cost
+- In-memory per-IP burst guard (10/min) on the two unbounded LLM routes (`premium-hook`, `calibrate`); 429 → the caller's $0 deterministic fallback. Best-effort, per-instance; a hard cross-instance quota (Upstash/KV) remains approval-gated (no-DB rule).
+- All free-path LLM surfaces are now either finite-input (composite narration) or gated+capped (hook, calibrate).
+
+### E. Open tail (as of this entry)
+- Music-result Design-Bar length pass; live sample of the `online` voice before flipping the §26 A/B; §23.A injection re-audit after the matrix (free path is now structurally artist-free); cross-instance quota decision; the report page's collector-card renderer hangs headless screenshots (content verified via HTML).
