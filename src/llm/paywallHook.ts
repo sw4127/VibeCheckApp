@@ -82,10 +82,14 @@ export async function narratePaywallHook(
       return { hook: null, source: "fallback" };
     }
     // Enforce the D2 contract server-side: the polish MUST quote the signal and
-    // name an artist. Otherwise fall back to A1a — and, because only "model" is
-    // cached, an off-spec line is never edge-cached.
+    // name an artist, and stay within the word budget (a runaway/injected line
+    // is rejected, not published). Otherwise fall back to A1a — and, because
+    // only "model" is cached, an off-spec line is never edge-cached.
+    const words = line.split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
     const obeysD2 =
-      line.includes(input.topSignal) && input.artists.some((a) => line.includes(a));
+      words <= 40 &&
+      line.includes(input.topSignal) &&
+      input.artists.some((a) => line.includes(a));
     if (!obeysD2) return { hook: null, source: "fallback" };
     return { hook: line, source: "model" };
   } catch {

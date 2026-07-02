@@ -181,7 +181,9 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
   const receipt = artistReceipt(cleanNames(ar, 3), cleanNames(ad, 1));
 
   // Thread the REAL profile to the paywall, statelessly (§17.B routing applied).
-  const token = encodePremiumToken(musicPremiumProfile(profile, ar, ad));
+  // §23.A: sanitize typed names BEFORE they enter the token → the Sonnet prompt
+  // (the free path was sanitized; this closes the paid-path gap).
+  const token = encodePremiumToken(musicPremiumProfile(profile, cleanNames(ar, 3), cleanNames(ad, 1)));
   // §20.C4 — the un-blurred LATELY tease: emotional proof BEFORE the ask.
   const stateLine = describeState(splitLanes(profile).state);
 
@@ -219,43 +221,36 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
 
       <p className="mt-7 text-xl leading-relaxed">{r.vibe_check}</p>
 
-      {/* The matrix surfaced: current weather + durable texture (engine-computed,
-          $0). The prose above weaves the same signals; this is the readout. */}
-      {(composite.tilt || composite.modifier) ? (
-        <div className="mt-4 text-sm leading-relaxed text-muted">
+      {/* THE READOUT — one grouped block (Design-Bar restraint): current weather,
+          durable twist, the deterministic artist receipt, and the §slice-5b
+          pitch-vs-taste reveal. All engine-computed/display-only, $0 (§6). One
+          accent rule instead of three stacked boxes. */}
+      {(composite.tilt || composite.modifier || receipt || fromVibe) ? (
+        <div
+          className="mt-5 flex flex-col gap-1.5 pl-4 text-sm leading-relaxed text-muted"
+          style={{ borderLeft: `2px solid ${accent}66` }}
+        >
           {composite.tilt ? (
             <p>
               Lately: <span className="font-semibold" style={{ color: accent }}>{composite.stateLine}</span>
             </p>
           ) : null}
           {composite.modifier ? (
-            <p className="mt-1">
+            <p>
               Your twist: <span className="font-semibold" style={{ color: accent }}>{composite.modifier.label}</span>
               {/* Don't print the authored line twice: the $0 fallback read
                   already embeds it as its second sentence. */}
               {r.vibe_check.includes(composite.modifier.line) ? null : <>{" — "}{composite.modifier.line}</>}
             </p>
           ) : null}
+          {receipt ? <p>{receipt}</p> : null}
+          {fromVibe ? (
+            <p>
+              On the pitch you read as <span className="font-semibold" style={{ color: accent }}>{fromVibe}</span>. Your taste says{" "}
+              <span className="font-semibold" style={{ color: accent }}>{r.archetype}</span>. Same person — two tells.
+            </p>
+          ) : null}
         </div>
-      ) : null}
-
-      {/* Deterministic artist receipt (decision (i)) — names their names at $0 */}
-      {receipt ? (
-        <p className="mt-4 rounded-2xl border p-3 text-sm leading-relaxed" style={{ borderColor: `${accent}40`, background: `${accent}0d` }}>
-          {receipt}
-        </p>
-      ) : null}
-
-      {/* §slice-5b — the disagreement reveal: pitch vibe vs taste vibe. Two
-          lenses on the same person; display-only, never feeds the verdict. */}
-      {fromVibe ? (
-        <p
-          className="mt-5 rounded-2xl border p-3 text-sm leading-relaxed"
-          style={{ borderColor: `${accent}40`, background: `${accent}14` }}
-        >
-          On the pitch you read as <span className="font-semibold" style={{ color: accent }}>{fromVibe}</span>. Your taste says{" "}
-          <span className="font-semibold" style={{ color: accent }}>{r.archetype}</span>. Same person — two tells.
-        </p>
       ) : null}
 
       <div className="mt-5 flex flex-wrap gap-2">
