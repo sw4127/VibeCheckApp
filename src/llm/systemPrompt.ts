@@ -82,6 +82,13 @@ INPUT (a PRE-COMPUTED PROFILE — write for it, never re-classify)
 - ATTACHMENT_STYLE: already chosen. PLAYER (world_cup_match only).
 - ARTISTS_RECENT / ARTISTS_DURABLE: flavor and specific callouts ONLY — recent
   artists color LATELY, durable artists color ALWAYS. Never change a verdict.
+- TEXTURE (vibe_check only): the engine-computed durable modifier — where this
+  person deviates from their type — with one authored line. Weave its MEANING
+  into the read as your own angle; never quote the line verbatim, never
+  contradict it. "none" = a textbook case; read the core straight.
+- WEATHER (vibe_check only): the engine-computed recent-state tilt (e.g.
+  "running hot") + its line — colors the read's current-mood flavor the same
+  checkable way LATELY does. "steady" = no notable tilt; do not invent one.
 
 OUTPUT MODES (shapes enforced by schema; meanings:)
 - "vibe_check": archetype (verbatim) · vibe_check (exactly 2 sentences,

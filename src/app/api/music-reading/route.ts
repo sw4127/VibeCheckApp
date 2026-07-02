@@ -1,64 +1,42 @@
 /**
- * GET /api/music-reading?<questionId>=<optionId>&...&ar=a,b,c&ad=x
+ * GET /api/music-reading?core=<archetypeId>&mod=<modifierId|_>&tilt=<tiltId|_>&voice=
  *
- * Deterministic by query string: scores the music answers (engine, two-lane
- * §17.B), then narrates (vibe_check mode, Haiku, §16.C). Artists are flavor
- * only (§6). Long CDN cache headers — same mechanism as /api/reading (§19.A).
+ * Matrix edition: the route is a pure WRITER for a pre-computed composite (§6 —
+ * the engine composed it in the result page; nothing here classifies). Inputs
+ * are ENUM-LOCKED via lookupMusicComposite (unknown ids → 400), so the entire
+ * input space is finite: ~250 reachable composites × 2 voices — the free read's
+ * worst-case lifetime model cost is bounded at roughly a dollar, and the CDN
+ * collapses 3,456 answer-combos onto those keys (§19.A). Artists never reach
+ * this route anymore (decision (i): they're a deterministic receipt in the page).
  */
-import { archetypeRarityPct, missingWeighted, parseAnswerChoice, type WeightedAnswers } from "@/engine";
-import {
-  buildWeightedMusicProfile,
-  musicQuiz,
-  musicArchetypes,
-  splitLanes,
-  ARCHETYPE_THEMES,
-} from "@/content/music";
+import { lookupMusicComposite } from "@/content/music";
 import { narrateMusic } from "@/llm";
-import { cleanNames } from "@/lib/sanitize";
 
 export const runtime = "nodejs";
 
-function csv(v: string | null): string[] {
-  // §23.A (G9): user-typed names are sanitized before reaching the LLM prompt.
-  return cleanNames((v ?? "").split(","), 3);
-}
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-
-  const answers: WeightedAnswers = {};
-  for (const q of musicQuiz.questions) {
-    const v = searchParams.get(q.id);
-    if (v !== null) answers[q.id] = parseAnswerChoice(v); // "a~b" → 70/30 blend
+  const found = lookupMusicComposite(
+    searchParams.get("core") ?? "",
+    searchParams.get("mod") ?? "_",
+    searchParams.get("tilt") ?? "_",
+  );
+  if (!found) {
+    return Response.json({ error: "unknown_composite" }, { status: 400 });
   }
-  const missing = missingWeighted(musicQuiz, answers);
-  if (missing.length > 0) {
-    return Response.json({ error: "incomplete_answers", missing }, { status: 400 });
-  }
-
-  const artistsRecent = csv(searchParams.get("ar"));
-  const artistsDurable = csv(searchParams.get("ad")).slice(0, 1);
-
-  const profile = buildWeightedMusicProfile(answers);
-  const lanes = splitLanes(profile);
-  // §26 — voice arm (default classic); separate query → separate CDN cache entry.
   const voice = searchParams.get("voice") === "online" ? "online" : "classic";
-  const { reading, source } = await narrateMusic(profile, lanes, artistsRecent, artistsDurable, voice);
+  const { reading, source } = await narrateMusic(found.composite, found.coreTags, voice);
 
   return Response.json(
-    {
-      hash: profile.hash,
-      archetype: profile.archetype,
-      theme: ARCHETYPE_THEMES[profile.archetype.id] ?? "midnight",
-      scores: profile.normalized,
-      lanes,
-      rarity: archetypeRarityPct(musicQuiz, musicArchetypes, profile.archetype.id),
-      reading,
-      source,
-    },
+    { reading, source, key: found.composite.cacheKey },
     {
       headers: {
-        "Cache-Control": "public, s-maxage=31536000, stale-while-revalidate=86400",
+        // model/local are deterministic per (composite, voice) → cache hard.
+        // A transient failure (fallback) must never be pinned for a year.
+        "Cache-Control":
+          source === "fallback"
+            ? "no-store"
+            : "public, s-maxage=31536000, stale-while-revalidate=86400",
       },
     },
   );

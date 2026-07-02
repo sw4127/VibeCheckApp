@@ -63,3 +63,36 @@ export function composeMusicIdentity(profile: Profile): Composite {
     centroid,
   }, MUSIC_TABLES);
 }
+
+/**
+ * Rebuild a VALIDATED composite from ids (the narration route's enum lock):
+ * core must be a real archetype; mod/tilt must be real table entries or "_".
+ * Anything else → null (the route 400s). This is what makes the composite-in
+ * endpoint's input space finite: |cores| × |mods+1| × |tilts+1|, nothing free-form.
+ */
+export function lookupMusicComposite(
+  coreId: string,
+  modId: string,
+  tiltId: string,
+): { composite: Composite; coreTags: string[] } | null {
+  const core = musicArchetypes.centroids.find((c) => c.id === coreId);
+  if (!core) return null;
+
+  const mods = Object.values(MUSIC_TABLES.modifiers).flatMap((p) => [p.high, p.low]);
+  const tilts = Object.values(MUSIC_TABLES.tilts).flatMap((p) => [p.high, p.low]);
+  const modifier = modId === "_" ? null : mods.find((m) => m.id === modId) ?? undefined;
+  const tilt = tiltId === "_" ? null : tilts.find((t) => t.id === tiltId) ?? undefined;
+  if (modifier === undefined || tilt === undefined) return null;
+
+  return {
+    composite: {
+      coreId: core.id,
+      modifier,
+      tilt,
+      handle: core.label,
+      stateLine: tilt ? tilt.label : "steady",
+      cacheKey: `${core.id}.${modifier?.id ?? "_"}.${tilt?.id ?? "_"}`,
+    },
+    coreTags: core.tags ?? [],
+  };
+}

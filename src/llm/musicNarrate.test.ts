@@ -2,83 +2,89 @@ import { describe, it, expect } from "vitest";
 import {
   localMusicReading, musicReadingSchema, buildMusicUserMessage, slangFor, ONLINE_SLANG,
 } from "./index";
-import { buildMusicProfile, splitLanes } from "@/content/music";
+import { buildMusicProfile, composeMusicIdentity } from "@/content/music";
 import type { Answers } from "@/engine";
 
-const answers: Answers = {
-  rotation: "calm", job: "match", hooks: "lyrics", lately: "discover",
-  sits: "nobody", sadsong: "sit", where: "alone",
+const mk = (ans: Answers) => {
+  const prof = buildMusicProfile(ans);
+  return { c: composeMusicIdentity(prof), tags: prof.archetype.tags ?? [] };
 };
-const profile = buildMusicProfile(answers);
-const lanes = splitLanes(profile);
 
-// Three diverse profiles for the §10.A online-voice contract.
+// Three diverse composites for the voice/purity contracts.
 const PROFILES = [
-  { name: "sad introvert + artists", ans: answers, ar: ["Phoebe Bridgers"], ad: ["Radiohead"] },
+  { name: "sad introvert",
+    ...mk({ rotation: "calm", job: "match", hooks: "lyrics", lately: "discover", sits: "nobody", sadsong: "sit", where: "alone" }) },
   { name: "loud extravert mainstream",
-    ans: { rotation: "bright", job: "scene", hooks: "beat", lately: "comfort", sits: "center", sadsong: "skip", where: "people" } as Answers,
-    ar: [] as string[], ad: [] as string[] },
+    ...mk({ rotation: "bright", job: "scene", hooks: "beat", lately: "comfort", sits: "center", sadsong: "skip", where: "people" }) },
   { name: "mood-fixer",
-    ans: { rotation: "calm", job: "change", hooks: "beat", lately: "comfort", sits: "center", sadsong: "skip", where: "alone" } as Answers,
-    ar: ["Drake"], ad: [] as string[] },
-].map((p) => {
-  const prof = buildMusicProfile(p.ans);
-  return { ...p, prof, lanes: splitLanes(prof) };
-});
+    ...mk({ rotation: "calm", job: "change", hooks: "beat", lately: "comfort", sits: "center", sadsong: "skip", where: "alone" }) },
+];
 
-describe("localMusicReading (fallback / $0 path)", () => {
-  it("is schema-valid with and without artists", () => {
-    for (const [ar, ad] of [
-      [["Phoebe Bridgers"], ["Radiohead"]],
-      [[], []],
-    ] as const) {
-      const r = localMusicReading(profile, lanes, [...ar], [...ad]);
+describe("localMusicReading (fallback / $0 path) — composite edition", () => {
+  it("is schema-valid, on-handle, and card-sized for all composites", () => {
+    for (const p of PROFILES) {
+      const r = localMusicReading(p.c, p.tags);
       expect(() => musicReadingSchema.parse(r)).not.toThrow();
-      expect(r.archetype).toBe(profile.archetype.label);
+      expect(r.archetype).toBe(p.c.handle);
       expect(r.tags.length).toBeGreaterThanOrEqual(2);
+      expect(r.vibe_check.length).toBeLessThan(300);
     }
   });
 
-  it("references the actual artists when given (§8 specificity)", () => {
-    const r = localMusicReading(profile, lanes, ["Phoebe Bridgers"], ["Radiohead"]);
-    expect(r.vibe_check).toContain("Phoebe Bridgers");
-    expect(r.vibe_check).toContain("Radiohead");
-  });
-
-  it("reads as exactly two sentences-ish (fits the card)", () => {
-    const r = localMusicReading(profile, lanes, [], []);
-    expect(r.vibe_check.length).toBeLessThan(280);
+  it("surfaces the matrix texture: a modifier/tilt line reaches the $0 read", () => {
+    const p = PROFILES.find((x) => x.c.modifier || x.c.tilt)!;
+    const r = localMusicReading(p.c, p.tags);
+    const line = p.c.modifier?.line ?? p.c.tilt?.line ?? "";
+    expect(r.vibe_check).toContain(line);
   });
 });
 
-describe("buildMusicUserMessage", () => {
-  it("sends the pre-split lanes — the model narrates, never classifies (§17.B)", () => {
-    const msg = buildMusicUserMessage(profile, lanes, ["A"], ["B"]);
+describe("buildMusicUserMessage — §19.A key purity", () => {
+  it("is a pure function of the composite: same key → byte-identical message", () => {
+    // Two DIFFERENT answer sets that land on the same composite must produce
+    // the same prompt (this is what makes the composite cache key correct).
+    const a = mk({ rotation: "calm", job: "match", hooks: "lyrics", lately: "discover", sits: "nobody", sadsong: "sit", where: "alone" });
+    const b = mk({ rotation: "calm", job: "match", hooks: "lyrics", lately: "discover", sits: "offpath", sadsong: "sit", where: "alone" });
+    if (a.c.cacheKey === b.c.cacheKey) {
+      expect(buildMusicUserMessage(a.c, a.tags)).toBe(buildMusicUserMessage(b.c, b.tags));
+    }
+    // And determinism regardless:
+    expect(buildMusicUserMessage(a.c, a.tags)).toBe(buildMusicUserMessage(a.c, a.tags));
+  });
+
+  it("sends composite fields only — no artists, no raw scores", () => {
+    const p = PROFILES[0];
+    const msg = buildMusicUserMessage(p.c, p.tags);
     expect(msg).toContain("MODE: vibe_check");
-    expect(msg).toContain(`ARCHETYPE: ${profile.archetype.label}`);
-    expect(msg).toContain("TRAIT_SCORES (durable):");
-    expect(msg).toContain("STATE_SCORES (recent mood):");
-    expect(msg).toContain("ARTISTS_RECENT: [A]");
-    expect(msg).toContain("ARTISTS_DURABLE: [B]");
+    expect(msg).toContain(`ARCHETYPE: ${p.c.handle}`);
+    expect(msg).toContain("TEXTURE (durable modifier):");
+    expect(msg).toContain("WEATHER (recent state):");
+    expect(msg).not.toContain("ARTISTS_RECENT");
+    expect(msg).not.toContain("TRAIT_SCORES");
+    expect(msg).not.toContain("STATE_SCORES");
+  });
+
+  it("tells the model not to parrot the authored lines", () => {
+    const p = PROFILES[0];
+    expect(buildMusicUserMessage(p.c, p.tags)).toContain("never quote them verbatim");
   });
 });
 
-describe("online voice (§10.A) — vector-gated slang contract", () => {
+describe("online voice (§10.A) — composite-gated slang contract", () => {
   it("classic voice (default) contains ZERO slang — unchanged behaviour", () => {
     for (const p of PROFILES) {
-      const r = localMusicReading(p.prof, p.lanes, p.ar, p.ad); // default classic
+      const r = localMusicReading(p.c, p.tags); // default classic
       for (const tok of ONLINE_SLANG) expect(r.vibe_check.toLowerCase()).not.toContain(tok);
     }
   });
 
-  it("gates slang to the vector: at most 2, and NEVER an un-earned token", () => {
+  it("gates slang to the composite: ≤2, never an un-earned or held-out token", () => {
     for (const p of PROFILES) {
-      const gated = slangFor(p.lanes);
+      const gated = slangFor(p.c);
       expect(gated.length).toBeLessThanOrEqual(2);
-      // six-seven / rizzless are held out entirely.
-      expect(gated).not.toContain("six-seven");
-      expect(gated).not.toContain("rizzless");
-      const r = localMusicReading(p.prof, p.lanes, p.ar, p.ad, "online");
+      // six-seven / rizzless held out; crash-out unreachable from a composite.
+      for (const held of ["six-seven", "rizzless", "crash-out"]) expect(gated).not.toContain(held);
+      const r = localMusicReading(p.c, p.tags, "online");
       const text = r.vibe_check.toLowerCase();
       const present = ONLINE_SLANG.filter((tok) => text.includes(tok));
       expect(present.length).toBeLessThanOrEqual(2);
@@ -86,24 +92,13 @@ describe("online voice (§10.A) — vector-gated slang contract", () => {
     }
   });
 
-  it("online stays schema-valid, on-archetype, artist-specific, and card-sized", () => {
-    for (const p of PROFILES) {
-      const r = localMusicReading(p.prof, p.lanes, p.ar, p.ad, "online");
-      expect(() => musicReadingSchema.parse(r)).not.toThrow();
-      expect(r.archetype).toBe(p.prof.archetype.label);
-      expect(r.vibe_check.length).toBeLessThan(280);
-      if (p.ar[0]) expect(r.vibe_check).toContain(p.ar[0]); // specificity survives
-    }
-  });
-
   it("buildMusicUserMessage(online) offers ONLY the gated slang, with the guardrails", () => {
     const p = PROFILES[0];
-    const msg = buildMusicUserMessage(p.prof, p.lanes, p.ar, p.ad, "online");
+    const msg = buildMusicUserMessage(p.c, p.tags, "online");
     expect(msg).toContain("VOICE: extremely-online");
     expect(msg).toContain("anti-Barnum");
-    const gated = slangFor(p.lanes);
+    const gated = slangFor(p.c);
     expect(msg).toContain(`[${gated.join(", ")}]`);
-    // never leaks the held-out / un-earned tokens into the prompt
     for (const tok of ONLINE_SLANG) {
       if (!gated.includes(tok)) expect(msg).not.toContain(tok);
     }

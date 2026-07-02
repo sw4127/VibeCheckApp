@@ -13,6 +13,7 @@ import {
 } from "@/engine";
 import {
   buildWeightedMusicProfile,
+  composeMusicIdentity,
   musicQuiz,
   musicArchetypes,
   musicSpines,
@@ -23,6 +24,7 @@ import {
 } from "@/content/music";
 import SharpenRead from "./SharpenRead";
 import { narrateMusic, type MusicReading } from "@/llm";
+import type { Composite, Profile } from "@/engine";
 import { baseUrl, cardPath } from "@/lib/site";
 import { cleanNames } from "@/lib/sanitize";
 import { encodePremiumToken } from "@/lib/premiumToken";
@@ -69,47 +71,49 @@ function orderedQuery(answers: WeightedAnswers, ar: string[], ad: string[]): str
   return qs.toString();
 }
 
-type MusicData = {
-  archetype: { id: string; label: string; tags?: string[] };
-  theme: string;
-  scores: Record<string, number | undefined>;
-  rarity: number;
-  reading: MusicReading;
-  source: string;
-};
-
 /**
- * Reading for the music result. In PROD the happy path hits the CDN-cached
- * /api/music-reading; the self-fetch is skipped in dev (no cache to gain, and a
- * server component fetching its own dev server mid-compile can return an HTML
- * error page → "Unexpected token '<'"). On dev, or any non-OK-JSON response,
- * compute the identical result in-process so the page never crashes. Names are
- * cleanNames-sanitized here too (parity with the route, §23.A).
+ * Narration for the pre-computed composite (matrix edition, §19.A). The engine
+ * composed the identity HERE (in-process, §6); the route is a pure writer. In
+ * PROD the fetch is CDN-keyed by the composite — 3,456 answer-combos collapse
+ * onto ~250 cached reads. Dev, or any non-OK-JSON response, computes the
+ * identical result in-process so the page never crashes. Artists no longer
+ * touch narration (decision (i)) — see the deterministic receipt below.
  */
-async function getMusicReading(answers: WeightedAnswers, ar: string[], ad: string[], voice: "online" | "classic"): Promise<MusicData> {
+async function getMusicReading(
+  composite: Composite,
+  coreTags: string[],
+  voice: "online" | "classic",
+): Promise<{ reading: MusicReading; source: string }> {
   if (process.env.NODE_ENV === "production") {
     try {
-      const res = await fetch(`${baseUrl()}/api/music-reading?${orderedQuery(answers, ar, ad)}&voice=${voice}`, {
+      const qs = new URLSearchParams({
+        core: composite.coreId,
+        mod: composite.modifier?.id ?? "_",
+        tilt: composite.tilt?.id ?? "_",
+        voice,
+      });
+      const res = await fetch(`${baseUrl()}/api/music-reading?${qs.toString()}`, {
         cache: "force-cache",
       });
       if (res.ok && (res.headers.get("content-type") ?? "").includes("application/json")) {
-        return (await res.json()) as MusicData;
+        return (await res.json()) as { reading: MusicReading; source: string };
       }
     } catch {
       /* fall through to the in-process path */
     }
   }
-  const profile = buildWeightedMusicProfile(answers);
-  const lanes = splitLanes(profile);
-  const { reading, source } = await narrateMusic(profile, lanes, cleanNames(ar, 3), cleanNames(ad, 1), voice);
-  return {
-    archetype: profile.archetype,
-    theme: ARCHETYPE_THEMES[profile.archetype.id] ?? "midnight",
-    scores: profile.normalized,
-    rarity: archetypeRarityPct(musicQuiz, musicArchetypes, profile.archetype.id),
-    reading,
-    source,
-  };
+  return narrateMusic(composite, coreTags, voice);
+}
+
+/** Deterministic artist receipt (decision (i)): names their typed artists at $0
+ *  without fragmenting the narration cache. Flavor only — never scores (§6). */
+function artistReceipt(ar: string[], ad: string[]): string | null {
+  const r = ar[0];
+  const d = ad[0];
+  if (r && d) return `${r} on rotation while ${d} never leaves — your mood changes, your tells don't.`;
+  if (r) return `${r} on heavy rotation is doing more confessing than you think.`;
+  if (d) return `${d} for years — loyalty like that is a tell, not a coincidence.`;
+  return null;
 }
 
 export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
@@ -149,8 +153,21 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
   // §26 — the voice arm rides the URL (stateless); separate cache key per voice.
   const voice = sp.voice === "online" ? "online" : "classic";
 
-  const data = await getMusicReading(answers, ar, ad, voice);
-  const r = data.reading;
+  // Engine first (§6): profile → composite, all in-process and deterministic.
+  const profile: Profile = buildWeightedMusicProfile(answers);
+  const composite = composeMusicIdentity(profile);
+  const { reading: r, source } = await getMusicReading(
+    composite,
+    profile.archetype.tags ?? [],
+    voice,
+  );
+  const data = {
+    archetype: profile.archetype,
+    theme: ARCHETYPE_THEMES[profile.archetype.id] ?? "midnight",
+    scores: profile.normalized as Record<string, number | undefined>,
+    rarity: archetypeRarityPct(musicQuiz, musicArchetypes, profile.archetype.id),
+    source,
+  };
   const accent = THEME_ACCENTS[data.theme] ?? THEME_ACCENTS.midnight;
   // §1b spine surfaced (free side): TELLS + CLOSER. The deeper REFRAME/SPLIT
   // stay behind the paywall (firewall §12/§17.D); $0, no LLM.
@@ -160,8 +177,10 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
   const topRows = [...sigRows].sort((a, b) => b.value - a.value).slice(0, 3)
     .map((row) => ({ label: row.label, value: row.value }));
 
+  // Deterministic artist receipt (decision (i)) — sanitized before display (§23.A).
+  const receipt = artistReceipt(cleanNames(ar, 3), cleanNames(ad, 1));
+
   // Thread the REAL profile to the paywall, statelessly (§17.B routing applied).
-  const profile = buildWeightedMusicProfile(answers);
   const token = encodePremiumToken(musicPremiumProfile(profile, ar, ad));
   // §20.C4 — the un-blurred LATELY tease: emotional proof BEFORE the ask.
   const stateLine = describeState(splitLanes(profile).state);
@@ -199,6 +218,31 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
       </div>
 
       <p className="mt-7 text-xl leading-relaxed">{r.vibe_check}</p>
+
+      {/* The matrix surfaced: current weather + durable texture (engine-computed,
+          $0). The prose above weaves the same signals; this is the readout. */}
+      {(composite.tilt || composite.modifier) ? (
+        <div className="mt-4 text-sm leading-relaxed text-muted">
+          {composite.tilt ? (
+            <p>
+              Lately: <span className="font-semibold" style={{ color: accent }}>{composite.stateLine}</span>
+            </p>
+          ) : null}
+          {composite.modifier ? (
+            <p className="mt-1">
+              Your twist: <span className="font-semibold" style={{ color: accent }}>{composite.modifier.label}</span>
+              {" — "}{composite.modifier.line}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {/* Deterministic artist receipt (decision (i)) — names their names at $0 */}
+      {receipt ? (
+        <p className="mt-4 rounded-2xl border p-3 text-sm leading-relaxed" style={{ borderColor: `${accent}40`, background: `${accent}0d` }}>
+          {receipt}
+        </p>
+      ) : null}
 
       {/* §slice-5b — the disagreement reveal: pitch vibe vs taste vibe. Two
           lenses on the same person; display-only, never feeds the verdict. */}

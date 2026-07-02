@@ -18,7 +18,7 @@ import { musicArchetypes, ARCHETYPE_THEMES } from "./archetypes";
 import { musicSpines } from "./spines";
 import type { Spine } from "@/content/spine";
 
-export { composeMusicIdentity, MUSIC_TABLES } from "./compose";
+export { composeMusicIdentity, lookupMusicComposite, MUSIC_TABLES } from "./compose";
 import {
   musicQuiz,
   CUES,
