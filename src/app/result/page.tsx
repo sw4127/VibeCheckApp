@@ -11,7 +11,7 @@ import { worldCup, playerMeta, buildCardDesign, worldCupSpines } from "@/content
 import { narrateWorldCup, type WorldCupReading } from "@/llm";
 import { baseUrl, cardPath } from "@/lib/site";
 import { encodeChallenger } from "@/lib/vs";
-import { buildSignatureRows, FOOTBALL_SIGNATURE_LABELS } from "@/lib/signature";
+import { buildSignatureRows, FOOTBALL_SIGNATURE_LABELS, FOOTBALL_SIGNATURE_POLES } from "@/lib/signature";
 import DownloadButton from "./DownloadButton";
 import ShareButton from "./ShareButton";
 import StatLine from "@/components/StatLine";
@@ -127,8 +127,10 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
   const signature = signatureOf(data.scores);
   // Fixed stat-line order (the quiz's dimension order) — NOT ranked. The stat
   // line shows all 5; the card carries the same.
-  const sigRows = buildSignatureRows(worldCup.quiz, answers, data.scores, FOOTBALL_SIGNATURE_LABELS);
-  const cardRows = sigRows.map((r) => ({ label: r.label, value: r.value }));
+  const sigRows = buildSignatureRows(worldCup.quiz, answers, data.scores, FOOTBALL_SIGNATURE_LABELS, FOOTBALL_SIGNATURE_POLES);
+  // Card rows: bipolar — the FUT rating is the LEAN toward a named playing
+  // style, so a measured/selective player card reads strong, not weak (§18.D).
+  const cardRows = sigRows.map((r) => ({ label: r.direction === "mid" ? r.label : r.pole, value: r.lean }));
 
   const cardArgs = {
     archetype: r.archetype,

@@ -49,6 +49,9 @@ export default function StatLine({ rows, accent }: { rows: SignatureRow[]; accen
       </div>
       <div className="mt-2.5 h-px w-full" style={{ background: `${accent}40` }} />
       <ul className="mt-3.5 flex flex-col gap-3" aria-label="Your player stat line">
+        {/* BIPOLAR (v2): the rating is the LEAN toward a named playing style —
+            "MEASURED 88" is as strong a stat as "RELENTLESS 88" (§18.D). The
+            all-low answerer stops looking like a bad FUT card. */}
         {rows.map((row) => (
           <li key={row.axis} className="flex items-center gap-3.5">
             <span className="w-[5.5rem] shrink-0 text-[11px] font-semibold uppercase tracking-wider text-slate-300">
@@ -57,14 +60,21 @@ export default function StatLine({ rows, accent }: { rows: SignatureRow[]; accen
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
               <div
                 className="h-full rounded-full transition-all duration-1000 ease-out"
-                style={{ width: mounted ? `${row.value}%` : "0%", background: accent }}
+                style={{ width: mounted ? `${Math.max(5, row.lean)}%` : "0%", background: accent }}
               />
             </div>
-            <span
-              className="w-9 text-right font-display text-2xl font-black tabular-nums leading-none"
-              style={{ color: accent }}
-            >
-              {row.value}
+            <span className="flex w-[7.5rem] shrink-0 items-baseline justify-end gap-1.5 text-right">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">
+                {row.pole}
+              </span>
+              {row.direction !== "mid" ? (
+                <span
+                  className="font-display text-2xl font-black tabular-nums leading-none"
+                  style={{ color: accent }}
+                >
+                  {row.lean}
+                </span>
+              ) : null}
             </span>
           </li>
         ))}

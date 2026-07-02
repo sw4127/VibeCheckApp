@@ -28,7 +28,7 @@ import type { Composite, Profile } from "@/engine";
 import { baseUrl, cardPath } from "@/lib/site";
 import { cleanNames } from "@/lib/sanitize";
 import { encodePremiumToken } from "@/lib/premiumToken";
-import { buildSignatureRows, MUSIC_SIGNATURE_LABELS } from "@/lib/signature";
+import { buildSignatureRows, MUSIC_SIGNATURE_LABELS, MUSIC_SIGNATURE_POLES } from "@/lib/signature";
 import ShareButton from "@/app/result/ShareButton";
 import DownloadButton from "@/app/result/DownloadButton";
 import SignatureChart from "@/components/SignatureChart";
@@ -173,9 +173,11 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
   // stay behind the paywall (firewall §12/§17.D); $0, no LLM.
   const spine = musicSpines[data.archetype.id];
   const signature = musicQuiz.dimensions.map((d) => data.scores[d] ?? 0.5);
-  const sigRows = buildSignatureRows(musicQuiz, primary, data.scores, MUSIC_SIGNATURE_LABELS);
-  const topRows = [...sigRows].sort((a, b) => b.value - a.value).slice(0, 3)
-    .map((row) => ({ label: row.label, value: row.value }));
+  const sigRows = buildSignatureRows(musicQuiz, primary, data.scores, MUSIC_SIGNATURE_LABELS, MUSIC_SIGNATURE_POLES);
+  // Card rows: the 3 strongest LEANS, named by pole ("Loyalist 88") — the low
+  // pole is a stance on the shared artifact too (§18.D).
+  const topRows = [...sigRows].sort((a, b) => b.lean - a.lean).slice(0, 3)
+    .map((row) => ({ label: row.direction === "mid" ? row.label : row.pole, value: row.lean }));
 
   // Deterministic artist receipt (decision (i)) — sanitized before display (§23.A).
   const receipt = artistReceipt(cleanNames(ar, 3), cleanNames(ad, 1));
