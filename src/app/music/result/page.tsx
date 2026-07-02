@@ -231,7 +231,9 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
           {composite.modifier ? (
             <p className="mt-1">
               Your twist: <span className="font-semibold" style={{ color: accent }}>{composite.modifier.label}</span>
-              {" — "}{composite.modifier.line}
+              {/* Don't print the authored line twice: the $0 fallback read
+                  already embeds it as its second sentence. */}
+              {r.vibe_check.includes(composite.modifier.line) ? null : <>{" — "}{composite.modifier.line}</>}
             </p>
           ) : null}
         </div>
