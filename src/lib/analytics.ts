@@ -37,6 +37,48 @@ export function captureAttribution(): TrackProps {
   }
 }
 
+// --- PostHog second sink (SDK-free) -----------------------------------------
+// Vercel WA custom events are Pro-only — on Hobby they're invisible, so funnels
+// can't be measured. PostHog free cloud (1M events/mo) is the §13.C-sanctioned
+// second sink. Direct capture API via fetch: no SDK, no autocapture, no cookies
+// — distinct_id is a random per-session id (sessionStorage), zero PII. No-op
+// until NEXT_PUBLIC_POSTHOG_KEY is set (PM action; see docs/OPERATIONS.md).
+const PH_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+const PH_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
+
+function sessionId(): string {
+  try {
+    let id = sessionStorage.getItem("vc_sid");
+    if (!id) {
+      id = Math.random().toString(36).slice(2) + Date.now().toString(36);
+      sessionStorage.setItem("vc_sid", id);
+    }
+    return id;
+  } catch {
+    return "anon";
+  }
+}
+
+function posthogCapture(event: string, properties: TrackProps): void {
+  if (!PH_KEY) return;
+  try {
+    // keepalive so events fired right before navigation still land.
+    void fetch(`${PH_HOST}/capture/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        api_key: PH_KEY,
+        event,
+        distinct_id: sessionId(),
+        properties: { ...properties, $current_url: window.location.pathname },
+      }),
+    });
+  } catch {
+    /* analytics must never break the app */
+  }
+}
+
 /** Fire a loop-measurement event (no-op on the server; attribution auto-attached). */
 export function track(event: string, props: TrackProps = {}): void {
   if (typeof window === "undefined") return;
@@ -47,6 +89,7 @@ export function track(event: string, props: TrackProps = {}): void {
   } catch {
     /* analytics must never break the app */
   }
+  posthogCapture(event, payload);
   if (process.env.NODE_ENV !== "production") {
     // Visible in dev so we can confirm events fire without the dashboard.
     console.debug("[track]", event, payload);

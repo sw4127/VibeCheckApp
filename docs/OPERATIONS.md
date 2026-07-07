@@ -17,3 +17,6 @@ Push to `main` → Vercel auto-deploy. Pre-deploy gate: `npm run build` + `npx v
 - **Vercel + GitHub on personal accounts**; repo transfer + env re-entry is the whole migration.
 - **Domain not owned** — `NEXT_PUBLIC_BASE_URL` is the only binding (spec §19.C). "Vibe Check" name is generic/contested (spec §23.A) — treat brand as replaceable.
 - **Key rotation:** swap `ANTHROPIC_API_KEY` in Vercel env; nothing else references it.
+
+## Analytics events (Vercel Hobby workaround)
+Vercel WA **custom events are Pro-only** — on Hobby, `track()` events are invisible (pageviews only). Second sink: **PostHog free cloud** (1M events/mo, funnels UI), SDK-free via the capture API in `src/lib/analytics.ts`. Setup (once, ~5 min): create a free PostHog account (US cloud) → Project Settings → copy the **Project API key** → add to Vercel env as `NEXT_PUBLIC_POSTHOG_KEY` (+ `NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com` only if you chose EU) → redeploy. No key = silent no-op. Diligence note: PostHog account is personal — list alongside Vercel/Dodo for transfer.

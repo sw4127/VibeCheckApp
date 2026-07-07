@@ -20,4 +20,4 @@ Sink: Vercel Web Analytics (free tier), client-side, no DB, no PII. Attribution 
 
 ## Canonical funnel
 `landing_view → quiz_start(wc) → quiz_complete(wc) → result_view(wc) → quiz_start(music) → quiz_complete(music) → result_view(music) → paywall_view → purchase`
-Thresholds: §13.B (completion ≥55–60% · share ≥15%/8% · K_obs ≥0.5/<0.2). Funnel snapshots live in `docs/analytics/` (page-level export committed; prefer the WA Events pane for step rates).
+Thresholds: §13.B (completion ≥55–60% · share ≥15%/8% · K_obs ≥0.5/<0.2). Funnel snapshots live in `docs/analytics/` (page-level export committed; prefer PostHog funnels for step rates — Vercel WA custom events are Pro-only (see OPERATIONS.md)).
