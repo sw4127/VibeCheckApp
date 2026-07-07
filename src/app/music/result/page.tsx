@@ -23,6 +23,7 @@ import {
   ARCHETYPE_THEMES,
 } from "@/content/music";
 import SharpenRead from "./SharpenRead";
+import FakeDoors from "./FakeDoors";
 import { narrateMusic, type MusicReading } from "@/llm";
 import type { Composite, Profile } from "@/engine";
 import { baseUrl, cardPath } from "@/lib/site";
@@ -330,6 +331,9 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
           Get the full read →
         </span>
       </Link>
+
+      {/* §23.C/D demand gates — must out-click the paid CTA above to earn a build */}
+      <FakeDoors accent={accent} />
 
       {/* Share */}
       <div className="mt-8 overflow-hidden rounded-2xl border border-white/10">
