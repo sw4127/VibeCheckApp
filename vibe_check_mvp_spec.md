@@ -884,3 +884,15 @@ A long visual-design arc that converged the football and music surfaces onto ONE
 
 ### E. Open tail (as of this entry)
 - Music-result Design-Bar length pass; live sample of the `online` voice before flipping the §26 A/B; §23.A injection re-audit after the matrix (free path is now structurally artist-free); cross-instance quota decision; the report page's collector-card renderer hangs headless screenshots (content verified via HTML).
+
+---
+
+## 29. Funnel diagnosis (Jun 7–Jul 7, n=29) & the bridged-quiz redesign — SHIPPED
+
+Page funnel of record (`docs/analytics/top_pages_jun7_jul7.csv`, visitors): / 29 → /quiz 17 (59%, on-model) → /result 12 (71%, on-model) → /music/quiz 7 (58% bridge, healthy) → /music/result 2 (**29% — fails Gate 0 ≥55%**); /premium/preview 4 (> music/result — entry paths: music CTA w/ token · unpaid /premium/report redirect · direct/sample · self-testing; `paywall_view.profile` + new `src=` tags separate them); purchases 0 (**on-model** at 4 paywall views — monetization untested). Binding constraint: TRAFFIC.
+
+**Fix (shipped):** bridged users (WC result → music, answers carried statelessly; qids don't collide) get a **5-tap delta quiz** — belief Q0 skipped (§10.A intact for cold entrants), state (rotation/job/sadsong) + openness (lately/sits) asked, `hooks`/`where` filled by the **authored `WC_TO_MUSIC_PRIOR`** (`src/content/music/prior.ts`: flair→hooks [weak, PM-tunable] · teamplay→where [moderate]) snapped to REAL option ids → §6 untouched. Result discloses seeded axes ("carried from your pitch read"). Faster 500ms beat. `quiz_start{bridged}` fires on mount for bridged users. Caveat of record: n=29 — percentages directional; verify via WA custom events (`premise_view`/`quiz_start`/`quiz_complete` variants), which already exist.
+
+## 30. Music Aesthetics Knowledge Base (design of record; seed gated on §23.C order)
+
+Curated, versioned, AUTHORED artist→axis mapping as static repo data — violates neither "no DB" (no runtime user storage) nor "no licensed music database" (our editorial opinions; nominative artist names; no lyrics/artwork/licensed metadata). **AMENDS §6/§17.B:** artists remain flavor-only in the tap-quiz verdict; in the NEW artist-first entry mode, KB weights are deterministic ENGINE input (static lookup → weights → nearest-centroid; no live LLM; unknown artist → today's flavor-only fallback). Schema: `{id, names[] (aliases), weights (6 music axes, 0–1), confidence, tags[], era, receipts[] (§21 voice), version}`. Seed ~300 (150 ubiquity + 150 subculture anchors); workflow: offline LLM-assisted draft (one-time ~$2–5) → PM review in 25s → committed w/ tests (schema, ranges, alias collisions, deterministic normalized lookup, coverage sample). Unlocks in order: artist-first instant provisional reads → authored receipt lines (deterministic slot-fill; zero narration-cache fragmentation) → the acquirer-grade data asset.
