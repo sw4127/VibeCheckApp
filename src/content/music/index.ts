@@ -19,6 +19,7 @@ import { musicSpines } from "./spines";
 import type { Spine } from "@/content/spine";
 
 export { composeMusicIdentity, lookupMusicComposite, MUSIC_TABLES } from "./compose";
+export { seedFromWorldCup, wcAnswersFrom, SEEDED_QUESTIONS } from "./prior";
 import {
   musicQuiz,
   CUES,

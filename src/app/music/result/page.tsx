@@ -173,7 +173,20 @@ export default async function MusicResultPage({ searchParams }: { searchParams: 
   // stay behind the paywall (firewall §12/§17.D); $0, no LLM.
   const spine = musicSpines[data.archetype.id];
   const signature = musicQuiz.dimensions.map((d) => data.scores[d] ?? 0.5);
-  const sigRows = buildSignatureRows(musicQuiz, primary, data.scores, MUSIC_SIGNATURE_LABELS, MUSIC_SIGNATURE_POLES);
+  // §29 honesty rail: axes filled from the WC prior are DISCLOSED, never
+  // presented as measured (hooks→reflective, where→extraversion).
+  const seededAxes = new Set<string>(
+    (typeof sp.seeded === "string" ? sp.seeded : "")
+      .split(",")
+      .map((q) => (q === "hooks" ? "reflective" : q === "where" ? "extraversion" : ""))
+      .filter(Boolean),
+  );
+  const sigRows = buildSignatureRows(musicQuiz, primary, data.scores, MUSIC_SIGNATURE_LABELS, MUSIC_SIGNATURE_POLES)
+    .map((r) =>
+      seededAxes.has(r.axis)
+        ? { ...r, proof: "carried from your pitch read — retake to sharpen", driven: false }
+        : r,
+    );
   // Card rows: the 3 strongest LEANS, named by pole ("Loyalist 88") — the low
   // pole is a stance on the shared artifact too (§18.D).
   const topRows = [...sigRows].sort((a, b) => b.lean - a.lean).slice(0, 3)

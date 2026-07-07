@@ -266,7 +266,9 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
           (?from=); it seeds a "does your taste agree?" line and NEVER touches the
           music verdict. */}
       <Link
-        href={`/music/quiz?from=${encodeURIComponent(data.archetype.label)}`}
+        // §29: carry the WC answers (ids don't collide with music qids) so the
+        // music quiz runs in bridged 5-tap mode; `from` keeps the 5b reveal.
+        href={`/music/quiz?${orderedQuery(answers)}&from=${encodeURIComponent(data.archetype.label)}`}
         className="mt-10 block rounded-2xl p-6 text-center transition hover:opacity-95"
         style={{ background: `${accent}14`, border: `1px solid ${accent}40` }}
       >
@@ -275,7 +277,7 @@ export default async function ResultPage({ searchParams }: { searchParams: Searc
           className="mt-4 inline-block rounded-full px-8 py-3.5 text-sm font-bold text-white"
           style={{ background: accent }}
         >
-          Read my music taste →
+          Your vibe&apos;s already read — 5 taps finishes the music version →
         </span>
       </Link>
 

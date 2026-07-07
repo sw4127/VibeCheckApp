@@ -41,7 +41,9 @@ export default async function ReportPage({ searchParams }: { searchParams: Searc
     paid = true;
   }
 
-  if (!paid) redirect("/premium/preview");
+  // §29(1d): tag the unpaid-report redirect so paywall entry paths separate in
+  // analytics (this was the /premium/preview > /music/result oddity's 2nd path).
+  if (!paid) redirect("/premium/preview?src=report_redirect");
 
   // profileRef is either a stateless premium token (real user, from the music
   // result) or a Slice-0 sample id; malformed anything falls back to the sample.

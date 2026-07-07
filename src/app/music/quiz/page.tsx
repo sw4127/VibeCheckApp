@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { musicQuiz, CUES, REVERB, buildWeightedMusicProfile, musicArchetypes, ARCHETYPE_THEMES } from "@/content/music";
+import { musicQuiz, CUES, REVERB, buildWeightedMusicProfile, musicArchetypes, ARCHETYPE_THEMES, seedFromWorldCup, wcAnswersFrom, SEEDED_QUESTIONS } from "@/content/music";
 import {
   percentileNormalize,
   rankMatches,
@@ -50,7 +50,17 @@ const RESOLVE = [523.25, 659.25, 783.99]; // C5–E5–G5
 export default function MusicQuizPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<WeightedAnswers>({});
+  // §29 progressive profiling — read the carried WC answers ONCE at mount. A
+  // complete carry = bridged mode: skip the belief Q0, drop the two seeded
+  // questions (hooks/where — filled deterministically from the authored prior),
+  // and run a faster beat. Cold visitors get the unchanged full quiz.
+  const [seeds] = useState<{ hooks: string; where: string } | null>(() =>
+    typeof window === "undefined"
+      ? null
+      : seedFromWorldCup(wcAnswersFrom(new URLSearchParams(window.location.search))),
+  );
+  const bridged = seeds !== null;
+  const [answers, setAnswers] = useState<WeightedAnswers>(() => (seeds ? { ...seeds } : {}));
   const [selected, setSelected] = useState<string | null>(null);
   // §slice-2b — opt-in blend: a per-question "torn? pick two" mode (default off,
   // so the single-tap rhythm is untouched). `secondary` is the 30% pick.
@@ -62,8 +72,9 @@ export default function MusicQuizPage() {
   // §22 momentum: which bars moved on THIS tap → they pulse (honest feedback —
   // the bars reflect a real deterministic re-score, not invented telemetry).
   const [changedBars, setChangedBars] = useState<boolean[]>([]);
-  // §10.A: the premise test begins on the unscored belief step.
-  const [phase, setPhase] = useState<"belief" | "taps" | "crystallizer">("belief");
+  // §10.A: the premise test begins on the unscored belief step — except for
+  // bridged users (§29): they already converted once; Q0 is a cold-entry test.
+  const [phase, setPhase] = useState<"belief" | "taps" | "crystallizer">(bridged ? "taps" : "belief");
   const [arm, setArm] = useState<OnboardingArm | null>(null);
   const persuasive = arm !== "control"; // default to persuasive copy pre-hydration
   const [soundOn, setSoundOn] = useState(false);
@@ -114,8 +125,14 @@ export default function MusicQuizPage() {
     }
   }
 
-  const total = quiz.questions.length;
-  const question = quiz.questions[step];
+  // §29: bridged users answer only the DELTA (state + openness); the seeded
+  // questions are pre-filled from the prior and disclosed on the result.
+  const questions = bridged
+    ? quiz.questions.filter((q) => !(SEEDED_QUESTIONS as readonly string[]).includes(q.id))
+    : quiz.questions;
+  const beatMs = bridged ? 500 : REVERB_MS; // faster beat for the second quiz
+  const total = questions.length;
+  const question = questions[step];
   const answered = Object.keys(answers).length; // pulse-replay key for the forming bars
 
   useEffect(() => {
@@ -124,7 +141,11 @@ export default function MusicQuizPage() {
     // premise_view→quiz_start gap measures skeptic drop-off at the premise.
     setArm(getOnboardingArm());
     getVoiceArm(); // §26 — lock the voice arm early so every event carries it
-    track("premise_view", { variant: "music" });
+    // §29: bridged users skip the premise (Q0) entirely — fire quiz_start
+    // directly so the funnel stays measurable; cold entrants keep premise_view
+    // → quiz_start (the §10.A skeptic-gap instrument).
+    if (bridged) track("quiz_start", { variant: "music", bridged: true });
+    else track("premise_view", { variant: "music" });
     try {
       if (sessionStorage.getItem("vc_sound") === "1") setSoundOn(true);
     } catch {}
@@ -195,11 +216,12 @@ export default function MusicQuizPage() {
 
   function goToResult(finalAnswers: WeightedAnswers) {
     const profile = buildWeightedMusicProfile(finalAnswers);
-    track("quiz_complete", { variant: "music", archetype: profile.archetype.id });
+    track("quiz_complete", { variant: "music", archetype: profile.archetype.id, bridged });
     const qs = new URLSearchParams();
     for (const q of quiz.questions) qs.set(q.id, encodeAnswerChoice(finalAnswers[q.id]));
     qs.set("voice", getVoiceArm()); // §26 — carry the voice arm into the read (stateless)
     if (fromVibe) qs.set("from", fromVibe); // §slice-5b — carry the football vibe for the reveal
+    if (bridged) qs.set("seeded", SEEDED_QUESTIONS.join(",")); // §29 honesty rail
     router.push(`/music/result?${qs.toString()}`);
   }
 
@@ -263,7 +285,7 @@ export default function MusicQuizPage() {
     // Deref the ref AT FIRE TIME (a bare `advanceRef.current` here would freeze
     // the pre-click closure, where `selected` is still null → the auto-advance
     // would no-op and every question would need a second tap).
-    timer.current = setTimeout(() => advanceRef.current(), REVERB_MS);
+    timer.current = setTimeout(() => advanceRef.current(), beatMs);
   }
 
   // §slice-2b — commit a blend (or a single primary if no secondary) and advance.
