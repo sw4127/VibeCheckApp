@@ -32,6 +32,8 @@ You tell it your music taste (a tap quiz + an optional "name 3 artists" field). 
 
 ## 3. Build plan
 
+> **SUPERSEDED (2026-07-11)** by `restructuring_decision_memo_2026-07-11.md` **D3** (v1 = Prestige-Bias Test; WC quiz → legacy/archive per memo §7) — kept for history per memo §8.3.
+
 **Stage 1 — Ship the engine *as* the World Cup player-match (this week, ~1 week cap).**
 Build the reusable input → scoring engine → shareable-card pipeline, skinned first as **"Which World Cup player matches your vibe?"** to catch the June 11 attention wave. Free, tap-only, share-driven, with a CTA to the music product. The match is computed deterministically (see §6) against a curated player roster; the LLM only narrates it. This is a *traffic and share-loop test*, not the revenue core.
 - **Real-people guardrails:** player profiles describe playing style / public on-pitch persona only — never psychological or clinical claims about the real person. The roast targets the *user*, never the player. No player photos or FIFA/club badges (likeness + IP) — name + typography only.
@@ -259,6 +261,8 @@ Determines whether the positioning PERSUADES skeptics (treatment) or only SELECT
 
 ## 12. Monetization findings & decisions (Stage 2 $2.99 paywall)
 
+> **SUPERSEDED (2026-07-11)** by `restructuring_decision_memo_2026-07-11.md` **D4** (paid = the progression, not a one-shot report; pricing open per memo §9.1) — kept for history per memo §8.3.
+
 *Strategy review of the $2.99 paywall, analyzed as TWO separate problems: (A) willingness to pay — do they want it enough to pay at all? and (B) payment friction — given they want it, how many still bounce at checkout? No payment code yet; these are spec decisions.*
 *(Numbering note: a duplicated "Open questions" header previously sat above; removed in the PM-approved §16.J consolidation.)*
 
@@ -322,6 +326,8 @@ Top 3 WTP drop-offs (desire, not friction): ① paywall→unlock, ② free-revea
 
 ## 13. Stage 1 growth build & decisions (launch)
 
+> **SUPERSEDED (2026-07-11)** by `restructuring_decision_memo_2026-07-11.md` **C1 + D3/D4** ($3.99 funnel dead; new sequencing/model) — kept for history per memo §8.3. *(§13.D trademark/real-people guardrails remain good law for any future footballer content.)*
+
 *Records the growth-engineering build slice + locked decisions from the Stage 1 launch review. Where noted these SUPERSEDE earlier inline values; appended (originals left intact for history) per the keep-intact rule. (E) = estimate.*
 
 ### Shipped — loop measurement (redline → add an "Analytics" row to §4)
@@ -364,6 +370,8 @@ Justification — comparable business cases + fee math:
 
 ## 13b. Stage-1 launch revisions (historical appendix — canonical pricing lives in §13's PRICING DECISION)
 
+> **SUPERSEDED (2026-07-11)** by `restructuring_decision_memo_2026-07-11.md` **C1 + D4** (the $3.99/$2.99 pricing model is dead) — kept for history per memo §8.3.
+
 *Append-only at the time; retitled §13b in the PM-approved §16.J consolidation to resolve the duplicate "§13" header. Where this appendix's pricing comps differ from §13, §13 is canonical.*
 
 ### A. PRICING DECISION — Stage 2 launch price: **$3.99 one-time** (was $2.99)
@@ -404,6 +412,8 @@ Preserves the no-DB/stateless rule: events fire client-side, attribution lives i
 ---
 
 ## 14. Seeding playbook (Stage 1, zero-budget)
+
+> **SUPERSEDED (2026-07-11)** by `restructuring_decision_memo_2026-07-11.md` **C1 + §7** (WC front door dead; acquisition = the technical launch write-up to HN/Reddit/GitHub) — kept for history per memo §8.3.
 
 *Execution plan, not code. Paid acquisition is dead at $2.99 CAC, so we live or die on the organic share loop. Ethical + ToS-safe: maker-disclosed, entertainment-first, no fake accounts, no undisclosed shilling, no vote manipulation, follow each community's rules. Trademark-safe per §13.D (no "World Cup"/"FIFA", player names OK).*
 
@@ -469,6 +479,8 @@ Stripe / payments / the premium report (all Stage 2, gated on the loop proving o
 ---
 
 ## 16. Recalibration & consolidation — revenue-first (supersessions noted inline)
+
+> **SUPERSEDED (2026-07-11)** by `restructuring_decision_memo_2026-07-11.md` **§0 (C1) + D1–D4** (strategy sub-sections A–C; the engineering contracts in D–I — @vercel/og card, engine architecture, Fraunces, color system — remain reusable assets per the memo's preserves clause) — kept for history per memo §8.3.
 
 ### A. THE RECALIBRATION (captured verbatim)
 - Stage 2 — the monetizable core (premium report + paywall) — is now the PRIORITY, not Stage 1.
@@ -599,6 +611,8 @@ No hardcoded domain anywhere user-visible. The card footer CTA derives its host 
 ---
 
 ## 20. Conversion revision — WTP depth + friction rebalance (paired proposals)
+
+> **SUPERSEDED (2026-07-11)** by `restructuring_decision_memo_2026-07-11.md` **D4** (the one-shot premium report this section converts into is replaced by the progression tier; D2 note — friction is now managed, not minimized) — kept for history per memo §8.3.
 
 *PM evaluation: neither quiz convincingly converts free → paid. Two failures: (1) WTP — not enough deep, defensible value; (2) friction — input-effort vs output-reward still off. This section is the paired fix. Locked decisions preserved: engine classifies / LLM writes (§6), P4 timescale split (§9 thesis, §17.B), stateless/no-DB, Satori subset (cards only — quiz UI is normal CSS). The Hume layer is POSITIONING ONLY (§9, corrected by approved overwrite); the §9 thesis bullets ("P1–P4", in order) remain the engine's empirical logic, untouched.*
 
@@ -888,6 +902,8 @@ A long visual-design arc that converged the football and music surfaces onto ONE
 ---
 
 ## 29. Funnel diagnosis (Jun 7–Jul 7, n=29) & the bridged-quiz redesign — SHIPPED
+
+> **SUPERSEDED (2026-07-11)** by `restructuring_decision_memo_2026-07-11.md` **§0 (C1–C3)** — this diagnosis produced the memo's conclusions; the WC→music funnel strategy it patched is dead — kept for history per memo §8.3.
 
 Page funnel of record (`docs/analytics/top_pages_jun7_jul7.csv`, visitors): / 29 → /quiz 17 (59%, on-model) → /result 12 (71%, on-model) → /music/quiz 7 (58% bridge, healthy) → /music/result 2 (**29% — fails Gate 0 ≥55%**); /premium/preview 4 (> music/result — entry paths: music CTA w/ token · unpaid /premium/report redirect · direct/sample · self-testing; `paywall_view.profile` + new `src=` tags separate them); purchases 0 (**on-model** at 4 paywall views — monetization untested). Binding constraint: TRAFFIC.
 
