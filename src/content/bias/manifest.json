@@ -72,9 +72,9 @@
       "performer": "Chris Zabriskie",
       "role": { "labelDirection": "up", "labelIsTrue": false },
       "license": { "expected": "CC-BY 4.0", "proofPageUrl": "https://teamopen.cc/chris", "confirmedAt": null, "snapshotFile": null },
-      "source": { "pageUrl": "https://archive.org/search?query=creator%3A%22Chris+Zabriskie%22", "downloadUrl": null, "sha256": null },
+      "source": { "pageUrl": "https://archive.org/details/Music_from_Neptune_Flux-21899", "altPageUrl": "https://archive.org/details/Direct_to_Video_1014-17407", "downloadUrl": null, "sha256": null },
       "window": { "suggestions": [], "approved": null },
-      "warnings": ["C.3 HARD: common YouTube background music — PM rejects anything familiar (swap item)", "CC-BY: TASL attribution required"]
+      "warnings": ["C.3 HARD: common YouTube background music — PM rejects anything familiar (swap item)", "CC-BY: TASL attribution required", "Shortlist of record: docs/bias-shortlist-2026-07-12.md (albums restricted per candidates doc item 6; archive.org items lack a license line — snapshot BOTH teamopen.cc/chris AND the item page)"]
     },
     {
       "id": "pb7",
@@ -83,10 +83,10 @@
       "composerOrArtist": "Komiku / Monplaisir",
       "performer": "same",
       "role": { "labelDirection": "up", "labelIsTrue": false },
-      "license": { "expected": "CC0", "proofPageUrl": null, "confirmedAt": null, "snapshotFile": null },
-      "source": { "pageUrl": null, "downloadUrl": null, "sha256": null },
+      "license": { "expected": "CC0", "proofPageUrl": "https://archive.org/details/Komiku-TaleOnTheLate", "confirmedAt": null, "snapshotFile": null },
+      "source": { "pageUrl": "https://archive.org/details/Komiku-TaleOnTheLate", "downloadUrl": null, "sha256": null },
       "window": { "suggestions": [], "approved": null },
-      "warnings": ["Role = up-swap per PM ruling RT-9(b) 2026-07-12 (third swap; pool = 3 swaps, 5-up/3-down, within contract)", "Draft up-swap blurb per candidates doc: 'A minimalist study praised on year-end experimental lists for doing more with less.'", "FMA login-walled — prefer archive.org mirror; record proof URL"]
+      "warnings": ["Role = up-swap per PM ruling RT-9(b) 2026-07-12 (third swap; pool = 3 swaps, 5-up/3-down, within contract)", "Draft up-swap blurb per candidates doc: 'A minimalist study praised on year-end experimental lists for doing more with less.'", "Shortlist of record: docs/bias-shortlist-2026-07-12.md — archive.org item has MACHINE-READABLE CC0 (licenseurl in metadata); album restriction: Tale on the Late only"]
     },
     {
       "id": "pb8",
@@ -127,12 +127,12 @@
     {
       "id": "b3",
       "candidateRef": "B3",
-      "title": "Second Komiku/Monplaisir track (backup)",
+      "title": "Second Komiku track from Tale on the Late (backup — the unpicked shortlist survivor)",
       "composerOrArtist": "Komiku / Monplaisir",
       "performer": "same",
       "role": { "labelDirection": "up", "labelIsTrue": true },
-      "license": { "expected": "CC0", "proofPageUrl": null, "confirmedAt": null, "snapshotFile": null },
-      "source": { "pageUrl": null, "downloadUrl": null, "sha256": null },
+      "license": { "expected": "CC0", "proofPageUrl": "https://archive.org/details/Komiku-TaleOnTheLate", "confirmedAt": null, "snapshotFile": null },
+      "source": { "pageUrl": "https://archive.org/details/Komiku-TaleOnTheLate", "downloadUrl": null, "sha256": null },
       "window": { "suggestions": [], "approved": null },
       "warnings": ["backup"]
     }
