@@ -13,7 +13,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { computeBiasResult, decodeBiasRatings } from "@/engine/bias";
-import { BIAS_CLIPS, BIAS_INSTRUMENT_ID } from "@/content/bias/items";
+import { BIAS_CLIPS, BIAS_INSTRUMENT_ID, BIAS_POOL_VERSION } from "@/content/bias/items";
 import { VERDICT_COPY } from "@/content/bias/copy";
 import { baseUrl } from "@/lib/site";
 
@@ -40,6 +40,14 @@ export async function GET(request: Request) {
     (f) => f === searchParams.get("format"),
   ) ?? "story";
 
+  // RT-7b: a card is only renderable against the pool version that produced
+  // the ratings — a stale/absent pv must never render today's pool's numbers.
+  if (searchParams.get("pv") !== String(BIAS_POOL_VERSION)) {
+    return new Response(JSON.stringify({ error: "pool version mismatch" }), {
+      status: 400,
+      headers: { "content-type": "application/json" },
+    });
+  }
   const blind = decodeBiasRatings(BIAS_CLIPS, searchParams.get("b") ?? undefined);
   const labeled = decodeBiasRatings(BIAS_CLIPS, searchParams.get("l") ?? undefined);
   if (!blind || !labeled) {

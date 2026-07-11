@@ -24,7 +24,7 @@ import {
   type BiasRatings,
   type BiasResult,
 } from "@/engine/bias";
-import { BIAS_CLIPS, BIAS_INSTRUMENT_ID, type BiasClip } from "@/content/bias/items";
+import { BIAS_CLIPS, BIAS_INSTRUMENT_ID, BIAS_POOL_VERSION, type BiasClip } from "@/content/bias/items";
 import { VERDICT_COPY, shareText } from "@/content/bias/copy";
 import ShareButton from "@/app/result/ShareButton";
 import DownloadButton from "@/app/result/DownloadButton";
@@ -92,6 +92,7 @@ export default function BiasFlow() {
       // hash, pool version only.
       track("bias_result", {
         pool: BIAS_INSTRUMENT_ID,
+        poolVersion: BIAS_POOL_VERSION,
         hash: r.hash,
         blind: BIAS_CLIPS.map((c) => blind[c.id]).join(","),
         labeled: BIAS_CLIPS.map((c) => nextRatings[c.id]).join(","),
@@ -307,7 +308,7 @@ export default function BiasFlow() {
     // Stateless permalink: raw passes in the URL; /bias/result recomputes.
     const b = encodeURIComponent(encodeBiasRatings(BIAS_CLIPS, blind));
     const l = encodeURIComponent(encodeBiasRatings(BIAS_CLIPS, labeled));
-    const resultPath = `/bias/result?b=${b}&l=${l}`;
+    const resultPath = `/bias/result?pv=${BIAS_POOL_VERSION}&b=${b}&l=${l}`;
     const origin = typeof window === "undefined" ? "" : window.location.origin;
     return (
       <main className={shell}>
@@ -385,7 +386,7 @@ export default function BiasFlow() {
                 accent={GOLD}
               />
               <DownloadButton
-                url={`/api/bias-card?format=story&b=${b}&l=${l}`}
+                url={`/api/bias-card?format=story&pv=${BIAS_POOL_VERSION}&b=${b}&l=${l}`}
                 label="Story card"
                 filename="prestige-test-story.png"
               />

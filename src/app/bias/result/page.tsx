@@ -12,7 +12,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { computeBiasResult, decodeBiasRatings, type BiasResult } from "@/engine/bias";
-import { BIAS_CLIPS, BIAS_INSTRUMENT_ID } from "@/content/bias/items";
+import { BIAS_CLIPS, BIAS_INSTRUMENT_ID, BIAS_POOL_VERSION } from "@/content/bias/items";
 import { VERDICT_COPY, shareText } from "@/content/bias/copy";
 import { baseUrl } from "@/lib/site";
 import FluidField from "@/components/FluidField";
@@ -31,6 +31,9 @@ function resultFrom(sp: Record<string, string | string[] | undefined>): {
   b: string;
   l: string;
 } | null {
+  // RT-7b: links minted against an older pool die gracefully (redirect to
+  // /bias) rather than rendering ratings against items they never measured.
+  if (sp.pv !== String(BIAS_POOL_VERSION)) return null;
   const b = typeof sp.b === "string" ? sp.b : undefined;
   const l = typeof sp.l === "string" ? sp.l : undefined;
   const blind = decodeBiasRatings(BIAS_CLIPS, b);
@@ -40,7 +43,7 @@ function resultFrom(sp: Record<string, string | string[] | undefined>): {
 }
 
 function cardUrl(format: "story" | "square" | "og", b: string, l: string): string {
-  return `/api/bias-card?format=${format}&b=${encodeURIComponent(b)}&l=${encodeURIComponent(l)}`;
+  return `/api/bias-card?format=${format}&pv=${BIAS_POOL_VERSION}&b=${encodeURIComponent(b)}&l=${encodeURIComponent(l)}`;
 }
 
 export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
@@ -62,7 +65,7 @@ export default async function BiasResultPage({ searchParams }: { searchParams: S
   if (!data) redirect("/bias");
   const { result, b, l } = data;
   const v = VERDICT_COPY[result.verdict];
-  const permalink = `${baseUrl()}/bias/result?b=${encodeURIComponent(b)}&l=${encodeURIComponent(l)}`;
+  const permalink = `${baseUrl()}/bias/result?pv=${BIAS_POOL_VERSION}&b=${encodeURIComponent(b)}&l=${encodeURIComponent(l)}`;
 
   return (
     <main className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center overflow-hidden px-6 py-12 text-center">

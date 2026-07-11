@@ -7,7 +7,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { BIAS_CLIPS } from "./items";
+import { BIAS_CLIPS, BIAS_POOL_VERSION } from "./items";
 
 describe("prestige-bias item pool design constraints", () => {
   it("has at least 8 items with unique ids", () => {
@@ -45,6 +45,11 @@ describe("prestige-bias item pool design constraints", () => {
       expect(c.license.length).toBeGreaterThan(0);
       expect(c.audioSrc).toMatch(/^\/audio\/bias\//);
     }
+  });
+
+  it("pool version is a positive integer (RT-7b: rides every share URL + dataset event)", () => {
+    expect(Number.isInteger(BIAS_POOL_VERSION)).toBe(true);
+    expect(BIAS_POOL_VERSION).toBeGreaterThanOrEqual(1);
   });
 
   it("every REAL (non-placeholder) audioSrc exists under public/", () => {

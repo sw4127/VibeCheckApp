@@ -20,6 +20,15 @@ import type { BiasItemSpec } from "@/engine/bias";
 
 export const BIAS_INSTRUMENT_ID = "prestige-bias-v1";
 
+/**
+ * Pool version (RT-7b). BUMP THIS ON ANY POOL CHANGE — items added, removed,
+ * reordered, relabeled, re-windowed, or re-rendered. It rides in every share
+ * URL and every bias_result event, so stored responses and old links are
+ * permanently interpretable against the exact pool that produced them (D6).
+ * Old-version URLs die gracefully (redirect to /bias), never lie.
+ */
+export const BIAS_POOL_VERSION = 1;
+
 /** One playable, labelable clip. Extends the engine spec with presentation. */
 export interface BiasClip extends BiasItemSpec {
   /** Static file under /public — PD/CC audio only (memo §8.2). */
