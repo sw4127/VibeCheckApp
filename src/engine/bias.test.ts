@@ -3,6 +3,8 @@ import {
   BIAS_CONTRARIAN_AT,
   BIAS_SWAYED_AT,
   computeBiasResult,
+  decodeBiasRatings,
+  encodeBiasRatings,
   type BiasItemSpec,
   type BiasRatings,
 } from "./bias";
@@ -140,6 +142,22 @@ describe("computeBiasResult", () => {
     const c = computeBiasResult("t", ITEMS, blind, ratings(7));
     expect(a.hash).toBe(b.hash);
     expect(a.hash).not.toBe(c.hash);
+  });
+
+  it("codec round-trips and decode is strict", () => {
+    const ratings = Object.fromEntries(ITEMS.map((i, n) => [i.id, n % 11])) as BiasRatings;
+    const csv = encodeBiasRatings(ITEMS, ratings);
+    expect(csv).toBe("0,1,2,3,4,5,6,7");
+    expect(decodeBiasRatings(ITEMS, csv)).toEqual(ratings);
+    expect(decodeBiasRatings(ITEMS, "10,10,10,10,10,10,10,10")!.a).toBe(10);
+    // Strictness: wrong length, non-integer, out-of-range, junk, undefined.
+    expect(decodeBiasRatings(ITEMS, "1,2,3")).toBeNull();
+    expect(decodeBiasRatings(ITEMS, "1,2,3,4,5,6,7,8,9")).toBeNull();
+    expect(decodeBiasRatings(ITEMS, "1,2,3,4,5,6,7,11")).toBeNull();
+    expect(decodeBiasRatings(ITEMS, "1,2,3,4,5,6,7,5.5")).toBeNull();
+    expect(decodeBiasRatings(ITEMS, "1,2,3,4,5,6,7,-1")).toBeNull();
+    expect(decodeBiasRatings(ITEMS, "1,2,3,4,5,6,7,x")).toBeNull();
+    expect(decodeBiasRatings(ITEMS, undefined)).toBeNull();
   });
 
   it("rejects malformed input loudly", () => {

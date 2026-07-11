@@ -17,8 +17,17 @@
 import { useEffect, useRef, useState } from "react";
 import FluidField from "@/components/FluidField";
 import { track } from "@/lib/analytics";
-import { computeBiasResult, BIAS_SCALE_MAX, type BiasRatings, type BiasResult } from "@/engine/bias";
+import {
+  computeBiasResult,
+  encodeBiasRatings,
+  BIAS_SCALE_MAX,
+  type BiasRatings,
+  type BiasResult,
+} from "@/engine/bias";
 import { BIAS_CLIPS, BIAS_INSTRUMENT_ID, type BiasClip } from "@/content/bias/items";
+import { VERDICT_COPY, shareText } from "@/content/bias/copy";
+import ShareButton from "@/app/result/ShareButton";
+import DownloadButton from "@/app/result/DownloadButton";
 
 /* One accent in play (design bar): prestige gold. */
 const GOLD = "hsl(42 80% 62%)";
@@ -31,12 +40,6 @@ const BASE = "#0B0A08"; // warm near-black — the gym after hours
 const RATE_BEAT_MS = 420;
 
 type Phase = "frame" | "blind" | "bridge" | "labeled" | "reveal" | "debrief";
-
-const VERDICT_COPY: Record<BiasResult["verdict"], { title: string; sub: string }> = {
-  swayed: { title: "Label-driven.", sub: "When the names walked in, your standards left with them." },
-  steady: { title: "Steady ears.", sub: "The reputations showed up. Your ratings barely looked up." },
-  contrarian: { title: "Contrarian.", sub: "You heard the acclaim and docked points for it. Different bias — still a bias." },
-};
 
 export default function BiasFlow() {
   const [phase, setPhase] = useState<Phase>("frame");
@@ -344,6 +347,11 @@ export default function BiasFlow() {
   if (phase === "debrief" && result) {
     const swapped = BIAS_CLIPS.filter((c) => !c.labelIsTrue);
     const receiptFor = (id: string) => result.receipts.find((r) => r.id === id);
+    // Stateless permalink: raw passes in the URL; /bias/result recomputes.
+    const b = encodeURIComponent(encodeBiasRatings(BIAS_CLIPS, blind));
+    const l = encodeURIComponent(encodeBiasRatings(BIAS_CLIPS, labeled));
+    const resultPath = `/bias/result?b=${b}&l=${l}`;
+    const origin = typeof window === "undefined" ? "" : window.location.origin;
     return (
       <main className={shell}>
         <FluidField colors={FLUID} baseColor={BASE} intensity={0.55} scrim={false} vignette />
@@ -400,6 +408,36 @@ export default function BiasFlow() {
                   {r.labelIsTrue ? "" : " (swapped)"}
                 </p>
               ))}
+            </div>
+          </div>
+
+          {/* Share — the debrief is behind you; now the number travels. */}
+          <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+            <p className="text-[0.65rem] font-bold tracking-[0.3em] text-muted">YOUR NUMBER, PORTABLE</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              The link carries only your ratings — anyone who opens it sees your number recomputed, then
+              gets dared to beat it.
+            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <ShareButton
+                url={`${origin}${resultPath}`}
+                text={shareText(result.pct)}
+                label="Share your number"
+                event="bias_share"
+                primary
+                accent={GOLD}
+              />
+              <DownloadButton
+                url={`/api/bias-card?format=story&b=${b}&l=${l}`}
+                label="Story card"
+                filename="prestige-test-story.png"
+              />
+              <a
+                href={resultPath}
+                className="text-sm text-muted underline underline-offset-4 transition hover:text-white"
+              >
+                View your result page →
+              </a>
             </div>
           </div>
 

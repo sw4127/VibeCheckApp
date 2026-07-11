@@ -92,6 +92,29 @@ export interface BiasResult {
   movableCount: number;
 }
 
+/**
+ * Compact CSV of ratings in item order — the stateless share-URL payload
+ * (?b=&l=). The share page and card RECOMPUTE the verdict from these raw
+ * ratings, so a forged URL can only ever show what the engine would actually
+ * conclude from those ratings (N3: no unmeasured claim can carry our brand).
+ */
+export function encodeBiasRatings(items: BiasItemSpec[], ratings: BiasRatings): string {
+  return items.map((i) => ratings[i.id]).join(",");
+}
+
+/** Strict inverse of encodeBiasRatings. Returns null on ANY malformation. */
+export function decodeBiasRatings(items: BiasItemSpec[], csv: string | undefined): BiasRatings | null {
+  if (typeof csv !== "string") return null;
+  const parts = csv.split(",");
+  if (parts.length !== items.length) return null;
+  const out: BiasRatings = {};
+  for (let i = 0; i < items.length; i++) {
+    if (!/^(?:10|[0-9])$/.test(parts[i])) return null;
+    out[items[i].id] = Number(parts[i]);
+  }
+  return out;
+}
+
 function assertRating(pass: string, id: string, value: number | undefined): asserts value is number {
   if (value === undefined) throw new Error(`bias: missing ${pass} rating for "${id}"`);
   if (!Number.isInteger(value) || value < BIAS_SCALE_MIN || value > BIAS_SCALE_MAX) {
