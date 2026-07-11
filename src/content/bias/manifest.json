@@ -1,0 +1,140 @@
+{
+  "$comment": "Pool-of-record manifest — seeded from docs/bias-pool-candidates.md (Tier 1 = items 1-8, backups B1-B3). Processed by scripts/clip-pipeline. DO NOT invent items here; the candidates doc + PM C/D pass are the authority (rt-answers RT-1). downloadUrl is filled at research time from the proof page; sha256/licenseSnapshot are written by the pipeline; window.approved is the PM's ear-confirmation.",
+  "poolVersionTarget": 2,
+  "lufsTarget": -16,
+  "clipSeconds": 20,
+  "items": [
+    {
+      "id": "pb1",
+      "candidateRef": 1,
+      "title": "Goldberg Variations — a middle variation (e.g., Var. 13, NOT the Aria)",
+      "composerOrArtist": "J.S. Bach",
+      "performer": "Kimiko Ishizaka",
+      "role": { "labelDirection": "down", "labelIsTrue": false },
+      "license": { "expected": "CC0", "proofPageUrl": "https://opengoldbergvariations.org", "confirmedAt": null, "snapshotFile": null },
+      "source": { "pageUrl": "https://archive.org/details/TheOpenGoldbergVariations", "downloadUrl": null, "sha256": null },
+      "window": { "suggestions": [], "approved": null },
+      "warnings": ["NOT the opening Aria (too recognizable, C.3)", "PM must ear-check chosen variation for recognizability (swap item)"]
+    },
+    {
+      "id": "pb2",
+      "candidateRef": 2,
+      "title": "Well-Tempered Clavier Bk 1 — a less-famous prelude/fugue (NOT BWV 846 C major)",
+      "composerOrArtist": "J.S. Bach",
+      "performer": "Kimiko Ishizaka",
+      "role": { "labelDirection": "up", "labelIsTrue": true },
+      "license": { "expected": "CC0 (VERIFIED 2026-07-11 on archive.org item)", "proofPageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1", "confirmedAt": null, "snapshotFile": null },
+      "source": { "pageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1", "downloadUrl": null, "sha256": null },
+      "window": { "suggestions": [], "approved": null },
+      "warnings": []
+    },
+    {
+      "id": "pb3",
+      "candidateRef": 3,
+      "title": "Nocturne Op. 15 No. 3 in G minor",
+      "composerOrArtist": "F. Chopin",
+      "performer": "Musopen catalog performer (record at download)",
+      "role": { "labelDirection": "down", "labelIsTrue": true },
+      "license": { "expected": "PD or CC0 (verify on piece page; CC-BY-SA -> engineer flag)", "proofPageUrl": "https://musopen.org/music/108-nocturnes-op-15/", "confirmedAt": null, "snapshotFile": null },
+      "source": { "pageUrl": "https://musopen.org/music/108-nocturnes-op-15/", "downloadUrl": null, "sha256": null },
+      "window": { "suggestions": [], "approved": null },
+      "warnings": []
+    },
+    {
+      "id": "pb4",
+      "candidateRef": 4,
+      "title": "Préludes Book 1 — Voiles",
+      "composerOrArtist": "C. Debussy",
+      "performer": "Musopen catalog performer (record at download)",
+      "role": { "labelDirection": "up", "labelIsTrue": true },
+      "license": { "expected": "verify on piece page", "proofPageUrl": "https://musopen.org/music/4972-preludes-book-1/", "confirmedAt": null, "snapshotFile": null },
+      "source": { "pageUrl": "https://musopen.org/music/4972-preludes-book-1/", "downloadUrl": null, "sha256": null },
+      "window": { "suggestions": [], "approved": null },
+      "warnings": []
+    },
+    {
+      "id": "pb5",
+      "candidateRef": 5,
+      "title": "Intermezzo Op. 117 No. 1",
+      "composerOrArtist": "J. Brahms",
+      "performer": "Musopen catalog performer (record at download)",
+      "role": { "labelDirection": "up", "labelIsTrue": true },
+      "license": { "expected": "verify on piece page", "proofPageUrl": "https://musopen.org/music/2137-3-intermezzi-op-117/", "confirmedAt": null, "snapshotFile": null },
+      "source": { "pageUrl": "https://musopen.org/music/2137-3-intermezzi-op-117/", "downloadUrl": null, "sha256": null },
+      "window": { "suggestions": [], "approved": null },
+      "warnings": ["Moderately recognizable to classical listeners — PM recognizability check decides"]
+    },
+    {
+      "id": "pb6",
+      "candidateRef": 6,
+      "title": "Chris Zabriskie — deep-catalog track (avoid YouTube-worn hits)",
+      "composerOrArtist": "Chris Zabriskie",
+      "performer": "Chris Zabriskie",
+      "role": { "labelDirection": "up", "labelIsTrue": false },
+      "license": { "expected": "CC-BY 4.0", "proofPageUrl": "https://teamopen.cc/chris", "confirmedAt": null, "snapshotFile": null },
+      "source": { "pageUrl": "https://archive.org/search?query=creator%3A%22Chris+Zabriskie%22", "downloadUrl": null, "sha256": null },
+      "window": { "suggestions": [], "approved": null },
+      "warnings": ["C.3 HARD: common YouTube background music — PM rejects anything familiar (swap item)", "CC-BY: TASL attribution required"]
+    },
+    {
+      "id": "pb7",
+      "candidateRef": 7,
+      "title": "Komiku or Monplaisir — one track",
+      "composerOrArtist": "Komiku / Monplaisir",
+      "performer": "same",
+      "role": { "labelDirection": "down", "labelIsTrue": true },
+      "license": { "expected": "CC0", "proofPageUrl": null, "confirmedAt": null, "snapshotFile": null },
+      "source": { "pageUrl": null, "downloadUrl": null, "sha256": null },
+      "window": { "suggestions": [], "approved": null },
+      "warnings": ["Role per pool-balance: true-label down (alt: up-swap if balance retuned)", "FMA login-walled — prefer archive.org mirror; record proof URL"]
+    },
+    {
+      "id": "pb8",
+      "candidateRef": 8,
+      "title": "Jason Shaw (Audionautix) — one acoustic/folk track",
+      "composerOrArtist": "Jason Shaw",
+      "performer": "Jason Shaw",
+      "role": { "labelDirection": "down", "labelIsTrue": true },
+      "license": { "expected": "CC-BY 4.0", "proofPageUrl": "https://audionautix.com/creative-commons-music", "confirmedAt": null, "snapshotFile": null },
+      "source": { "pageUrl": "https://audionautix.com", "downloadUrl": null, "sha256": null },
+      "window": { "suggestions": [], "approved": null },
+      "warnings": ["Credit line required: music by audionautix.com (TASL)"]
+    },
+    {
+      "id": "b1",
+      "candidateRef": "B1",
+      "title": "Second Ishizaka WTC prelude (backup)",
+      "composerOrArtist": "J.S. Bach",
+      "performer": "Kimiko Ishizaka",
+      "role": { "labelDirection": "up", "labelIsTrue": true },
+      "license": { "expected": "CC0", "proofPageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1", "confirmedAt": null, "snapshotFile": null },
+      "source": { "pageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1", "downloadUrl": null, "sha256": null },
+      "window": { "suggestions": [], "approved": null },
+      "warnings": ["backup"]
+    },
+    {
+      "id": "b2",
+      "candidateRef": "B2",
+      "title": "Satie — Gnossienne No. 4 (NOT No. 1, too famous) (backup)",
+      "composerOrArtist": "E. Satie",
+      "performer": "Musopen catalog performer (record at download)",
+      "role": { "labelDirection": "down", "labelIsTrue": true },
+      "license": { "expected": "verify on piece page", "proofPageUrl": "https://musopen.org/music/117-gnossiennes/", "confirmedAt": null, "snapshotFile": null },
+      "source": { "pageUrl": "https://musopen.org/music/117-gnossiennes/", "downloadUrl": null, "sha256": null },
+      "window": { "suggestions": [], "approved": null },
+      "warnings": ["backup"]
+    },
+    {
+      "id": "b3",
+      "candidateRef": "B3",
+      "title": "Second Komiku/Monplaisir track (backup)",
+      "composerOrArtist": "Komiku / Monplaisir",
+      "performer": "same",
+      "role": { "labelDirection": "up", "labelIsTrue": true },
+      "license": { "expected": "CC0", "proofPageUrl": null, "confirmedAt": null, "snapshotFile": null },
+      "source": { "pageUrl": null, "downloadUrl": null, "sha256": null },
+      "window": { "suggestions": [], "approved": null },
+      "warnings": ["backup"]
+    }
+  ]
+}

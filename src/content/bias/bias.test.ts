@@ -4,7 +4,7 @@
  * contract, not a suggestion. If the PM re-authors items, these must still
  * pass — or the change is a decision, not an accident.
  */
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { BIAS_CLIPS, BIAS_POOL_VERSION } from "./items";
@@ -57,6 +57,32 @@ describe("prestige-bias item pool design constraints", () => {
       if (c.audioSrc.includes("PLACEHOLDER")) continue;
       const file = join(process.cwd(), "public", c.audioSrc);
       expect(existsSync(file), `missing audio file for ${c.id}: ${c.audioSrc}`).toBe(true);
+    }
+  });
+
+  // rt-answers §Content-ops item 4: "fail CI if any item lacks a license
+  // snapshot or proof URL". This is that gate — it arms itself the moment an
+  // item stops being a placeholder.
+  it("every REAL item has a license snapshot + proof URL + source hash in the manifest", () => {
+    interface ManifestItem {
+      id: string;
+      license: { proofPageUrl: string | null; snapshotFile: string | null; confirmedAt: string | null };
+      source: { sha256: string | null };
+    }
+    const manifest = JSON.parse(
+      readFileSync(join(process.cwd(), "src", "content", "bias", "manifest.json"), "utf8"),
+    ) as { items: ManifestItem[] };
+    for (const c of BIAS_CLIPS) {
+      if (c.audioSrc.includes("PLACEHOLDER")) continue;
+      const entry = manifest.items.find((i) => i.id === c.id);
+      expect(entry, `no manifest entry for real item ${c.id}`).toBeDefined();
+      expect(entry!.license.proofPageUrl, `${c.id}: license proof URL missing`).toBeTruthy();
+      expect(entry!.license.snapshotFile, `${c.id}: license snapshot missing (run clip-pipeline snapshot)`).toBeTruthy();
+      expect(
+        entry!.license.snapshotFile && existsSync(join(process.cwd(), "src", "content", "bias", "licenses", entry!.license.snapshotFile)),
+        `${c.id}: snapshot file not on disk`,
+      ).toBe(true);
+      expect(entry!.source.sha256, `${c.id}: source sha256 missing (run clip-pipeline download)`).toBeTruthy();
     }
   });
 });

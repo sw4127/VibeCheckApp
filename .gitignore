@@ -46,3 +46,6 @@ next-env.d.ts
 
 # generated diagnostic output (regenerate via DIAGNOSE=1 vitest run scripts/diagnose-archetypes.test.ts)
 /scripts/diagnose-report.txt
+
+# clip-pipeline raw source cache (multi-MB downloads; manifest holds the SHA-256s)
+scripts/clip-pipeline/.cache/
