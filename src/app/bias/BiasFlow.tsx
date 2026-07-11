@@ -28,6 +28,7 @@ import { BIAS_CLIPS, BIAS_INSTRUMENT_ID, type BiasClip } from "@/content/bias/it
 import { VERDICT_COPY, shareText } from "@/content/bias/copy";
 import ShareButton from "@/app/result/ShareButton";
 import DownloadButton from "@/app/result/DownloadButton";
+import ClipPlayer, { isPlaceholderSrc } from "./ClipPlayer";
 
 /* One accent in play (design bar): prestige gold. */
 const GOLD = "hsl(42 80% 62%)";
@@ -47,10 +48,8 @@ export default function BiasFlow() {
   const [blind, setBlind] = useState<BiasRatings>({});
   const [labeled, setLabeled] = useState<BiasRatings>({});
   const [played, setPlayed] = useState(false); // current clip, current pass
-  const [playing, setPlaying] = useState(false);
   const [picked, setPicked] = useState<number | null>(null); // beat-lock visual
   const [result, setResult] = useState<BiasResult | null>(null);
-  const audioCtx = useRef<AudioContext | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clip: BiasClip | undefined = BIAS_CLIPS[idx];
@@ -61,37 +60,8 @@ export default function BiasFlow() {
     track("bias_frame_view", {});
     return () => {
       if (timer.current) clearTimeout(timer.current);
-      void audioCtx.current?.close().catch(() => {});
     };
   }, []);
-
-  /** Placeholder tone: a triad seeded by clip index — distinct per clip, and
-   *  honest about being synthetic (badge in the UI). Never throws. */
-  function playPlaceholder(i: number) {
-    try {
-      const ctx = (audioCtx.current ??= new AudioContext());
-      const base = 196 * Math.pow(2, i / 6);
-      const t0 = ctx.currentTime;
-      [0, 4, 7].forEach((semi, k) => {
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = k === 1 ? "triangle" : "sine";
-        o.frequency.value = base * Math.pow(2, semi / 12);
-        g.gain.setValueAtTime(0.0001, t0 + k * 0.06);
-        g.gain.exponentialRampToValueAtTime(0.09, t0 + k * 0.06 + 0.05);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.4);
-        o.connect(g);
-        g.connect(ctx.destination);
-        o.start(t0 + k * 0.06);
-        o.stop(t0 + 1.5);
-      });
-    } catch {
-      /* audio is the stimulus, but a synth failure must not strand the flow */
-    }
-    setPlaying(true);
-    setTimeout(() => setPlaying(false), 1500);
-    setPlayed(true);
-  }
 
   function rate(value: number) {
     if (!clip || !played || picked !== null) return;
@@ -205,7 +175,9 @@ export default function BiasFlow() {
   /* ------------------------------------------------------- rating passes */
   if (phase === "blind" || phase === "labeled") {
     if (!clip) return null;
-    const isPlaceholder = clip.audioSrc.includes("PLACEHOLDER");
+    const caption =
+      (isPlaceholderSrc(clip.audioSrc) ? "placeholder tone — real clips pending" : "tap to listen") +
+      (played ? "" : " · listen before you rate");
     return (
       <main className={shell}>
         <FluidField colors={FLUID} baseColor={BASE} intensity={0.6} scrim={false} vignette />
@@ -241,29 +213,14 @@ export default function BiasFlow() {
             </div>
           )}
 
-          {/* Player */}
-          <div className="mt-8 flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => playPlaceholder(idx)}
-              aria-label={`Play clip ${idx + 1}`}
-              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border text-2xl transition active:scale-95"
-              style={
-                playing
-                  ? { borderColor: GOLD, background: GOLD_TINT, boxShadow: `0 0 0 1.5px ${GOLD}, 0 10px 30px ${GOLD_GLOW}` }
-                  : { borderColor: "rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.03)" }
-              }
-            >
-              {playing ? "◼" : "▶"}
-            </button>
-            <div>
-              <p className="font-display text-lg font-semibold">Clip {idx + 1}</p>
-              <p className="text-xs text-muted">
-                {isPlaceholder ? "placeholder tone — real clips pending" : "tap to listen"}
-                {played ? "" : " · listen before you rate"}
-              </p>
-            </div>
-          </div>
+          {/* Player — key resets internal state per clip AND per pass. */}
+          <ClipPlayer
+            key={`${pass}-${clip.id}`}
+            src={clip.audioSrc}
+            index={idx}
+            caption={caption}
+            onListened={() => setPlayed(true)}
+          />
 
           {/* 0–10 scale */}
           <div className={`mt-8 transition-opacity ${played ? "opacity-100" : "pointer-events-none opacity-35"}`}>

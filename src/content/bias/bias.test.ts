@@ -4,6 +4,8 @@
  * contract, not a suggestion. If the PM re-authors items, these must still
  * pass — or the change is a decision, not an accident.
  */
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { BIAS_CLIPS } from "./items";
 
@@ -42,6 +44,14 @@ describe("prestige-bias item pool design constraints", () => {
     for (const c of BIAS_CLIPS) {
       expect(c.license.length).toBeGreaterThan(0);
       expect(c.audioSrc).toMatch(/^\/audio\/bias\//);
+    }
+  });
+
+  it("every REAL (non-placeholder) audioSrc exists under public/", () => {
+    for (const c of BIAS_CLIPS) {
+      if (c.audioSrc.includes("PLACEHOLDER")) continue;
+      const file = join(process.cwd(), "public", c.audioSrc);
+      expect(existsSync(file), `missing audio file for ${c.id}: ${c.audioSrc}`).toBe(true);
     }
   });
 });
