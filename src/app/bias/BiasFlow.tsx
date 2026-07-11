@@ -47,10 +47,15 @@ export default function BiasFlow() {
   const [idx, setIdx] = useState(0);
   const [blind, setBlind] = useState<BiasRatings>({});
   const [labeled, setLabeled] = useState<BiasRatings>({});
-  const [played, setPlayed] = useState(false); // current clip, current pass
+  const [played, setPlayed] = useState(false); // current clip+pass is ARMED (min-listen met, RT-2b)
   const [picked, setPicked] = useState<number | null>(null); // beat-lock visual
   const [result, setResult] = useState<BiasResult | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // D6/RT-5: per-item heard milliseconds, both passes, captured at rate time.
+  const listenMs = useRef<{ blind: Record<string, number>; labeled: Record<string, number> }>({
+    blind: {},
+    labeled: {},
+  });
 
   const clip: BiasClip | undefined = BIAS_CLIPS[idx];
   const total = BIAS_CLIPS.length;
@@ -96,6 +101,8 @@ export default function BiasFlow() {
         hash: r.hash,
         blind: BIAS_CLIPS.map((c) => blind[c.id]).join(","),
         labeled: BIAS_CLIPS.map((c) => nextRatings[c.id]).join(","),
+        listen_b: BIAS_CLIPS.map((c) => listenMs.current.blind[c.id] ?? 0).join(","),
+        listen_l: BIAS_CLIPS.map((c) => listenMs.current.labeled[c.id] ?? 0).join(","),
         pct: r.pct,
         swappedPct: r.swappedPct,
         swayShare: r.swayShare,
@@ -178,7 +185,7 @@ export default function BiasFlow() {
     if (!clip) return null;
     const caption =
       (isPlaceholderSrc(clip.audioSrc) ? "placeholder tone — real clips pending" : "tap to listen") +
-      (played ? "" : " · listen before you rate");
+      (played ? "" : " · rating unlocks as you listen");
     return (
       <main className={shell}>
         <FluidField colors={FLUID} baseColor={BASE} intensity={0.6} scrim={false} vignette />
@@ -220,7 +227,10 @@ export default function BiasFlow() {
             src={clip.audioSrc}
             index={idx}
             caption={caption}
-            onListened={() => setPlayed(true)}
+            onArmed={() => setPlayed(true)}
+            onProgress={(ms) => {
+              listenMs.current[pass][clip.id] = ms;
+            }}
           />
 
           {/* 0–10 scale */}
