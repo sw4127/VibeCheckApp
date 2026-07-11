@@ -912,3 +912,44 @@ Page funnel of record (`docs/analytics/top_pages_jun7_jul7.csv`, visitors): / 29
 ## 30. Music Aesthetics Knowledge Base (design of record; seed gated on §23.C order)
 
 Curated, versioned, AUTHORED artist→axis mapping as static repo data — violates neither "no DB" (no runtime user storage) nor "no licensed music database" (our editorial opinions; nominative artist names; no lyrics/artwork/licensed metadata). **AMENDS §6/§17.B:** artists remain flavor-only in the tap-quiz verdict; in the NEW artist-first entry mode, KB weights are deterministic ENGINE input (static lookup → weights → nearest-centroid; no live LLM; unknown artist → today's flavor-only fallback). Schema: `{id, names[] (aliases), weights (6 music axes, 0–1), confidence, tags[], era, receipts[] (§21 voice), version}`. Seed ~300 (150 ubiquity + 150 subculture anchors); workflow: offline LLM-assisted draft (one-time ~$2–5) → PM review in 25s → committed w/ tests (schema, ranges, alias collisions, deterministic normalized lookup, coverage sample). Unlocks in order: artist-first instant provisional reads → authored receipt lines (deterministic slot-fill; zero narration-cache fragmentation) → the acquirer-grade data asset.
+
+## 31. Prestige-Bias Test v1 — build of record (2026-07-12, post-pivot flagship)
+
+The memo D2/D3 flagship as built (commits `3a61332`→`1315e48`). Everything deterministic; zero LLM calls.
+
+**Engine (`src/engine/bias.ts`):** blind + labeled rating passes (0–10 int) → per-item signed shift
+*toward the label* (direction-aware: a dismissive label pushed down counts movement down as sway) →
+headline `pct` = mean shift as % of scale (NOT a percentile; N3 provisional framing everywhere) ·
+`swappedPct` = the causally clean subset (movement toward a FALSE label can't be legitimate updating) ·
+`swayShare` = moved-with-label count over MOVABLE (headroom>0) items — the edge-artifact-proof receipt ·
+`edgeCount` disclosed; provisional verdict thresholds ±15% (constants marked provisional pending cohort).
+Strict share codec `encodeBiasRatings`/`decodeBiasRatings` (exact length, integers 0–10, null on any
+malformation). Cache key = fnv1a of instrument id + both passes.
+
+**Flow (`/bias`):** Hume frame (D5) → blind pass → bridge ("Round two") → labeled pass (placard:
+shownArtist + blurb) → reveal (headline + swayShare + edge note + provisional line) → MANDATORY debrief
+(memo §3): swap disclosure w/ per-item receipts, swapped-only stat, CC attribution block, D3 locked
+Delicacy tile (honest copy, demand event `bias_locked_tier_tap`), share block. Listen-gated scale
+(6-col grid ≈49px targets). Funnel events: `bias_frame_view/start/blind_complete/labeled_complete/
+debrief_view`; D6 interim dataset event `bias_result` (raw per-item CSVs both passes + pool id) to
+Vercel WA + PostHog (PM-approved until the §8.1 store).
+
+**Share loop:** `/bias/result?b=&l=` + `/api/bias-card?format=&b=&l=` carry RAW ratings and RECOMPUTE
+in-process — pure functions of the URL: CDN-cacheable, and unforgeable (no query string can make the
+brand claim a number the engine wouldn't compute). OG unfurl = the card (story/square/og, Fraunces,
+gold-on-warm-black, Satori subset). Invalid input: page 307→/bias, card 400. Viewer CTA → /bias.
+
+**Audio seam (`ClipPlayer`):** one component, both stimulus paths — real PD/CC files (§8.2) via
+HTMLAudioElement behind the design-system button (no native controls → no scrub-and-rate), placeholder
+items via badged WebAudio triads. Load failure = tap-to-retry, rating gate STAYS locked. Content test
+fails if a non-placeholder `audioSrc` has no file under `public/`.
+
+**Decisions of record:** `docs/rt-answers-2026-07-11.md` (RT-1..8 + reconfirmations; overrides: 5s
+min-listen w/ arming ring + listen-duration logging; homepage flip — **memo §9.7 RESOLVED**, redirects
+only, WC → legacy Track 5; pool-version param now). Pool of record: `docs/bias-pool-candidates.md`
+(Tier 1 items 1–8) gated by `docs/bias-pool-gatekeeping.md` (license/truth/credibility/stimulus checks;
+PD-composition ≠ PD-recording; no NC/ND; blurbs never cite real critics). Output convention:
+`docs/redteam-protocol.md`. Launch gates + fast-follow triggers + D6 export reminder:
+`docs/launch-checklist.md`. Content-ops: `scripts/clip-pipeline` per rt-answers §Content-ops
+(download w/ SHA-256 + license snapshots [CI-gated] + windowing suggestions for PM ear-confirmation +
+EBU R128 −16 LUFS render + TASL attributions).
