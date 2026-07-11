@@ -9,10 +9,10 @@ Items under "Launch blockers" gate launch. Fast-follows fire on their named trig
 1. **Pool of record wired.** Items 1–8 from `docs/bias-pool-candidates.md` processed through
    `scripts/clip-pipeline`; every item passes `docs/bias-pool-gatekeeping.md` §A–D with PM sign-off
    recorded in the manifest. No placeholder items reachable in production.
-2. **RT-4 voice lock.** PM + Cowork produce the 3-line voice spec (Hume's wry examiner · tease the
-   judgment, never the person · intensity scales challenge > debrief > onboarding) → ONE rewrite of
-   `src/content/bias/copy.ts` → locked BEFORE cohort recruiting. Cohort-visible surfaces only
-   (verdict, debrief, result page); share-block copy may iterate post-cohort.
+2. **RT-4 voice lock — ✅ DONE 2026-07-12.** `docs/voice-spec.md` delivered; audit table applied
+   (two string fixes: share-block "do better blind", result-page "They're daring you"); contrarian
+   line KEPT per PM ruling; `copy.ts` header marks the deck LOCKED for cohort surfaces. Share-block
+   copy may still iterate post-cohort.
 3. **§9.7 renovation verified (RT-3).** After the homepage flip: zero 404s across every existing
    route and previously shared URL shape — `/`, `/quiz`, `/result`, `/music/quiz`, `/music/result`,
    `/vs`, `/fan-verdict`, `/premium/preview`, `/premium/report`, `/legal`, `/bias`, `/bias/result`.

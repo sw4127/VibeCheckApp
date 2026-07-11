@@ -107,7 +107,7 @@ export default async function BiasResultPage({ searchParams }: { searchParams: S
           <DownloadButton url={cardUrl("story", b, l)} label="Story card" filename="prestige-test-story.png" />
         </div>
 
-        <p className="mt-8 text-sm text-muted">Someone sent you their number?</p>
+        <p className="mt-8 text-sm text-muted">Someone sent you their number? They&apos;re daring you.</p>
         <Link
           href="/bias"
           className="mt-3 rounded-full px-7 py-3.5 text-base font-bold text-black transition active:scale-[0.98]"

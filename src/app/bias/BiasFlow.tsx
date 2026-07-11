@@ -383,8 +383,7 @@ export default function BiasFlow() {
           <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
             <p className="text-[0.65rem] font-bold tracking-[0.3em] text-muted">YOUR NUMBER, PORTABLE</p>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              The link carries only your ratings — anyone who opens it sees your number recomputed, then
-              gets dared to beat it.
+              {"The link carries only your ratings — anyone who opens it sees your number recomputed — then gets dared to do better blind."}
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <ShareButton

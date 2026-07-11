@@ -82,11 +82,11 @@
       "title": "Komiku or Monplaisir — one track",
       "composerOrArtist": "Komiku / Monplaisir",
       "performer": "same",
-      "role": { "labelDirection": "down", "labelIsTrue": true },
+      "role": { "labelDirection": "up", "labelIsTrue": false },
       "license": { "expected": "CC0", "proofPageUrl": null, "confirmedAt": null, "snapshotFile": null },
       "source": { "pageUrl": null, "downloadUrl": null, "sha256": null },
       "window": { "suggestions": [], "approved": null },
-      "warnings": ["Role per pool-balance: true-label down (alt: up-swap if balance retuned)", "FMA login-walled — prefer archive.org mirror; record proof URL"]
+      "warnings": ["Role = up-swap per PM ruling RT-9(b) 2026-07-12 (third swap; pool = 3 swaps, 5-up/3-down, within contract)", "Draft up-swap blurb per candidates doc: 'A minimalist study praised on year-end experimental lists for doing more with less.'", "FMA login-walled — prefer archive.org mirror; record proof URL"]
     },
     {
       "id": "pb8",

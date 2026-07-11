@@ -1,6 +1,13 @@
 /**
  * Prestige-Bias verdict copy — shared by the flow, the share page, and the
  * card so the voice can never drift between surfaces. PM owns these words.
+ *
+ * VOICE-LOCKED FOR THE COHORT (2026-07-12): audited against
+ * docs/voice-spec.md (the Examiner — tease the judgment, never the person;
+ * every barb datum-anchored; intensity share > verdict/debrief > onboarding).
+ * Contrarian line: PM ruled KEEP over the offered sharpen. Do not edit
+ * cohort-visible strings here without a PM ruling; share-block copy may
+ * iterate post-cohort (RT-4 scope).
  */
 import type { BiasVerdict } from "@/engine/bias";
 
