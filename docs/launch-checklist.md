@@ -18,12 +18,14 @@ Items under "Launch blockers" gate launch. Fast-follows fire on their named trig
    `/vs`, `/fan-verdict`, `/premium/preview`, `/premium/report`, `/legal`, `/bias`, `/bias/result`.
    Redirects only; verified by an automated route sweep before deploy.
 4. **Portfolio Definition-of-Done (memo C4/N1 — Goal 1 anti-drift):**
-   - (a) Public-repo decision executed. Recommended: extract the scoring/psychometrics engine +
-     item schema as a standalone MIT package; the app remains the hosted demo.
-   - (b) Architecture README.
-   - (c) Draft of the "Quantifying Hume's *Standard of Taste*" write-up (charts inserted when
-     cohort data lands).
-   - (d) One demo asset per instrument (Prestige: bias-gap distribution; Delicacy: locked-tier design note).
+   - (a) ✅ EXTRACTED 2026-07-12: `packages/hume-taste-engine/` (MIT, standalone, compiles; engine +
+     codec + README). ⚠️ Still `private: true` — **publication (GitHub repo/npm) needs explicit
+     owner approval** (outward-facing action).
+   - (b) ✅ DONE 2026-07-12: `ARCHITECTURE.md`.
+   - (c) ✅ DRAFT 2026-07-12: `docs/writeup-quantifying-hume.md` ([CHART] slots await cohort data).
+   - (d) ✅ DONE 2026-07-12: Prestige — `scripts/analysis/bias-distribution.mjs` (cohort-ready;
+     demo render `docs/assets/bias-gap-demo.svg`, watermarked SYNTHETIC per N3); Delicacy —
+     `docs/delicacy-design-note.md`.
 5. **RT-2 min-listen + RT-7 pool-version live** (S2/S3 of the execution plan — check off at commit).
 6. **N3 audit:** every surfaced number carries the provisional frame until cohort norms exist;
    no percentile language anywhere.

@@ -1,0 +1,12 @@
+{
+  "name": "hume-taste-engine",
+  "version": "0.1.0",
+  "description": "Deterministic instrument engine for measuring taste against Hume's Standard of Taste — starting with the Prestige-Bias Test (blind vs. labeled rating, swapped-label controls, edge-artifact-aware statistics).",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "keywords": ["psychometrics", "bias", "music", "hume", "taste", "measurement"],
+  "private": true,
+  "$comment": "private:true until the owner approves publication (repo/npm). Source of truth for the engine remains src/engine/bias.ts in the app until first publish — keep copies in sync."
+}
