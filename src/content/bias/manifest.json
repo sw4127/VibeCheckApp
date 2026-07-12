@@ -168,55 +168,56 @@
     {
       "id": "pb4",
       "candidateRef": 4,
-      "title": "Berceuse in D-flat major, Op. 57",
-      "composerOrArtist": "F. Chopin",
-      "performer": "Musopen Complete Chopin project (performer per item page — record exact name for TASL)",
+      "title": "String Quartet Op. 18 No. 6 — IV. La Malinconia (Adagio)",
+      "composerOrArtist": "L. van Beethoven",
+      "performer": "Musopen Kickstarter ensemble (per item page)",
       "role": {
         "labelDirection": "up",
         "labelIsTrue": true
       },
       "license": {
-        "expected": "CC0 (machine-readable licenseurl on item, verified 2026-07-12)",
-        "proofPageUrl": "https://archive.org/details/musopen-chopin-complete-works-flac",
+        "expected": "Public Domain (Musopen Kickstarter PD release; PD-mark licenseurl on item)",
+        "proofPageUrl": "https://archive.org/details/MusopenCollectionAsFlac",
         "confirmedAt": "2026-07-12",
         "snapshotFile": "pb4.html"
       },
       "source": {
-        "pageUrl": "https://archive.org/details/musopen-chopin-complete-works-flac",
-        "downloadUrl": "https://archive.org/download/musopen-chopin-complete-works-flac/Berceuse%20in%20D-flat%20major%2C%20Op.%2057%20.mp3",
-        "sha256": "54ac2293bd5067b8f405f3627324dd5a64d91af2a50a20efa4f76ff6efa7b814",
+        "pageUrl": "https://archive.org/details/MusopenCollectionAsFlac",
+        "downloadUrl": "https://archive.org/download/MusopenCollectionAsFlac/Beethoven_StringQuartetNo.6inBFlatMajorOp.18/LudwigVanBeethoven-StringQuartetNo.6InBFlatMajorOp.18No.6-04-adagioLaMalinconia.mp3",
+        "sha256": "773332379cf993d1a6b50cec31f40ad2386f02050982471ca4d4782df0af910b",
         "cachedFile": "pb4.mp3"
       },
       "window": {
         "suggestions": [
           {
-            "startSec": 3.5,
-            "endSec": 23.5,
-            "score": 27.7,
-            "onsets": 4
+            "startSec": 387.5,
+            "endSec": 407.5,
+            "score": 88.8,
+            "onsets": 6
           },
           {
-            "startSec": 203,
-            "endSec": 223,
-            "score": 27.2,
+            "startSec": 400.5,
+            "endSec": 420.5,
+            "score": 79,
             "onsets": 5
           }
         ],
         "approved": {
-          "startSec": 3.5,
-          "by": "engineer per PM delegation — opening ostinato + theme entrance: the piece's identity"
+          "startSec": 30,
+          "by": "engineer per PM delegation — ANALYZER OVERRIDDEN: its top windows (387.5s+) sit in the fast Allegretto half; the blurb cites La Malinconia's adagio, so the window stays in the adagio's chromatic development (~30s)"
         }
       },
       "warnings": [
-        "SUBSTITUTION per RT-11 (b-then-a) 2026-07-12: original piece had no 100%-sure-license modern recording (IMSLP: NC/NC-ND or EU-performance-rights only; Commons+Musopen unreachable). Same role kept: up, true (was Debussy Voiles)",
-        "Draft blurb (engineer, PM C.1 believability pass pending): A cornerstone of the piano's quiet literature; routinely cited as a masterclass in atmosphere built from a single rocking figure."
+        "SWAP per RT-12(b) 2026-07-12: non-piano slot for pool variety (was Berceuse Op.57, which had PASSED the PM ear check — string quartet adds the chamber color). Role kept: up, true.",
+        "Draft blurb (engineer, PM C.1 pending): The movement scholars point to when they argue early Beethoven was already looking decades ahead.",
+        "New item — PM C.3 recognizability pass pending."
       ],
       "render": {
         "mp3": "pb4.mp3",
         "m4a": "pb4.m4a",
         "durationSec": 20.035918,
         "renderedAt": "2026-07-12",
-        "attribution": "\"Berceuse in D-flat major, Op. 57\" — F. Chopin, perf. Musopen Complete Chopin project (performer per item page — record exact name for TASL) · https://archive.org/details/musopen-chopin-complete-works-flac · CC0 (machine-readable licenseurl on item, verified 2026-07-12) · excerpt (trimmed + loudness-normalized)"
+        "attribution": "\"String Quartet Op. 18 No. 6 — IV. La Malinconia (Adagio)\" — L. van Beethoven, perf. Musopen Kickstarter ensemble (per item page) · https://archive.org/details/MusopenCollectionAsFlac · Public Domain (Musopen Kickstarter PD release; PD-mark licenseurl on item) · excerpt (trimmed + loudness-normalized)"
       }
     },
     {
@@ -388,7 +389,7 @@
     {
       "id": "pb8",
       "candidateRef": 8,
-      "title": "Jason Shaw (Audionautix) — one acoustic/folk track",
+      "title": "Folk Bed",
       "composerOrArtist": "Jason Shaw",
       "performer": "Jason Shaw",
       "role": {
@@ -398,21 +399,46 @@
       "license": {
         "expected": "CC-BY 4.0",
         "proofPageUrl": "https://audionautix.com/creative-commons-music",
-        "confirmedAt": null,
-        "snapshotFile": null
+        "confirmedAt": "2026-07-12",
+        "snapshotFile": "pb8.html"
       },
       "source": {
-        "pageUrl": "https://audionautix.com",
-        "downloadUrl": null,
-        "sha256": null
+        "pageUrl": "https://audionautix.com/free-music/acoustic",
+        "downloadUrl": "https://audionautix.com/Music/Folk%20Bed.mp3",
+        "sha256": "c33acb3713e6ea33ce15b5d5e4eb29846ac1439e816eea8e5cb6004752edaabd",
+        "cachedFile": "pb8.mp3"
       },
       "window": {
-        "suggestions": [],
-        "approved": null
+        "suggestions": [
+          {
+            "startSec": 9,
+            "endSec": 29,
+            "score": 13.7,
+            "onsets": 1
+          },
+          {
+            "startSec": 19,
+            "endSec": 39,
+            "score": 7.5,
+            "onsets": 1
+          }
+        ],
+        "approved": {
+          "startSec": 9,
+          "by": "engineer per PM delegation — analyzer #1"
+        }
       },
       "warnings": [
-        "Credit line required: music by audionautix.com (TASL)"
-      ]
+        "Credit line required: music by audionautix.com (TASL)",
+        "Track pick (engineer 2026-07-12): Folk Bed — production bed music by name and nature; matches the authored down blurb honestly. PM C.3 pass pending."
+      ],
+      "render": {
+        "mp3": "pb8.mp3",
+        "m4a": "pb8.m4a",
+        "durationSec": 20.035918,
+        "renderedAt": "2026-07-12",
+        "attribution": "\"Folk Bed\" — Jason Shaw · https://audionautix.com/creative-commons-music · CC-BY 4.0 · excerpt (trimmed + loudness-normalized)"
+      }
     },
     {
       "id": "b1",
@@ -574,5 +600,9 @@
         "attribution": "\"The Wind (Tale on the Late)\" — Komiku · https://archive.org/details/Komiku-TaleOnTheLate · CC0 · excerpt (trimmed + loudness-normalized)"
       }
     }
-  ]
+  ],
+  "pmEarPass": {
+    "date": "2026-07-12",
+    "note": "NO VETO on previewed items (pb1,pb2,pb3,pb4-berceuse,pb5,b1,b2; pb6/pb7/b3 passed earlier) — C.1 blurbs + C.3 recognizability. pb4 subsequently swapped per RT-12(b); new pb4 + pb8 still need the same ear pass."
+  }
 }
