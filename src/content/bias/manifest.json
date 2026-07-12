@@ -7,7 +7,7 @@
     {
       "id": "pb1",
       "candidateRef": 1,
-      "title": "Goldberg Variations — a middle variation (e.g., Var. 13, NOT the Aria)",
+      "title": "Goldberg Variations — Variatio 13 a 2 Clav.",
       "composerOrArtist": "J.S. Bach",
       "performer": "Kimiko Ishizaka",
       "role": {
@@ -16,28 +16,43 @@
       },
       "license": {
         "expected": "CC0",
-        "proofPageUrl": "https://opengoldbergvariations.org",
-        "confirmedAt": null,
-        "snapshotFile": null
+        "proofPageUrl": "https://archive.org/details/The_Open_Goldberg_Variations-11823",
+        "confirmedAt": "2026-07-12",
+        "snapshotFile": "pb1.html"
       },
       "source": {
-        "pageUrl": "https://archive.org/details/TheOpenGoldbergVariations",
-        "downloadUrl": null,
-        "sha256": null
+        "pageUrl": "https://archive.org/details/The_Open_Goldberg_Variations-11823",
+        "downloadUrl": "https://archive.org/download/The_Open_Goldberg_Variations-11823/Kimiko_Ishizaka_-_14_-_Variatio_13_a_2_Clav.mp3",
+        "sha256": "55ff3c983e1119dad18c13bf5bd57bcf7962816c3ccd2d5fb0062e3c0c1020dc",
+        "cachedFile": "pb1.mp3"
       },
       "window": {
-        "suggestions": [],
+        "suggestions": [
+          {
+            "startSec": 110.5,
+            "endSec": 130.5,
+            "score": 50.1,
+            "onsets": 4
+          },
+          {
+            "startSec": 120.5,
+            "endSec": 140.5,
+            "score": 46.6,
+            "onsets": 4
+          }
+        ],
         "approved": null
       },
       "warnings": [
         "NOT the opening Aria (too recognizable, C.3)",
-        "PM must ear-check chosen variation for recognizability (swap item)"
+        "PM must ear-check chosen variation for recognizability (swap item)",
+        "Item has machine-readable CC0 licenseurl (verified 2026-07-12); Var 13 per candidates doc example — PM recognizability check pending"
       ]
     },
     {
       "id": "pb2",
       "candidateRef": 2,
-      "title": "Well-Tempered Clavier Bk 1 — a less-famous prelude/fugue (NOT BWV 846 C major)",
+      "title": "WTC Book 1 — Prelude No. 12 in F minor, BWV 857",
       "composerOrArtist": "J.S. Bach",
       "performer": "Kimiko Ishizaka",
       "role": {
@@ -47,46 +62,78 @@
       "license": {
         "expected": "CC0 (VERIFIED 2026-07-11 on archive.org item)",
         "proofPageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1",
-        "confirmedAt": null,
-        "snapshotFile": null
+        "confirmedAt": "2026-07-12",
+        "snapshotFile": "pb2.html"
       },
       "source": {
         "pageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1",
-        "downloadUrl": null,
-        "sha256": null
+        "downloadUrl": "https://archive.org/download/bach-well-tempered-clavier-book-1/Kimiko%20Ishizaka%20-%20Bach-%20Well-Tempered%20Clavier%2C%20Book%201%20-%2023%20Prelude%20No.%2012%20in%20F%20minor%2C%20BWV%20857.mp3",
+        "sha256": "74023c430a02f74a4c4b5e1237280469d58951bd72f1de6ddaae99d02587f496",
+        "cachedFile": "pb2.mp3"
       },
       "window": {
-        "suggestions": [],
+        "suggestions": [
+          {
+            "startSec": 106.5,
+            "endSec": 126.5,
+            "score": 31.7,
+            "onsets": 4
+          },
+          {
+            "startSec": 133,
+            "endSec": 153,
+            "score": 24.8,
+            "onsets": 4
+          }
+        ],
         "approved": null
       },
-      "warnings": []
+      "warnings": [
+        "Track pick (engineer, 2026-07-12): BWV 857 prelude — deep cut, 2:53; PM recognizability check pending"
+      ]
     },
     {
       "id": "pb3",
       "candidateRef": 3,
       "title": "Nocturne Op. 15 No. 3 in G minor",
       "composerOrArtist": "F. Chopin",
-      "performer": "Musopen catalog performer (record at download)",
+      "performer": "Musopen Complete Chopin project (performer per item page — record exact name from snapshot for TASL)",
       "role": {
         "labelDirection": "down",
         "labelIsTrue": true
       },
       "license": {
         "expected": "PD or CC0 (verify on piece page; CC-BY-SA -> engineer flag)",
-        "proofPageUrl": "https://musopen.org/music/108-nocturnes-op-15/",
-        "confirmedAt": null,
-        "snapshotFile": null
+        "proofPageUrl": "https://archive.org/details/musopen-chopin-complete-works-flac",
+        "confirmedAt": "2026-07-12",
+        "snapshotFile": "pb3.html"
       },
       "source": {
-        "pageUrl": "https://musopen.org/music/108-nocturnes-op-15/",
-        "downloadUrl": null,
-        "sha256": null
+        "pageUrl": "https://archive.org/details/musopen-chopin-complete-works-flac",
+        "downloadUrl": "https://archive.org/download/musopen-chopin-complete-works-flac/Nocturne%20in%20G%20minor%2C%20Op.%2015%20no.%203.mp3",
+        "sha256": "b2b53191d2e6050b5aa374d119ee80a51e91d9318a3d25ee0ef1fe6190029615",
+        "cachedFile": "pb3.mp3"
       },
       "window": {
-        "suggestions": [],
+        "suggestions": [
+          {
+            "startSec": 103.5,
+            "endSec": 123.5,
+            "score": 49.8,
+            "onsets": 1
+          },
+          {
+            "startSec": 189.5,
+            "endSec": 209.5,
+            "score": 48.9,
+            "onsets": 8
+          }
+        ],
         "approved": null
       },
-      "warnings": []
+      "warnings": [
+        "Item has machine-readable CC0 licenseurl (verified 2026-07-12); musopen.org itself is 403 from the build network — archive.org mirror is the source of record"
+      ]
     },
     {
       "id": "pb4",
@@ -113,7 +160,9 @@
         "suggestions": [],
         "approved": null
       },
-      "warnings": []
+      "warnings": [
+        "NOT FOUND on archive.org (2026-07-12 search: no modern PD/CC recording; only 78rpm transfers/LP rips, which fail fidelity+license gates). Needs IMSLP/Wikimedia research pass; musopen.org direct is 403 from build network."
+      ]
     },
     {
       "id": "pb5",
@@ -141,7 +190,8 @@
         "approved": null
       },
       "warnings": [
-        "Moderately recognizable to classical listeners — PM recognizability check decides"
+        "Moderately recognizable to classical listeners — PM recognizability check decides",
+        "NOT FOUND on archive.org (2026-07-12 search: no modern PD/CC recording; only 78rpm transfers/LP rips, which fail fidelity+license gates). Needs IMSLP/Wikimedia research pass; musopen.org direct is 403 from build network."
       ]
     },
     {
@@ -182,14 +232,24 @@
             "onsets": 8
           }
         ],
-        "approved": null
+        "approved": {
+          "startSec": 6,
+          "by": "PM ear-confirmation 2026-07-12 (analyzer suggestion 1)"
+        }
       },
       "warnings": [
         "C.3 HARD: common YouTube background music — PM rejects anything familiar (swap item)",
         "CC-BY: TASL attribution required",
         "PROVISIONAL pick (PM 2026-07-12): shortlist pick 4 stands in while a professional reviewer weighs in; replacement bumps POOL_VERSION. Shortlist: docs/bias-shortlist-2026-07-12.md",
         "Snapshot BOTH teamopen.cc/chris (proofPageUrl) AND the item page (pb6-item-page.html, captured manually) — archive.org item has no license line"
-      ]
+      ],
+      "render": {
+        "mp3": "pb6.mp3",
+        "m4a": "pb6.m4a",
+        "durationSec": 20.035918,
+        "renderedAt": "2026-07-12",
+        "attribution": "\"What Does Anybody Know About Anything (Direct to Video)\" — Chris Zabriskie · https://teamopen.cc/chris · CC-BY 4.0 · excerpt (trimmed + loudness-normalized)"
+      }
     },
     {
       "id": "pb7",
@@ -278,7 +338,7 @@
     {
       "id": "b1",
       "candidateRef": "B1",
-      "title": "Second Ishizaka WTC prelude (backup)",
+      "title": "WTC Book 1 — Prelude No. 4 in C-sharp minor, BWV 849 (backup)",
       "composerOrArtist": "J.S. Bach",
       "performer": "Kimiko Ishizaka",
       "role": {
@@ -288,16 +348,30 @@
       "license": {
         "expected": "CC0",
         "proofPageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1",
-        "confirmedAt": null,
-        "snapshotFile": null
+        "confirmedAt": "2026-07-12",
+        "snapshotFile": "b1.html"
       },
       "source": {
         "pageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1",
-        "downloadUrl": null,
-        "sha256": null
+        "downloadUrl": "https://archive.org/download/bach-well-tempered-clavier-book-1/Kimiko%20Ishizaka%20-%20Bach-%20Well-Tempered%20Clavier%2C%20Book%201%20-%2007%20Prelude%20No.%204%20in%20C-sharp%20minor%2C%20BWV%20849.mp3",
+        "sha256": "60ce2c490aa121da3d90f4225fef487338cbee53ad6c0c8bcc2f8cbbaa6c3cb9",
+        "cachedFile": "b1.mp3"
       },
       "window": {
-        "suggestions": [],
+        "suggestions": [
+          {
+            "startSec": 19.5,
+            "endSec": 39.5,
+            "score": 31.9,
+            "onsets": 7
+          },
+          {
+            "startSec": 128.5,
+            "endSec": 148.5,
+            "score": 31.9,
+            "onsets": 2
+          }
+        ],
         "approved": null
       },
       "warnings": [
@@ -330,7 +404,8 @@
         "approved": null
       },
       "warnings": [
-        "backup"
+        "backup",
+        "NOT FOUND on archive.org (2026-07-12 search: no modern PD/CC recording; only 78rpm transfers/LP rips, which fail fidelity+license gates). Needs IMSLP/Wikimedia research pass; musopen.org direct is 403 from build network."
       ]
     },
     {
