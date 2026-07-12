@@ -33,7 +33,7 @@ export const BIAS_INSTRUMENT_ID = "prestige-bias-v1";
  * permanently interpretable against the exact pool that produced them (D6).
  * Old-version URLs die gracefully (redirect to /bias), never lie.
  */
-export const BIAS_POOL_VERSION = 2;
+export const BIAS_POOL_VERSION = 3; // v3: pb4 re-windowed 30s->120s (PM veto: spoken credits audible in the 30s cut)
 
 /** One playable, labelable clip. Extends the engine spec with presentation. */
 export interface BiasClip extends BiasItemSpec {

@@ -1,6 +1,6 @@
 {
   "$comment": "Pool-of-record manifest — seeded from docs/bias-pool-candidates.md (Tier 1 = items 1-8, backups B1-B3). Processed by scripts/clip-pipeline. DO NOT invent items here; the candidates doc + PM C/D pass are the authority (rt-answers RT-1). downloadUrl is filled at research time from the proof page; sha256/licenseSnapshot are written by the pipeline; window.approved is the PM's ear-confirmation.",
-  "poolVersionTarget": 2,
+  "poolVersionTarget": 3,
   "lufsTarget": -16,
   "clipSeconds": 20,
   "items": [
@@ -203,8 +203,8 @@
           }
         ],
         "approved": {
-          "startSec": 30,
-          "by": "engineer per PM delegation — ANALYZER OVERRIDDEN: its top windows (387.5s+) sit in the fast Allegretto half; the blurb cites La Malinconia's adagio, so the window stays in the adagio's chromatic development (~30s)"
+          "startSec": 120,
+          "by": "engineer re-window 2026-07-12: PM VETO on the 30s cut (spoken credits/announcer audible — Musopen Kickstarter recordings carry voice intros); 120s sits deep in the adagio, past speech. Analyzer remains overridden (its top windows are in the Allegretto half; the blurb cites the adagio)."
         }
       },
       "warnings": [
@@ -603,6 +603,6 @@
   ],
   "pmEarPass": {
     "date": "2026-07-12",
-    "note": "NO VETO on previewed items (pb1,pb2,pb3,pb4-berceuse,pb5,b1,b2; pb6/pb7/b3 passed earlier) — C.1 blurbs + C.3 recognizability. pb4 subsequently swapped per RT-12(b); new pb4 + pb8 still need the same ear pass."
+    "note": "NO VETO on previewed items (pb1,pb2,pb3,pb4-berceuse,pb5,b1,b2; pb6/pb7/b3 passed earlier) — C.1 blurbs + C.3 recognizability. pb4 subsequently swapped per RT-12(b). | 2026-07-12 later: fictional swap names APPROVED by PM (M. Novak, Noé Calvet, Alexander Vane). pb4's 30s window VETOED (human speech audible) -> re-windowed to 120s, POOL_VERSION -> 3, PM re-check of the new cut pending."
   }
 }

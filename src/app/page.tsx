@@ -1,26 +1,31 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { cardPath } from "@/lib/site";
-import { worldCup } from "@/content/world-cup";
+import FluidField from "@/components/FluidField";
 import Track from "@/components/Track";
+import { worldCup } from "@/content/world-cup";
 
-// A representative card to show the artifact you get (style-only, no IP).
-const SAMPLE_CARD = cardPath({
-  format: "square",
-  archetype: "The Showman",
-  player: "Lamine Yamal",
-  verdict: "All flair, no fear — you'd rather lose with style than win boring.",
-  traits: ["fearless", "creative", "magnetic"],
-  position: "winger",
-  nation: "ESP",
-  signature: [0.72, 0.96, 0.4, 0.62, 0.55],
-  rarity: 9,
-});
+/**
+ * The taste-gym landing (RT-3c, memo §9.7 RESOLVED 2026-07-11): /bias is the
+ * flagship, the music quiz demotes to a secondary door, the WC path is legacy
+ * (route stays alive; only referred arrivals see a pointer to it). No
+ * existing route or shared URL 404s — this page only changed its content.
+ */
+
+export const metadata: Metadata = {
+  title: "The Taste Gym — do you hear the music, or the name?",
+  description:
+    "Your taste has a number. The Prestige Test measures how far a famous name can move your ratings. Eight clips, rated twice — the gap is your number.",
+};
+
+const GOLD = "hsl(42 80% 62%)";
+const GOLD_GLOW = "hsl(42 80% 60% / 0.45)";
+const FLUID = ["hsl(42 55% 48%)", "hsl(28 50% 44%)", "hsl(52 45% 46%)", "hsl(20 40% 40%)"];
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
-  // Personalized referred landing: a shared link carries ?from=<archetypeId>,
-  // so a friend's arrival greets them with the sharer's result (stateless).
+  // Legacy WC share links land here with ?from=<archetypeId> — greet them and
+  // point at the game they were actually sent (Track 5: legacy, not featured).
   const sp = await searchParams;
   const fromId = typeof sp.from === "string" ? sp.from : undefined;
   const friendArchetype = fromId
@@ -28,62 +33,73 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
     : undefined;
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center px-6 py-10 text-center">
-      <Track event="landing_view" />
-      <p className="text-xs font-bold tracking-[0.4em] text-accent">VIBE CHECK</p>
-
-      {friendArchetype ? (
-        <p className="mt-6 rounded-full border border-white/10 px-4 py-1.5 text-sm text-muted">
-          Your friend is <span className="font-semibold text-accent">{friendArchetype}</span>. What
-          are you?
+    <main className="relative mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center overflow-hidden px-6 py-12">
+      <FluidField colors={FLUID} baseColor="#0B0A08" intensity={0.6} scrim={false} vignette />
+      <Track event="landing_view" props={{ variant: "gym" }} />
+      <div className="relative z-10">
+        <p className="text-xs font-bold tracking-[0.4em]" style={{ color: GOLD }}>
+          THE TASTE GYM
         </p>
-      ) : null}
 
-      <h1 className="mt-8 font-display text-5xl font-black leading-[0.95] tracking-tight">
-        Which footballer matches your vibe?
-      </h1>
+        {friendArchetype ? (
+          <p className="mt-5 inline-block rounded-full border border-white/10 px-4 py-1.5 text-sm text-muted">
+            Your friend is <span className="font-semibold" style={{ color: GOLD }}>{friendArchetype}</span> on
+            the pitch — that game lives{" "}
+            <Link href="/quiz" className="underline underline-offset-4" style={{ color: GOLD }}>
+              here
+            </Link>
+            . The gym is what&apos;s new.
+          </p>
+        ) : null}
 
-      <p className="mt-5 text-base leading-relaxed text-muted">
-        Seven taps. No football knowledge required. We read how you actually move
-        through life and match you to a player&apos;s style — then hand you a card
-        built to be screenshotted.
-      </p>
+        <h1 className="mt-7 font-display text-5xl font-semibold leading-[1.02] tracking-tight">
+          Your taste has a number.
+        </h1>
+        <p className="mt-5 text-base leading-relaxed text-muted">
+          Not a personality. Not a vibe. A measured number — how far a famous name can push your
+          ratings before your ears object. Hume called it prejudice in 1757.{" "}
+          <span className="text-foreground">We measure yours in four minutes.</span>
+        </p>
 
-      {/* Sample artifact — so the landing shows, not tells */}
-      <div className="mt-9 w-64 overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={SAMPLE_CARD}
-          alt="Example Vibe Check card"
-          width={512}
-          height={512}
-          loading="lazy"
-          decoding="async"
-          className="w-full"
-        />
-      </div>
-
-      <Link
-        href="/quiz"
-        className="mt-9 inline-block rounded-full bg-accent px-10 py-4 text-lg font-bold text-white transition hover:opacity-90 active:scale-[0.98]"
-      >
-        Find my match
-      </Link>
-      <p className="mt-6 text-xs text-muted">Free · ~30 seconds · no sign-up</p>
-
-      <Link
-        href="/fan-verdict"
-        className="mt-7 text-sm text-muted underline underline-offset-4 transition hover:text-accent"
-      >
-        Or: what does your favourite player say about{" "}
-        <span className="text-accent">you</span>?
-      </Link>
-
-      <p className="mt-8 text-[11px] text-muted/70">
-        <Link href="/legal" className="underline">
-          Terms · Privacy
+        <Link
+          href="/bias"
+          className="mt-8 inline-block rounded-full px-8 py-4 text-lg font-bold text-black transition hover:opacity-95 active:scale-[0.98]"
+          style={{ background: GOLD, boxShadow: `0 10px 30px ${GOLD_GLOW}` }}
+        >
+          Take the Prestige Test
         </Link>
-      </p>
+        <p className="mt-4 text-xs text-muted">Free · ~4 minutes · no sign-up · headphones help</p>
+
+        {/* The gym floor — every machine visible, locked ones included (D3). */}
+        <div className="mt-10 flex flex-col gap-3">
+          <div className="rounded-2xl border p-4" style={{ borderColor: "hsl(42 60% 55% / 0.35)", background: "rgba(255,255,255,0.03)" }}>
+            <p className="text-[0.65rem] font-bold tracking-[0.3em]" style={{ color: GOLD }}>
+              MACHINE 01 · OPEN
+            </p>
+            <p className="mt-1 font-display text-lg font-semibold">The Prestige Test</p>
+            <p className="mt-0.5 text-sm text-muted">Freedom from prejudice — can a label move your score?</p>
+          </div>
+          <div className="rounded-2xl border border-dashed border-white/20 p-4">
+            <p className="text-[0.65rem] font-bold tracking-[0.3em] text-muted">MACHINE 02 · LOCKED</p>
+            <p className="mt-1 font-display text-lg font-semibold">Delicacy Trials</p>
+            <p className="mt-0.5 text-sm text-muted">One clip hides a wrong note. Can your ears actually tell?</p>
+          </div>
+        </div>
+
+        {/* Secondary door — the original music read (demoted, not buried). */}
+        <Link
+          href="/music/quiz"
+          className="mt-8 inline-block text-sm text-muted underline underline-offset-4 transition hover:text-white"
+        >
+          Warm-up instead: the original music-taste read →
+        </Link>
+
+        <p className="mt-8 text-[11px] text-muted/70">
+          <Link href="/legal" className="underline">
+            Terms · Privacy
+          </Link>
+        </p>
+      </div>
     </main>
   );
 }
