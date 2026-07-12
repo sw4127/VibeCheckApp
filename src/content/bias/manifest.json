@@ -318,7 +318,7 @@
         }
       },
       "warnings": [
-        "PROVISIONAL pick (PM 2026-07-12, switched pick4->pick3): professional reviewer pending; replacement bumps POOL_VERSION",
+        "PROFESSIONAL REVIEW PASSED (PM-relayed 2026-07-12) — provisional status lifted; pick 3 is final",
         "C.3 HARD: common YouTube background music — PM rejects anything familiar (swap item)",
         "CC-BY: TASL attribution required",
         "Snapshot BOTH teamopen.cc/chris (proofPageUrl) AND the item page (pb6-item-page.html, captured manually) — archive.org item has no license line"
@@ -603,6 +603,6 @@
   ],
   "pmEarPass": {
     "date": "2026-07-12",
-    "note": "NO VETO on previewed items (pb1,pb2,pb3,pb4-berceuse,pb5,b1,b2; pb6/pb7/b3 passed earlier) — C.1 blurbs + C.3 recognizability. pb4 subsequently swapped per RT-12(b). | 2026-07-12 later: fictional swap names APPROVED by PM (M. Novak, Noé Calvet, Alexander Vane). pb4's 30s window VETOED (human speech audible) -> re-windowed to 120s, POOL_VERSION -> 3, PM re-check of the new cut pending."
+    "note": "NO VETO on previewed items (pb1,pb2,pb3,pb4-berceuse,pb5,b1,b2; pb6/pb7/b3 passed earlier) — C.1 blurbs + C.3 recognizability. pb4 subsequently swapped per RT-12(b). | 2026-07-12 later: fictional swap names APPROVED by PM (M. Novak, Noé Calvet, Alexander Vane). pb4's 30s window VETOED (human speech audible) -> re-windowed to 120s, POOL_VERSION -> 3, PM re-check of the new cut pending. | 2026-07-12 final: pb4 120s window PASSED PM re-listen; pb6 passed the professional review — pool v3 fully signed off (C.1/C.3/D complete for all 8 items)."
   }
 }
