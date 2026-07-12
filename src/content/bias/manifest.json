@@ -147,7 +147,7 @@
     {
       "id": "pb6",
       "candidateRef": 6,
-      "title": "Chris Zabriskie — deep-catalog track (avoid YouTube-worn hits)",
+      "title": "What Does Anybody Know About Anything (Direct to Video)",
       "composerOrArtist": "Chris Zabriskie",
       "performer": "Chris Zabriskie",
       "role": {
@@ -157,23 +157,38 @@
       "license": {
         "expected": "CC-BY 4.0",
         "proofPageUrl": "https://teamopen.cc/chris",
-        "confirmedAt": null,
-        "snapshotFile": null
+        "confirmedAt": "2026-07-12",
+        "snapshotFile": "pb6.html",
+        "snapshotNote": "Wayback capture 2026-04-17 of teamopen.cc/chris (live site unreachable from build network); CC-BY 4.0 line verified present. Item page also captured: pb6-item-page.html"
       },
       "source": {
-        "pageUrl": "https://archive.org/details/Music_from_Neptune_Flux-21899",
-        "altPageUrl": "https://archive.org/details/Direct_to_Video_1014-17407",
-        "downloadUrl": null,
-        "sha256": null
+        "pageUrl": "https://archive.org/details/Direct_to_Video_1014-17407",
+        "downloadUrl": "https://archive.org/download/Direct_to_Video_1014-17407/Chris_Zabriskie_-_02_-_What_Does_Anybody_Know_About_Anything.mp3",
+        "sha256": "fcadcac6e76f0c408d50b26101d64f066e061f8869bd326f1697f90cbf2fedd6",
+        "cachedFile": "pb6.mp3"
       },
       "window": {
-        "suggestions": [],
+        "suggestions": [
+          {
+            "startSec": 6,
+            "endSec": 26,
+            "score": 66.3,
+            "onsets": 8
+          },
+          {
+            "startSec": 16,
+            "endSec": 36,
+            "score": 60.1,
+            "onsets": 8
+          }
+        ],
         "approved": null
       },
       "warnings": [
         "C.3 HARD: common YouTube background music — PM rejects anything familiar (swap item)",
         "CC-BY: TASL attribution required",
-        "Shortlist of record: docs/bias-shortlist-2026-07-12.md (albums restricted per candidates doc item 6; archive.org items lack a license line — snapshot BOTH teamopen.cc/chris AND the item page)"
+        "PROVISIONAL pick (PM 2026-07-12): shortlist pick 4 stands in while a professional reviewer weighs in; replacement bumps POOL_VERSION. Shortlist: docs/bias-shortlist-2026-07-12.md",
+        "Snapshot BOTH teamopen.cc/chris (proofPageUrl) AND the item page (pb6-item-page.html, captured manually) — archive.org item has no license line"
       ]
     },
     {
@@ -213,13 +228,23 @@
             "onsets": 8
           }
         ],
-        "approved": null
+        "approved": {
+          "startSec": 4,
+          "by": "PM ear-confirmation 2026-07-12"
+        }
       },
       "warnings": [
         "Role = up-swap per PM ruling RT-9(b) 2026-07-12 (third swap; pool = 3 swaps, 5-up/3-down, within contract)",
         "Draft up-swap blurb per candidates doc: 'A minimalist study praised on year-end experimental lists for doing more with less.'",
         "Shortlist of record: docs/bias-shortlist-2026-07-12.md — archive.org item has MACHINE-READABLE CC0 (licenseurl in metadata); album restriction: Tale on the Late only"
-      ]
+      ],
+      "render": {
+        "mp3": "pb7.mp3",
+        "m4a": "pb7.m4a",
+        "durationSec": 20.035918,
+        "renderedAt": "2026-07-12",
+        "attribution": "\"The road we use to travel when we were kids (Tale on the Late)\" — Komiku · https://archive.org/details/Komiku-TaleOnTheLate · CC0 · excerpt (trimmed + loudness-normalized)"
+      }
     },
     {
       "id": "pb8",
@@ -311,7 +336,7 @@
     {
       "id": "b3",
       "candidateRef": "B3",
-      "title": "The Wind (Tale on the Late) — backup, per PM 'choose 3 as alternative'",
+      "title": "The Wind (Tale on the Late)",
       "composerOrArtist": "Komiku",
       "performer": "Komiku",
       "role": {
@@ -345,11 +370,21 @@
             "onsets": 0
           }
         ],
-        "approved": null
+        "approved": {
+          "startSec": 7,
+          "by": "PM ear-confirmation 2026-07-12 (own start, not an analyzer suggestion)"
+        }
       },
       "warnings": [
-        "backup"
-      ]
+        "backup — PM ruling 2026-07-12: pick 3 chosen as the alternative"
+      ],
+      "render": {
+        "mp3": "b3.mp3",
+        "m4a": "b3.m4a",
+        "durationSec": 20.035918,
+        "renderedAt": "2026-07-12",
+        "attribution": "\"The Wind (Tale on the Late)\" — Komiku · https://archive.org/details/Komiku-TaleOnTheLate · CC0 · excerpt (trimmed + loudness-normalized)"
+      }
     }
   ]
 }

@@ -59,9 +59,18 @@ async function download() {
     const ext = new URL(item.source.downloadUrl).pathname.split(".").pop() || "bin";
     const dest = join(CACHE, `${item.id}.${ext}`);
     console.log(`- ${item.id}: downloading ${item.source.downloadUrl}`);
-    const res = await fetch(item.source.downloadUrl, { redirect: "follow" });
-    if (!res.ok) throw new Error(`${item.id}: HTTP ${res.status} from ${item.source.downloadUrl}`);
-    const buf = Buffer.from(await res.arrayBuffer());
+    let buf;
+    try {
+      const res = await fetch(item.source.downloadUrl, { redirect: "follow" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      buf = Buffer.from(await res.arrayBuffer());
+    } catch (e) {
+      // Node fetch is flaky against some archive.org storage nodes; curl
+      // (bundled with Windows 10+) handles the same redirects fine.
+      console.log(`  fetch failed (${e.message}) — retrying via curl`);
+      execFileSync("curl", ["-sL", "--fail", "--max-time", "600", item.source.downloadUrl, "-o", dest], { stdio: "inherit" });
+      buf = readFileSync(dest);
+    }
     writeFileSync(dest, buf);
     item.source.sha256 = sha256(buf);
     item.source.cachedFile = `${item.id}.${ext}`;
@@ -195,7 +204,9 @@ function tasl(item) {
 
 function renderOne(input, startSec, lenSec, outBase, lufs) {
   mkdirSync(AUDIO_OUT, { recursive: true });
-  const common = ["-ss", String(startSec), "-t", String(lenSec), "-i", input, "-af", `loudnorm=I=${lufs}:TP=-1.5:LRA=11`, "-ar", "44100", "-v", "error", "-y"];
+  // -vn: sources often embed cover art as a video stream, which the m4a/ipod
+  // container rejects — we render audio only.
+  const common = ["-ss", String(startSec), "-t", String(lenSec), "-i", input, "-vn", "-af", `loudnorm=I=${lufs}:TP=-1.5:LRA=11`, "-ar", "44100", "-v", "error", "-y"];
   execFileSync(FFMPEG, [...common, "-codec:a", "libmp3lame", "-q:a", "3", join(AUDIO_OUT, `${outBase}.mp3`)]);
   execFileSync(FFMPEG, [...common, "-codec:a", "aac", "-b:a", "160k", join(AUDIO_OUT, `${outBase}.m4a`)]);
   const probe = execFileSync(FFPROBE, ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", join(AUDIO_OUT, `${outBase}.mp3`)]).toString().trim();
