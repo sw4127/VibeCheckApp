@@ -73,11 +73,17 @@ async function download() {
 }
 
 /* ------------------------------------------------------------ snapshot */
-async function snapshot() {
+async function snapshot(args = []) {
   const m = loadManifest();
   mkdirSync(LICENSES, { recursive: true });
+  // --only pb7,b3 : restrict to named ids so unverified proof URLs (e.g. the
+  // Musopen pages pending live verification) never get a snapshot stamp that
+  // could masquerade as a checked license.
+  const onlyIdx = args.indexOf("--only");
+  const only = onlyIdx >= 0 ? new Set(args[onlyIdx + 1].split(",")) : null;
   let done = 0, skipped = 0;
   for (const item of m.items) {
+    if (only && !only.has(item.id)) continue;
     const url = item.license.proofPageUrl;
     if (!url) {
       console.log(`- ${item.id}: no proofPageUrl — SKIP`);
@@ -227,7 +233,7 @@ function render(args) {
 const [stage, ...args] = process.argv.slice(2);
 try {
   if (stage === "download") await download();
-  else if (stage === "snapshot") await snapshot();
+  else if (stage === "snapshot") await snapshot(args);
   else if (stage === "analyze") analyze(args);
   else if (stage === "render") render(args);
   else {

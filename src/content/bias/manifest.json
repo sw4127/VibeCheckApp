@@ -10,11 +10,29 @@
       "title": "Goldberg Variations — a middle variation (e.g., Var. 13, NOT the Aria)",
       "composerOrArtist": "J.S. Bach",
       "performer": "Kimiko Ishizaka",
-      "role": { "labelDirection": "down", "labelIsTrue": false },
-      "license": { "expected": "CC0", "proofPageUrl": "https://opengoldbergvariations.org", "confirmedAt": null, "snapshotFile": null },
-      "source": { "pageUrl": "https://archive.org/details/TheOpenGoldbergVariations", "downloadUrl": null, "sha256": null },
-      "window": { "suggestions": [], "approved": null },
-      "warnings": ["NOT the opening Aria (too recognizable, C.3)", "PM must ear-check chosen variation for recognizability (swap item)"]
+      "role": {
+        "labelDirection": "down",
+        "labelIsTrue": false
+      },
+      "license": {
+        "expected": "CC0",
+        "proofPageUrl": "https://opengoldbergvariations.org",
+        "confirmedAt": null,
+        "snapshotFile": null
+      },
+      "source": {
+        "pageUrl": "https://archive.org/details/TheOpenGoldbergVariations",
+        "downloadUrl": null,
+        "sha256": null
+      },
+      "window": {
+        "suggestions": [],
+        "approved": null
+      },
+      "warnings": [
+        "NOT the opening Aria (too recognizable, C.3)",
+        "PM must ear-check chosen variation for recognizability (swap item)"
+      ]
     },
     {
       "id": "pb2",
@@ -22,10 +40,25 @@
       "title": "Well-Tempered Clavier Bk 1 — a less-famous prelude/fugue (NOT BWV 846 C major)",
       "composerOrArtist": "J.S. Bach",
       "performer": "Kimiko Ishizaka",
-      "role": { "labelDirection": "up", "labelIsTrue": true },
-      "license": { "expected": "CC0 (VERIFIED 2026-07-11 on archive.org item)", "proofPageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1", "confirmedAt": null, "snapshotFile": null },
-      "source": { "pageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1", "downloadUrl": null, "sha256": null },
-      "window": { "suggestions": [], "approved": null },
+      "role": {
+        "labelDirection": "up",
+        "labelIsTrue": true
+      },
+      "license": {
+        "expected": "CC0 (VERIFIED 2026-07-11 on archive.org item)",
+        "proofPageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1",
+        "confirmedAt": null,
+        "snapshotFile": null
+      },
+      "source": {
+        "pageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1",
+        "downloadUrl": null,
+        "sha256": null
+      },
+      "window": {
+        "suggestions": [],
+        "approved": null
+      },
       "warnings": []
     },
     {
@@ -34,10 +67,25 @@
       "title": "Nocturne Op. 15 No. 3 in G minor",
       "composerOrArtist": "F. Chopin",
       "performer": "Musopen catalog performer (record at download)",
-      "role": { "labelDirection": "down", "labelIsTrue": true },
-      "license": { "expected": "PD or CC0 (verify on piece page; CC-BY-SA -> engineer flag)", "proofPageUrl": "https://musopen.org/music/108-nocturnes-op-15/", "confirmedAt": null, "snapshotFile": null },
-      "source": { "pageUrl": "https://musopen.org/music/108-nocturnes-op-15/", "downloadUrl": null, "sha256": null },
-      "window": { "suggestions": [], "approved": null },
+      "role": {
+        "labelDirection": "down",
+        "labelIsTrue": true
+      },
+      "license": {
+        "expected": "PD or CC0 (verify on piece page; CC-BY-SA -> engineer flag)",
+        "proofPageUrl": "https://musopen.org/music/108-nocturnes-op-15/",
+        "confirmedAt": null,
+        "snapshotFile": null
+      },
+      "source": {
+        "pageUrl": "https://musopen.org/music/108-nocturnes-op-15/",
+        "downloadUrl": null,
+        "sha256": null
+      },
+      "window": {
+        "suggestions": [],
+        "approved": null
+      },
       "warnings": []
     },
     {
@@ -46,10 +94,25 @@
       "title": "Préludes Book 1 — Voiles",
       "composerOrArtist": "C. Debussy",
       "performer": "Musopen catalog performer (record at download)",
-      "role": { "labelDirection": "up", "labelIsTrue": true },
-      "license": { "expected": "verify on piece page", "proofPageUrl": "https://musopen.org/music/4972-preludes-book-1/", "confirmedAt": null, "snapshotFile": null },
-      "source": { "pageUrl": "https://musopen.org/music/4972-preludes-book-1/", "downloadUrl": null, "sha256": null },
-      "window": { "suggestions": [], "approved": null },
+      "role": {
+        "labelDirection": "up",
+        "labelIsTrue": true
+      },
+      "license": {
+        "expected": "verify on piece page",
+        "proofPageUrl": "https://musopen.org/music/4972-preludes-book-1/",
+        "confirmedAt": null,
+        "snapshotFile": null
+      },
+      "source": {
+        "pageUrl": "https://musopen.org/music/4972-preludes-book-1/",
+        "downloadUrl": null,
+        "sha256": null
+      },
+      "window": {
+        "suggestions": [],
+        "approved": null
+      },
       "warnings": []
     },
     {
@@ -58,11 +121,28 @@
       "title": "Intermezzo Op. 117 No. 1",
       "composerOrArtist": "J. Brahms",
       "performer": "Musopen catalog performer (record at download)",
-      "role": { "labelDirection": "up", "labelIsTrue": true },
-      "license": { "expected": "verify on piece page", "proofPageUrl": "https://musopen.org/music/2137-3-intermezzi-op-117/", "confirmedAt": null, "snapshotFile": null },
-      "source": { "pageUrl": "https://musopen.org/music/2137-3-intermezzi-op-117/", "downloadUrl": null, "sha256": null },
-      "window": { "suggestions": [], "approved": null },
-      "warnings": ["Moderately recognizable to classical listeners — PM recognizability check decides"]
+      "role": {
+        "labelDirection": "up",
+        "labelIsTrue": true
+      },
+      "license": {
+        "expected": "verify on piece page",
+        "proofPageUrl": "https://musopen.org/music/2137-3-intermezzi-op-117/",
+        "confirmedAt": null,
+        "snapshotFile": null
+      },
+      "source": {
+        "pageUrl": "https://musopen.org/music/2137-3-intermezzi-op-117/",
+        "downloadUrl": null,
+        "sha256": null
+      },
+      "window": {
+        "suggestions": [],
+        "approved": null
+      },
+      "warnings": [
+        "Moderately recognizable to classical listeners — PM recognizability check decides"
+      ]
     },
     {
       "id": "pb6",
@@ -70,23 +150,76 @@
       "title": "Chris Zabriskie — deep-catalog track (avoid YouTube-worn hits)",
       "composerOrArtist": "Chris Zabriskie",
       "performer": "Chris Zabriskie",
-      "role": { "labelDirection": "up", "labelIsTrue": false },
-      "license": { "expected": "CC-BY 4.0", "proofPageUrl": "https://teamopen.cc/chris", "confirmedAt": null, "snapshotFile": null },
-      "source": { "pageUrl": "https://archive.org/details/Music_from_Neptune_Flux-21899", "altPageUrl": "https://archive.org/details/Direct_to_Video_1014-17407", "downloadUrl": null, "sha256": null },
-      "window": { "suggestions": [], "approved": null },
-      "warnings": ["C.3 HARD: common YouTube background music — PM rejects anything familiar (swap item)", "CC-BY: TASL attribution required", "Shortlist of record: docs/bias-shortlist-2026-07-12.md (albums restricted per candidates doc item 6; archive.org items lack a license line — snapshot BOTH teamopen.cc/chris AND the item page)"]
+      "role": {
+        "labelDirection": "up",
+        "labelIsTrue": false
+      },
+      "license": {
+        "expected": "CC-BY 4.0",
+        "proofPageUrl": "https://teamopen.cc/chris",
+        "confirmedAt": null,
+        "snapshotFile": null
+      },
+      "source": {
+        "pageUrl": "https://archive.org/details/Music_from_Neptune_Flux-21899",
+        "altPageUrl": "https://archive.org/details/Direct_to_Video_1014-17407",
+        "downloadUrl": null,
+        "sha256": null
+      },
+      "window": {
+        "suggestions": [],
+        "approved": null
+      },
+      "warnings": [
+        "C.3 HARD: common YouTube background music — PM rejects anything familiar (swap item)",
+        "CC-BY: TASL attribution required",
+        "Shortlist of record: docs/bias-shortlist-2026-07-12.md (albums restricted per candidates doc item 6; archive.org items lack a license line — snapshot BOTH teamopen.cc/chris AND the item page)"
+      ]
     },
     {
       "id": "pb7",
       "candidateRef": 7,
-      "title": "Komiku or Monplaisir — one track",
-      "composerOrArtist": "Komiku / Monplaisir",
-      "performer": "same",
-      "role": { "labelDirection": "up", "labelIsTrue": false },
-      "license": { "expected": "CC0", "proofPageUrl": "https://archive.org/details/Komiku-TaleOnTheLate", "confirmedAt": null, "snapshotFile": null },
-      "source": { "pageUrl": "https://archive.org/details/Komiku-TaleOnTheLate", "downloadUrl": null, "sha256": null },
-      "window": { "suggestions": [], "approved": null },
-      "warnings": ["Role = up-swap per PM ruling RT-9(b) 2026-07-12 (third swap; pool = 3 swaps, 5-up/3-down, within contract)", "Draft up-swap blurb per candidates doc: 'A minimalist study praised on year-end experimental lists for doing more with less.'", "Shortlist of record: docs/bias-shortlist-2026-07-12.md — archive.org item has MACHINE-READABLE CC0 (licenseurl in metadata); album restriction: Tale on the Late only"]
+      "title": "The road we use to travel when we were kids (Tale on the Late)",
+      "composerOrArtist": "Komiku",
+      "performer": "Komiku",
+      "role": {
+        "labelDirection": "up",
+        "labelIsTrue": false
+      },
+      "license": {
+        "expected": "CC0",
+        "proofPageUrl": "https://archive.org/details/Komiku-TaleOnTheLate",
+        "confirmedAt": "2026-07-12",
+        "snapshotFile": "pb7.html"
+      },
+      "source": {
+        "pageUrl": "https://archive.org/details/Komiku-TaleOnTheLate",
+        "downloadUrl": "https://archive.org/download/Komiku-TaleOnTheLate/Komiku_-_03_-_The_road_we_use_to_travel_when_we_were_kids.mp3",
+        "sha256": "4b205aaf09466c1568f1faf160b08fa2bcbd6056f98d941ce765edf629e50a33",
+        "cachedFile": "pb7.mp3"
+      },
+      "window": {
+        "suggestions": [
+          {
+            "startSec": 32,
+            "endSec": 52,
+            "score": 51.7,
+            "onsets": 7
+          },
+          {
+            "startSec": 4,
+            "endSec": 24,
+            "score": 43.3,
+            "onsets": 8
+          }
+        ],
+        "approved": null
+      },
+      "warnings": [
+        "Role = up-swap per PM ruling RT-9(b) 2026-07-12 (third swap; pool = 3 swaps, 5-up/3-down, within contract)",
+        "Draft up-swap blurb per candidates doc: 'A minimalist study praised on year-end experimental lists for doing more with less.'",
+        "Shortlist of record: docs/bias-shortlist-2026-07-12.md — archive.org item has MACHINE-READABLE CC0 (licenseurl in metadata); album restriction: Tale on the Late only"
+      ]
     },
     {
       "id": "pb8",
@@ -94,11 +227,28 @@
       "title": "Jason Shaw (Audionautix) — one acoustic/folk track",
       "composerOrArtist": "Jason Shaw",
       "performer": "Jason Shaw",
-      "role": { "labelDirection": "down", "labelIsTrue": true },
-      "license": { "expected": "CC-BY 4.0", "proofPageUrl": "https://audionautix.com/creative-commons-music", "confirmedAt": null, "snapshotFile": null },
-      "source": { "pageUrl": "https://audionautix.com", "downloadUrl": null, "sha256": null },
-      "window": { "suggestions": [], "approved": null },
-      "warnings": ["Credit line required: music by audionautix.com (TASL)"]
+      "role": {
+        "labelDirection": "down",
+        "labelIsTrue": true
+      },
+      "license": {
+        "expected": "CC-BY 4.0",
+        "proofPageUrl": "https://audionautix.com/creative-commons-music",
+        "confirmedAt": null,
+        "snapshotFile": null
+      },
+      "source": {
+        "pageUrl": "https://audionautix.com",
+        "downloadUrl": null,
+        "sha256": null
+      },
+      "window": {
+        "suggestions": [],
+        "approved": null
+      },
+      "warnings": [
+        "Credit line required: music by audionautix.com (TASL)"
+      ]
     },
     {
       "id": "b1",
@@ -106,11 +256,28 @@
       "title": "Second Ishizaka WTC prelude (backup)",
       "composerOrArtist": "J.S. Bach",
       "performer": "Kimiko Ishizaka",
-      "role": { "labelDirection": "up", "labelIsTrue": true },
-      "license": { "expected": "CC0", "proofPageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1", "confirmedAt": null, "snapshotFile": null },
-      "source": { "pageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1", "downloadUrl": null, "sha256": null },
-      "window": { "suggestions": [], "approved": null },
-      "warnings": ["backup"]
+      "role": {
+        "labelDirection": "up",
+        "labelIsTrue": true
+      },
+      "license": {
+        "expected": "CC0",
+        "proofPageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1",
+        "confirmedAt": null,
+        "snapshotFile": null
+      },
+      "source": {
+        "pageUrl": "https://archive.org/details/bach-well-tempered-clavier-book-1",
+        "downloadUrl": null,
+        "sha256": null
+      },
+      "window": {
+        "suggestions": [],
+        "approved": null
+      },
+      "warnings": [
+        "backup"
+      ]
     },
     {
       "id": "b2",
@@ -118,23 +285,71 @@
       "title": "Satie — Gnossienne No. 4 (NOT No. 1, too famous) (backup)",
       "composerOrArtist": "E. Satie",
       "performer": "Musopen catalog performer (record at download)",
-      "role": { "labelDirection": "down", "labelIsTrue": true },
-      "license": { "expected": "verify on piece page", "proofPageUrl": "https://musopen.org/music/117-gnossiennes/", "confirmedAt": null, "snapshotFile": null },
-      "source": { "pageUrl": "https://musopen.org/music/117-gnossiennes/", "downloadUrl": null, "sha256": null },
-      "window": { "suggestions": [], "approved": null },
-      "warnings": ["backup"]
+      "role": {
+        "labelDirection": "down",
+        "labelIsTrue": true
+      },
+      "license": {
+        "expected": "verify on piece page",
+        "proofPageUrl": "https://musopen.org/music/117-gnossiennes/",
+        "confirmedAt": null,
+        "snapshotFile": null
+      },
+      "source": {
+        "pageUrl": "https://musopen.org/music/117-gnossiennes/",
+        "downloadUrl": null,
+        "sha256": null
+      },
+      "window": {
+        "suggestions": [],
+        "approved": null
+      },
+      "warnings": [
+        "backup"
+      ]
     },
     {
       "id": "b3",
       "candidateRef": "B3",
-      "title": "Second Komiku track from Tale on the Late (backup — the unpicked shortlist survivor)",
-      "composerOrArtist": "Komiku / Monplaisir",
-      "performer": "same",
-      "role": { "labelDirection": "up", "labelIsTrue": true },
-      "license": { "expected": "CC0", "proofPageUrl": "https://archive.org/details/Komiku-TaleOnTheLate", "confirmedAt": null, "snapshotFile": null },
-      "source": { "pageUrl": "https://archive.org/details/Komiku-TaleOnTheLate", "downloadUrl": null, "sha256": null },
-      "window": { "suggestions": [], "approved": null },
-      "warnings": ["backup"]
+      "title": "The Wind (Tale on the Late) — backup, per PM 'choose 3 as alternative'",
+      "composerOrArtist": "Komiku",
+      "performer": "Komiku",
+      "role": {
+        "labelDirection": "up",
+        "labelIsTrue": true
+      },
+      "license": {
+        "expected": "CC0",
+        "proofPageUrl": "https://archive.org/details/Komiku-TaleOnTheLate",
+        "confirmedAt": "2026-07-12",
+        "snapshotFile": "b3.html"
+      },
+      "source": {
+        "pageUrl": "https://archive.org/details/Komiku-TaleOnTheLate",
+        "downloadUrl": "https://archive.org/download/Komiku-TaleOnTheLate/Komiku_-_13_-_The_Wind.mp3",
+        "sha256": "f5b9e027f8b27e0e60b2d750c9d7cc72da94b6d3a31ec3d9e8a440c0733c1dba",
+        "cachedFile": "b3.mp3"
+      },
+      "window": {
+        "suggestions": [
+          {
+            "startSec": 82.5,
+            "endSec": 102.5,
+            "score": 20.3,
+            "onsets": 2
+          },
+          {
+            "startSec": 61,
+            "endSec": 81,
+            "score": 3.2,
+            "onsets": 0
+          }
+        ],
+        "approved": null
+      },
+      "warnings": [
+        "backup"
+      ]
     }
   ]
 }
