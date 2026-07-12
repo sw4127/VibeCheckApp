@@ -50,3 +50,4 @@ next-env.d.ts
 # clip-pipeline raw source cache (multi-MB downloads; manifest holds the SHA-256s)
 scripts/clip-pipeline/.cache/
 public/audio/preview-shortlist/
+public/audio/bias/dev-test-8s.wav
