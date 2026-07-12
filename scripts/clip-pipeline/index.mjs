@@ -204,9 +204,18 @@ function tasl(item) {
 
 function renderOne(input, startSec, lenSec, outBase, lufs) {
   mkdirSync(AUDIO_OUT, { recursive: true });
+  // TWO-PASS loudnorm: single-pass drops to linear fallback on short dynamic
+  // excerpts (classical!) and missed target by up to 2.6 LU. Pass 1 measures,
+  // pass 2 applies with measured_* + linear=true → accurate integrated target.
+  const cut = ["-ss", String(startSec), "-t", String(lenSec), "-i", input, "-vn"];
+  const probeOut = spawnSync(FFMPEG, [...cut, "-af", `loudnorm=I=${lufs}:TP=-1.5:LRA=11:print_format=json`, "-f", "null", "-"], { encoding: "utf8" });
+  const jsonMatch = (probeOut.stderr || "").match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error(`loudnorm measure failed for ${outBase}`);
+  const mm = JSON.parse(jsonMatch[0]);
+  const ln = `loudnorm=I=${lufs}:TP=-1.5:LRA=11:measured_I=${mm.input_i}:measured_TP=${mm.input_tp}:measured_LRA=${mm.input_lra}:measured_thresh=${mm.input_thresh}:offset=${mm.target_offset}:linear=true`;
   // -vn: sources often embed cover art as a video stream, which the m4a/ipod
   // container rejects — we render audio only.
-  const common = ["-ss", String(startSec), "-t", String(lenSec), "-i", input, "-vn", "-af", `loudnorm=I=${lufs}:TP=-1.5:LRA=11`, "-ar", "44100", "-v", "error", "-y"];
+  const common = [...cut, "-af", ln, "-ar", "44100", "-v", "error", "-y"];
   execFileSync(FFMPEG, [...common, "-codec:a", "libmp3lame", "-q:a", "3", join(AUDIO_OUT, `${outBase}.mp3`)]);
   execFileSync(FFMPEG, [...common, "-codec:a", "aac", "-b:a", "160k", join(AUDIO_OUT, `${outBase}.m4a`)]);
   const probe = execFileSync(FFPROBE, ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", join(AUDIO_OUT, `${outBase}.mp3`)]).toString().trim();
