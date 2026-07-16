@@ -3,7 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next";
 import EnvBanner from "@/components/EnvBanner";
+import JsonLd from "@/components/JsonLd";
 import RouteBackground from "@/components/RouteBackground";
+import { baseUrl } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,6 +30,8 @@ const fraunces = localFont({
 });
 
 export const metadata: Metadata = {
+  // §3.B4: resolves every relative canonical/OG URL against the real origin.
+  metadataBase: new URL(baseUrl()),
   title: "Vibe Check — Which footballer matches your vibe?",
   description:
     "A 7-tap quiz reads your vibe and matches you to a footballer's style. Free, shareable.",
@@ -53,6 +57,25 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <RouteBackground>{children}</RouteBackground>
         <EnvBanner />
+        {/* §3.B5 site-wide schema — GEO only; SERP expectation zero. */}
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "The Taste Gym",
+            url: baseUrl(),
+            description:
+              "A gym for musical taste: instruments that measure Hume's five criteria as numbers — starting with the Prestige Test.",
+          }}
+        />
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "The Taste Gym",
+            url: baseUrl(),
+          }}
+        />
         <Analytics />
       </body>
     </html>

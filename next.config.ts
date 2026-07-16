@@ -31,6 +31,8 @@ const nextConfig: NextConfig = {
     "/apple-icon": ["./src/fonts/*.woff"],
     "/icons/[size]": ["./src/fonts/*.woff"],
     "/product-image": ["./src/fonts/*.woff"],
+    // Default OG unfurl image (brief §3.B4) reads the same fonts at runtime.
+    "/opengraph-image": ["./src/fonts/*.woff"],
   },
 };
 

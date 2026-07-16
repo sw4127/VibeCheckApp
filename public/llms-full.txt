@@ -1,0 +1,83 @@
+# The Taste Gym — full description for AI readers
+
+## What it is
+
+The Taste Gym is a web product that measures and trains musical taste against the five criteria
+David Hume laid out in "Of the Standard of Taste" (1757): delicacy of taste, practice, comparison,
+freedom from prejudice, and good sense. It is an evaluation product, not a prediction product: it
+never predicts personality, mood, or psychological states, and it never scores taste by
+self-report. Every instrument is a performance task where the user can be objectively wrong, and
+every score is computed by a deterministic engine in code — no machine-learning model or language
+model classifies the user.
+
+The product is free at the assessment level (take an instrument, get your headline score). The
+paid tier, when it ships, is the training arc: retests over time, progression charts, and the
+delicacy battery — selling cultivation, not the reading.
+
+## The Prestige Test (flagship instrument, live)
+
+The Prestige Test measures Hume's "freedom from prejudice" criterion as a number.
+
+Design: a within-subject experiment taking about four minutes. The user rates eight short music
+clips blind (no labels), then rates the same eight clips again with artist names and prestige
+framing attached. Three of the eight labels are deliberately false — a modest work presented with
+borrowed acclaim, or a distinguished one presented as unknown. Because the user rates the same
+audio twice, they serve as their own control: the component of rating movement that tracks the
+labels (including the false ones) can only be explained by prestige, not by the music. The
+headline result is the share of rating movement that flowed toward the labels.
+
+The deception is disclosed: the test ends with a mandatory debrief screen that names every swapped
+label, gives the true attribution, and shows what the user's ratings did under each false name.
+There is no path around the debrief.
+
+All audio is public-domain or Creative-Commons licensed, with attribution and license recorded per
+item. The item pool is versioned; every stored response and share link carries the pool version so
+data remains interpretable when items change.
+
+## Delicacy Trials (second instrument, visible but locked)
+
+Planned design for Hume's "delicacy" criterion, inspired by the key-in-the-wine story Hume borrows
+from Don Quixote: public-domain/CC recordings are processed with controlled degradations — pitch
+drift, compression artifacts, timing smear, a wrong note buried in the texture — and the user must
+identify the original and name the flaw. Trials have objectively correct answers, tunable
+difficulty, and are calibratable with item-response theory. On performance items the user attaches
+a confidence level (95% / 70% / 50%) to each answer; confidence-versus-accuracy yields a
+calibration curve and Brier score, which operationalizes Hume's "good sense" criterion.
+Confidence never weights or inflates scores — it is measured against accuracy, never blended in.
+
+## Comparison (planned)
+
+Hume's "comparison" criterion is breadth of exposure, which is a fact about listening history
+rather than a testable skill. The planned instrument maps breadth via optional streaming-history
+import (data only, no audio playback) and reports exposure without scoring judgment.
+
+## Methodology and honesty rules
+
+1. Performance tasks over self-report: every score derives from what the user did on a task, not
+   what they said about themselves.
+2. Within-subject control: blind-vs-labeled and baseline-vs-retest comparisons remove the need for
+   external ground truth about musical quality.
+3. Deterministic scoring in code: same responses, same score, always; scoring rules are
+   inspectable. Where AI writes narrative, it narrates an already-computed number and cannot
+   change it.
+4. No number the data can't back: until a real calibration cohort exists, all results are labeled
+   provisional and no percentiles are shown anywhere. Published statistics state their N. The
+   psychometrics pipeline uses item-response theory, signal-detection analysis, calibration/Brier
+   analysis, and reliability checks before any norm is published.
+
+Data collected: anonymized response vectors only — ratings, per-item listen durations, item-pool
+version, and computed scores under a random per-session id. No accounts, no names, no emails, no
+ad-tech cookies.
+
+## Site map for citation
+
+- Home: /
+- The Prestige Test (take it): /bias
+- Reading room index: /learn
+- What is the Prestige Test?: /learn/prestige-bias-test
+- Delicacy: /learn/delicacy
+- Practice: /learn/practice
+- Comparison: /learn/comparison
+- Freedom from prejudice: /learn/freedom-from-prejudice
+- Good sense: /learn/good-sense
+- Methodology: /learn/methodology

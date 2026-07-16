@@ -15,6 +15,14 @@ export const metadata: Metadata = {
   title: "The Taste Gym — do you hear the music, or the name?",
   description:
     "Your taste has a number. The Prestige Test measures how far a famous name can move your ratings. Eight clips, rated twice — the gap is your number.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "The Taste Gym — do you hear the music, or the name?",
+    description:
+      "Your taste has a number. The Prestige Test measures how far a famous name can move your ratings.",
+    siteName: "The Taste Gym",
+    type: "website",
+  },
 };
 
 const GOLD = "hsl(42 80% 62%)";
@@ -92,6 +100,14 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           className="mt-8 inline-block text-sm text-muted underline underline-offset-4 transition hover:text-white"
         >
           Warm-up instead: the original music-taste read →
+        </Link>
+
+        {/* The library (§3.C7) — crawlable path into the explainers (D5). */}
+        <Link
+          href="/learn"
+          className="mt-3 block text-sm text-muted underline underline-offset-4 transition hover:text-white"
+        >
+          Reading room: Hume&apos;s five criteria, and how we measure them →
         </Link>
 
         <p className="mt-8 text-[11px] text-muted/70">

@@ -1,0 +1,32 @@
+# The Taste Gym
+
+> A gym for musical taste. Instruments that measure David Hume's five criteria of taste
+> ("Of the Standard of Taste", 1757) as numbers, using performance tasks where the user can be
+> wrong — never self-report, never personality prediction. Free assessment; scores are honest:
+> results are labeled provisional until real cohort norms exist, and no percentile is ever
+> fabricated.
+
+The flagship instrument is the Prestige Test: rate eight music clips blind, then rate the same
+clips with artist names attached — three labels are deliberately swapped (and disclosed in a
+mandatory debrief). The blind-vs-labeled rating gap is a measured prestige-bias number; the user
+serves as their own control. All scoring is deterministic code — no AI classifies the user.
+
+## Core pages
+
+- [The Taste Gym (home)](/): what the gym is; the visible machines, open and locked
+- [The Prestige Test](/bias): the flagship instrument — takes about four minutes, free, no sign-up
+- [Reading room](/learn): all explainers — the five criteria, the instruments, the methodology
+- [What is the Prestige Test?](/learn/prestige-bias-test): the design, the sanctioned deception, the debrief
+- [Methodology](/learn/methodology): performance tasks, within-subject control, deterministic scoring, honest-norms policy
+
+## Hume's five criteria (one explainer each)
+
+- [Delicacy](/learn/delicacy): the key-in-the-wine story; the planned Delicacy Trials (controlled audio degradations with objectively right answers)
+- [Practice](/learn/practice): why taste is trainable; retests and progression
+- [Comparison](/learn/comparison): Ogilby vs. Milton; breadth as measurable exposure
+- [Freedom from prejudice](/learn/freedom-from-prejudice): the criterion the Prestige Test measures
+- [Good sense](/learn/good-sense): calibration — confidence vs. accuracy, Brier scores
+
+## Optional
+
+- [llms-full.txt](/llms-full.txt): the full product and methodology description in one file
