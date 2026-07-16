@@ -9,6 +9,9 @@
 | `PAYMENTS_PROVIDER`, `DODO_PAYMENT_LINK`, `DODO_API_KEY`, `DODO_MODE` | MoR checkout (spec §24) | unconfigured → 501 + dev-unlock in non-prod |
 | `NEXT_PUBLIC_VOICE_AB` | §26 voice experiment gate | dormant |
 
+## Env self-check (added 2026-07-16, brief §3.A2)
+`GET /api/health` → `{ ok, missing, env: {var: boolean}, poolVersion }` — presence booleans only, never values. `ok: false` = the D6 pipe is dark. Missing analytics env also warns at build time (next.config.ts) and shows a dev banner (EnvBanner). **Verified live in prod 2026-07-16:** PostHog key present in the deployed bundle; capture requests return 200.
+
 ## Deploy
 Push to `main` → Vercel auto-deploy. Pre-deploy gate: `npm run build` + `npx vitest run` green. Card-route font tracing per spec §19.D.
 

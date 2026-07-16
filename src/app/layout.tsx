@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next";
+import EnvBanner from "@/components/EnvBanner";
 import RouteBackground from "@/components/RouteBackground";
 import "./globals.css";
 
@@ -51,6 +52,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <RouteBackground>{children}</RouteBackground>
+        <EnvBanner />
         <Analytics />
       </body>
     </html>
