@@ -47,6 +47,9 @@ next-env.d.ts
 # generated diagnostic output (regenerate via DIAGNOSE=1 vitest run scripts/diagnose-archetypes.test.ts)
 /scripts/diagnose-report.txt
 
+# D6 response-dataset exports (the N1 proprietary asset — never ships in a public repo)
+/data/
+
 # clip-pipeline raw source cache (multi-MB downloads; manifest holds the SHA-256s)
 scripts/clip-pipeline/.cache/
 public/audio/preview-shortlist/
