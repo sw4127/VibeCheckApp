@@ -50,6 +50,11 @@ Genre: ambient/post-rock, modern production.
 Proposed role: **up-swap** (prestige blurb on a lesser-known work) — labelIsTrue: false, direction: up.
 Draft blurb (up): "Festival-commissioned; the closing piece of an award-winning installation about memory."
 ⚠️ PM check C.3 hard: Zabriskie tracks are common YouTube background music — reject any that feels familiar.
+**Shortlist rule (of record, 2026-07-11):** shortlist ONLY from the deep-catalog albums *Music from
+Neptune Flux* or *Direct to Video*. **Hard exclusions (C.3 pre-fail):** the *Cylinders* series,
+"Prelude No. 2," "The Temperature of the Air on the Bow of the Kaleetan," "I Am a Man Who Will
+Fight for Your Honor." Filters: instrumental · ≥60s source length (window headroom) · production
+that sits level with the pool (no lo-fi outlier).
 
 **7. Komiku or Monplaisir (Rrrrrose Azerty) — one track**
 License: **CC0** · Proof: FMA artist page per track.
@@ -57,6 +62,12 @@ Genre: playful electronic / game-adjacent — maximum genre contrast in the pool
 Proposed role: **up-swap** candidate (acclaim blurb on a modest work) or true-label down.
 Draft blurb (up-swap): "A minimalist study praised on year-end experimental lists for doing more with less."
 Draft blurb (true down): "Background music in the most literal sense; composed at volume, released in bulk."
+**Shortlist rule (of record, 2026-07-11):** shortlist ONLY from *Tale on the Late* — the mellow,
+composerly album where an acclaim blurb reads credible; the bouncy *It's time for adventure!*
+volumes would fight their own prestige label. Same filters as item 6: instrumental · ≥60s ·
+production level with the pool.
+**RT-9 decision (PM, 2026-07-11): option (b)** — this item is the third swap (up-swap: acclaim
+blurb on a modest work). Pool rebalances to 3 swaps, 5-up/3-down (contract-passing).
 
 **8. Jason Shaw (Audionautix) — one acoustic/folk track**
 License: **CC-BY 4.0** · Proof: audionautix.com/creative-commons-music (credit "music by audionautix.com").
