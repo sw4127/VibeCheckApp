@@ -1,8 +1,12 @@
 # Quantifying Hume's "Standard of Taste" — DRAFT v0.1 (launch write-up)
 
-Status: DRAFT (portfolio DoD item c). Charts marked [CHART] insert when calibration-cohort data
-lands (memo §7). Target venues: HN / r/datasets / r/musictheory. Voice: the write-up is technical
-and first-person-plural; the product's Examiner voice stays in the product.
+Status: SKELETON FINAL (2026-07-16 brief §3.E10; content still pre-publication). Charts are
+WIRED: one command renders every fillable slot from a real export —
+`node scripts/analysis/render-charts.mjs --in data/exports/bias-results-<date>.json`
+(from `posthog-export.mjs --json`). Until cohort data lands, `--demo` renders the same files
+watermarked SYNTHETIC (N3); the embedded paths below are stable either way. Target venues:
+HN / r/datasets / r/musictheory. Voice: the write-up is technical and first-person-plural; the
+product's Examiner voice stays in the product.
 
 ---
 
@@ -32,14 +36,16 @@ we invented" lands harder than any percentile.)
 
 ## What we measure (and what we refuse to claim)
 
-- **Headline**: mean signed shift toward labels, as % of the rating scale. [CHART: distribution of
-  headline pct across the cohort]
-- **Swapped-only shift**: the causally clean subset. [CHART: swapped vs. truthful item shifts]
+- **Headline**: mean signed shift toward labels, as % of the rating scale.
+  ![Headline sway distribution](assets/bias-gap.svg)
+- **Swapped-only shift**: the causally clean subset.
+  ![Swapped vs. truthful shift](assets/swapped-shift.svg)
 - **swayShare**: on how many *movable* clips (not already rated at the scale edge) you moved with
   the label — a consistency receipt that survives ceiling effects.
 - **Listen-time gating**: the rating scale physically unlocks only after 5 seconds of actually-heard
   audio (media-clock, not wall-clock); per-item listen durations are logged. A 0.5-second rating is
-  not a judgment of a stimulus. [CHART: listen-time vs. rating-shift]
+  not a judgment of a stimulus.
+  ![Listen time vs. rating shift](assets/listen-shift.svg)
 
 What we do **not** do: percentiles before a norming cohort exists (every stat ships with a
 "provisional — you're early" frame), personality inference of any kind, or LLM-generated scores.
@@ -68,6 +74,7 @@ The visible-but-locked second machine tests Hume's *delicacy*: one of two clips 
 defect (a buried wrong note, pitch drift, timing smear) — objectively correct answers, confidence
 taps, and therefore calibration curves and Brier scores: Hume's "good sense" as a computed number.
 Item-response theory over the accumulating response dataset turns the pool into a calibrated
-instrument. [CHART: IRT item characteristic curves, delicacy battery]
+instrument. [CHART: IRT item characteristic curves — waits for the delicacy battery; deliberately
+NOT wired to a script yet, no instrument = no chart (N3)]
 
 Take the test: **[URL at launch]** · Engine + item schema: **[repo URL when published]**

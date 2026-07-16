@@ -1,0 +1,15 @@
+{
+  "_comment": "Pool v3 item metadata for the .mjs analysis scripts (they can't import items.ts). Presentation order. DRIFT-PROOFED: scripts/analysis/pool-json.test.ts fails if this file disagrees with src/content/bias/items.ts — regenerate on any pool bump.",
+  "poolVersion": 3,
+  "scaleMax": 10,
+  "items": [
+    { "id": "pb1", "labelDirection": "down", "labelIsTrue": false },
+    { "id": "pb7", "labelDirection": "up", "labelIsTrue": false },
+    { "id": "pb3", "labelDirection": "down", "labelIsTrue": true },
+    { "id": "pb6", "labelDirection": "up", "labelIsTrue": false },
+    { "id": "pb2", "labelDirection": "up", "labelIsTrue": true },
+    { "id": "pb8", "labelDirection": "down", "labelIsTrue": true },
+    { "id": "pb5", "labelDirection": "up", "labelIsTrue": true },
+    { "id": "pb4", "labelDirection": "up", "labelIsTrue": true }
+  ]
+}

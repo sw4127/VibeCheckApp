@@ -21,6 +21,19 @@ a provisional three-way verdict. A strict codec round-trips both rating passes t
 CSV, enabling **stateless, unforgeable share links**: any consumer recomputes from raw ratings, so
 no URL can display a number the engine wouldn't conclude.
 
+## How the pieces fit
+
+```mermaid
+flowchart LR
+    B["blind ratings<br/>(pass 1, no labels)"] --> E
+    L["labeled ratings<br/>(pass 2, some labels false)"] --> E
+    P["item pool spec<br/>(labelDirection · labelIsTrue)"] --> E
+    E["computeBiasResult<br/>(deterministic, zero deps)"] --> R["BiasResult<br/>pct · swappedPct · swayShare<br/>edgeCount · verdict · receipts"]
+    B & L --> C["strict codec<br/>encode/decodeBiasRatings"]
+    C -->|"URL-safe CSVs"| S["stateless share link"]
+    S -->|"recompute from raw ratings<br/>(unforgeable by construction)"| E
+```
+
 ## API
 
 ```ts
