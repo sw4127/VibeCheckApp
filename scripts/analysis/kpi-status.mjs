@@ -23,20 +23,17 @@ const FUNNEL = [
   "bias_result_view",
 ];
 
-const count = async (event, since = null) => {
-  const window = since ? `and timestamp > now() - interval ${since} day` : "";
-  const { results } = await hogql(
-    `select count() from events where event = '${event}' ${window} ${EXCLUDE_DEV}`,
-  );
-  return Number(results?.[0]?.[0] ?? 0);
-};
-
 const pad = (s, n) => String(s).padEnd(n);
 
-const rows = [];
-for (const ev of FUNNEL) {
-  rows.push([ev, await count(ev), await count(ev, 7)]);
-}
+// One round-trip for the whole table (was 16 sequential queries — red-teamed
+// 2026-07-17): totals + 7-day window via countIf, grouped by event.
+const inList = FUNNEL.map((e) => `'${e}'`).join(", ");
+const { results } = await hogql(
+  `select event, count(), countIf(timestamp > now() - interval 7 day)
+   from events where event in (${inList}) ${EXCLUDE_DEV} group by event`,
+);
+const byEvent = new Map(results.map((r) => [r[0], [Number(r[1]), Number(r[2])]]));
+const rows = FUNNEL.map((ev) => [ev, ...(byEvent.get(ev) ?? [0, 0])]);
 const completed = rows.find((r) => r[0] === "bias_result")[1];
 
 console.log(`\nKPI STATUS — ${new Date().toISOString().slice(0, 10)} (dev sessions excluded)\n`);

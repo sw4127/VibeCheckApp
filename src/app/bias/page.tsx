@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     title: "The Prestige Test — do you hear the music, or the name?",
     description:
       "Rate eight clips with just your ears. Rate them again with the names attached. The gap is your number.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
   },
 };
 

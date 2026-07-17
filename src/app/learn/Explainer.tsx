@@ -18,7 +18,15 @@ export function explainerMetadata(page: LearnPage): Metadata {
     title: page.metaTitle,
     description: page.description,
     alternates: { canonical: `/learn/${page.slug}` },
-    openGraph: { title: page.metaTitle, description: page.description, type: "article" },
+    // images set EXPLICITLY: a page-level openGraph block without them
+    // suppresses the root opengraph-image default on nested segments
+    // (verified in prod 2026-07-17 — og:image came back empty).
+    openGraph: {
+      title: page.metaTitle,
+      description: page.description,
+      type: "article",
+      images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+    },
   };
 }
 

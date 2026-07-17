@@ -18,6 +18,7 @@ export const metadata: Metadata = {
     title: "Reading Room — The Taste Gym",
     description:
       "Hume's five criteria of taste, and the instruments that turn them into measured numbers.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
   },
 };
 

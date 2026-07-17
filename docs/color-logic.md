@@ -31,16 +31,14 @@ to product UI, share cards, OG images, and charts.
   from this one band. Legacy spaces (football bright / music dark-drift) predate the pivot and are
   demoted doors.
 
-**The PM finds the yellow unmotivated as presented** — verdict pending (see RT block,
-2026-07-17). Options on the table:
+**VERDICT (PM, 2026-07-17): option (b) — per-instrument hues under one system.**
 
-- **(a) Keep gold, rationale now on record** (this document) — zero rework.
-- **(b) Per-instrument hue under one system:** gold stays the Prestige Test's colour *by its
-  logic* (seduction is the subject); the delicacy battery gets a short-wave calm-focus blue
-  (PM's `#407AD8` family) *by the same logic* (fine discrimination wants suppressed excitement);
-  every future instrument must argue its hue the same way. Shared S/L system + near-black anchor
-  keep it one product. No rework now; the rule bites when Machine 02 is built.
-- **(c) Full recolor of the gym** to a calm-authority hue — touches FluidField palettes, buttons,
-  share card, OG image, charts (~half a session). Only if the gold argument fails outright.
+- **Prestige Test keeps gold** *by its logic*: seduction-by-label is the subject; the palette
+  sets the same trap the instrument does.
+- **Delicacy battery gets a short-wave calm-focus blue** (`#407AD8` family) *by the same logic*:
+  fine auditory discrimination wants suppressed excitement. This is the FIRST test of the rule —
+  the Machine 02 build must open with its colour argument.
+- **Every future instrument argues its hue the same way** before any UI ships. Shared
+  saturation/luminance system + the near-black anchor keep it one product.
 
-Until the verdict: no new colours without an entry here.
+No new colours without an entry here.

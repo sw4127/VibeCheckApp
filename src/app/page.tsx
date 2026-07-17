@@ -99,14 +99,14 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
             the whole line. */}
         <div className="mt-8 flex flex-col gap-2.5 text-sm">
           <Link href="/music/quiz" className="group text-muted transition-colors hover:text-white">
-            <span className="font-semibold transition-colors" style={{ color: "hsl(42 45% 52%)" }}>
+            <span className="font-semibold text-[hsl(42_45%_52%)] transition-colors group-hover:text-[hsl(42_80%_62%)]">
               Warm-up.
             </span>{" "}
             The original music-taste read.
           </Link>
           {/* The library (§3.C7) — crawlable path into the explainers (D5). */}
           <Link href="/learn" className="group text-muted transition-colors hover:text-white">
-            <span className="font-semibold transition-colors" style={{ color: "hsl(42 45% 52%)" }}>
+            <span className="font-semibold text-[hsl(42_45%_52%)] transition-colors group-hover:text-[hsl(42_80%_62%)]">
               Reading room.
             </span>{" "}
             Hume&apos;s five criteria, and how we measure them.
