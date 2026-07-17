@@ -20,24 +20,26 @@ export default function LearnLayout({ children }: { children: React.ReactNode })
           <p className="text-xs font-bold tracking-[0.4em]" style={{ color: GOLD }}>
             THE TASTE GYM
           </p>
+          {/* Nav = the same tracked-caps voice as the kicker (PM 2026-07-17:
+              no bare underline/arrow links — they read cheap). */}
           <Link
             href="/"
-            className="text-xs text-muted underline underline-offset-4 transition hover:text-white"
+            className="text-[0.65rem] font-bold tracking-[0.3em] text-muted transition hover:text-white"
           >
-            ← the gym floor
+            THE GYM FLOOR
           </Link>
         </div>
         {children}
         <p className="mt-14 text-[11px] text-muted/70">
-          <Link href="/learn" className="underline">
+          <Link href="/learn" className="transition hover:text-white">
             Reading room
           </Link>{" "}
           ·{" "}
-          <Link href="/bias" className="underline">
+          <Link href="/bias" className="transition hover:text-white">
             Take the Prestige Test
           </Link>{" "}
           ·{" "}
-          <Link href="/legal" className="underline">
+          <Link href="/legal" className="transition hover:text-white">
             Terms · Privacy
           </Link>
         </p>

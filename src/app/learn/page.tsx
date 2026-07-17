@@ -46,7 +46,7 @@ export default function LearnIndex() {
             href={`/learn/${p.slug}`}
             className="group rounded-2xl border border-white/10 bg-white/[0.03] p-4 transition hover:border-white/25"
           >
-            <p className="font-display text-lg font-semibold group-hover:underline group-hover:underline-offset-4">
+            <p className="font-display text-lg font-semibold transition-colors group-hover:text-[hsl(42_80%_62%)]">
               {p.title}
             </p>
             <p className="mt-0.5 text-sm text-muted">{p.teaser}</p>

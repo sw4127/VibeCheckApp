@@ -94,24 +94,27 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           </div>
         </div>
 
-        {/* Secondary door — the original music read (demoted, not buried). */}
-        <Link
-          href="/music/quiz"
-          className="mt-8 inline-block text-sm text-muted underline underline-offset-4 transition hover:text-white"
-        >
-          Warm-up instead: the original music-taste read →
-        </Link>
-
-        {/* The library (§3.C7) — crawlable path into the explainers (D5). */}
-        <Link
-          href="/learn"
-          className="mt-3 block text-sm text-muted underline underline-offset-4 transition hover:text-white"
-        >
-          Reading room: Hume&apos;s five criteria, and how we measure them →
-        </Link>
+        {/* Secondary doors — quiet rows, no bare underline/arrow links
+            (PM 2026-07-17): the lead-in word carries the accent, hover lifts
+            the whole line. */}
+        <div className="mt-8 flex flex-col gap-2.5 text-sm">
+          <Link href="/music/quiz" className="group text-muted transition-colors hover:text-white">
+            <span className="font-semibold transition-colors" style={{ color: "hsl(42 45% 52%)" }}>
+              Warm-up.
+            </span>{" "}
+            The original music-taste read.
+          </Link>
+          {/* The library (§3.C7) — crawlable path into the explainers (D5). */}
+          <Link href="/learn" className="group text-muted transition-colors hover:text-white">
+            <span className="font-semibold transition-colors" style={{ color: "hsl(42 45% 52%)" }}>
+              Reading room.
+            </span>{" "}
+            Hume&apos;s five criteria, and how we measure them.
+          </Link>
+        </div>
 
         <p className="mt-8 text-[11px] text-muted/70">
-          <Link href="/legal" className="underline">
+          <Link href="/legal" className="transition hover:text-white">
             Terms · Privacy
           </Link>
         </p>

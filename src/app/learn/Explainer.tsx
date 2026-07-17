@@ -42,7 +42,9 @@ export default function Explainer({
         {page.title}
       </h1>
 
-      <div className="mt-7 space-y-5 text-[15px] leading-relaxed text-neutral-300 [&_blockquote]:border-l-2 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-neutral-200 [&_strong]:font-semibold [&_strong]:text-white [&_a]:underline [&_a]:underline-offset-4">
+      {/* Prose links carry the accent colour instead of a bare underline
+          (PM 2026-07-17); the underline appears only as hover feedback. */}
+      <div className="mt-7 space-y-5 text-[15px] leading-relaxed text-neutral-300 [&_blockquote]:border-l-2 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-neutral-200 [&_strong]:font-semibold [&_strong]:text-white [&_a]:font-medium [&_a]:text-[hsl(42_60%_58%)] [&_a]:transition-colors [&_a:hover]:text-[hsl(42_80%_66%)] [&_a:hover]:underline [&_a:hover]:underline-offset-4">
         {children}
       </div>
 

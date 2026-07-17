@@ -39,6 +39,17 @@ Items under "Launch blockers" gate launch. Fast-follows fire on their named trig
 - **Instrument-refinement pass, incl. the edge-artifact headline fix (RT-5 option c).**
   TRIGGER: calibration-cohort data lands (memo §7).
 
+## Queued fixes (PM-ruled, must not be lost)
+
+- **ClipPlayer setState-in-render (RT-2b, 2026-07-17: fix in a dedicated session).**
+  `src/app/bias/ClipPlayer.tsx` `bank()` calls `onProgress()`/`onArmed()` INSIDE the
+  `setHeardMs` updater → React "cannot update BiasFlow while rendering ClipPlayer" console
+  error on every clip (reproduced 2026-07-16 QA). Flow works today (armedRef guards double-fire)
+  but it's a correctness bug under concurrent React. Fix: move parent callbacks out of the
+  updater (compute `next` first, or effect/after-commit); keep armedRef single-fire + RT-2b
+  min-listen semantics identical; verify one clip in dev (error gone, gate still unlocks),
+  then `npx vitest run`.
+
 ## Ops reminders
 
 - **D6 dataset durability:** raw responses live in PostHog free tier (≈1-year event retention)
