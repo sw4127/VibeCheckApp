@@ -13,20 +13,20 @@ serves as their own control. All scoring is deterministic code — no AI classif
 
 ## Core pages
 
-- [The Taste Gym (home)](/): what the gym is; the visible machines, open and locked
-- [The Prestige Test](/bias): the flagship instrument — takes about four minutes, free, no sign-up
-- [Reading room](/learn): all explainers — the five criteria, the instruments, the methodology
-- [What is the Prestige Test?](/learn/prestige-bias-test): the design, the sanctioned deception, the debrief
-- [Methodology](/learn/methodology): performance tasks, within-subject control, deterministic scoring, honest-norms policy
+- [The Taste Gym (home)](https://vibe-check-app-sepia.vercel.app/): what the gym is; the visible machines, open and locked
+- [The Prestige Test](https://vibe-check-app-sepia.vercel.app/bias): the flagship instrument — takes about four minutes, free, no sign-up
+- [Reading room](https://vibe-check-app-sepia.vercel.app/learn): all explainers — the five criteria, the instruments, the methodology
+- [What is the Prestige Test?](https://vibe-check-app-sepia.vercel.app/learn/prestige-bias-test): the design, the sanctioned deception, the debrief
+- [Methodology](https://vibe-check-app-sepia.vercel.app/learn/methodology): performance tasks, within-subject control, deterministic scoring, honest-norms policy
 
 ## Hume's five criteria (one explainer each)
 
-- [Delicacy](/learn/delicacy): the key-in-the-wine story; the planned Delicacy Trials (controlled audio degradations with objectively right answers)
-- [Practice](/learn/practice): why taste is trainable; retests and progression
-- [Comparison](/learn/comparison): Ogilby vs. Milton; breadth as measurable exposure
-- [Freedom from prejudice](/learn/freedom-from-prejudice): the criterion the Prestige Test measures
-- [Good sense](/learn/good-sense): calibration — confidence vs. accuracy, Brier scores
+- [Delicacy](https://vibe-check-app-sepia.vercel.app/learn/delicacy): the key-in-the-wine story; the planned Delicacy Trials (controlled audio degradations with objectively right answers)
+- [Practice](https://vibe-check-app-sepia.vercel.app/learn/practice): why taste is trainable; retests and progression
+- [Comparison](https://vibe-check-app-sepia.vercel.app/learn/comparison): Ogilby vs. Milton; breadth as measurable exposure
+- [Freedom from prejudice](https://vibe-check-app-sepia.vercel.app/learn/freedom-from-prejudice): the criterion the Prestige Test measures
+- [Good sense](https://vibe-check-app-sepia.vercel.app/learn/good-sense): calibration — confidence vs. accuracy, Brier scores
 
 ## Optional
 
-- [llms-full.txt](/llms-full.txt): the full product and methodology description in one file
+- [llms-full.txt](https://vibe-check-app-sepia.vercel.app/llms-full.txt): the full product and methodology description in one file

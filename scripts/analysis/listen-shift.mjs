@@ -56,14 +56,17 @@ if (demo) {
 }
 
 const W = 860, H = 420, PAD = 56, plotW = W - PAD * 2, plotH = H - PAD * 2 - 24;
-const maxSec = Math.max(21, ...points.map((p) => p.sec)) * 1.05;
-const x = (sec) => PAD + (sec / maxSec) * plotW;
+// Axis clamps at 30s: pool v3 windows run up to 120s (pb4), and one long
+// listen would squash the whole plot. Overflow lands on the "30s+" edge.
+const CLAMP_SEC = 30;
+const maxSec = CLAMP_SEC * 1.03;
+const x = (sec) => PAD + (Math.min(sec, CLAMP_SEC) / maxSec) * plotW;
 const y = (shift) => PAD + plotH - (shift / pool.scaleMax) * plotH;
 const dots = points
   .map((p) => `<circle cx="${x(p.sec).toFixed(1)}" cy="${y(p.shift).toFixed(1)}" r="3" fill="hsl(42 80% 62%)" opacity="0.35"/>`)
   .join("\n  ");
-const xTicks = [0, 5, 10, 15, 20]
-  .map((t) => `<text x="${x(t).toFixed(1)}" y="${PAD + plotH + 18}" fill="#8a8578" font-size="12" text-anchor="middle">${t}s</text>`)
+const xTicks = [0, 5, 10, 15, 20, 25, 30]
+  .map((t) => `<text x="${x(t).toFixed(1)}" y="${PAD + plotH + 18}" fill="#8a8578" font-size="12" text-anchor="middle">${t === CLAMP_SEC ? `${t}s+` : `${t}s`}</text>`)
   .join("\n  ");
 const yTicks = [0, 2, 4, 6, 8, 10]
   .map((t) => `<text x="${PAD - 10}" y="${(y(t) + 4).toFixed(1)}" fill="#8a8578" font-size="12" text-anchor="end">${t}</text>`)

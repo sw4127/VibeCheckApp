@@ -16,6 +16,7 @@ Sinks: Vercel Web Analytics (pageviews; custom events Pro-only) + **PostHog free
 | `bias_debrief_view` | mandatory debrief shown | — |
 | `bias_result_view` | `/bias/result` (own + shared links) | `pct`, `verdict` |
 | `bias_locked_tier_tap` | locked delicacy machine tapped | — |
+| `client_error` | route error boundary (site-wide, incl. the gym) | `digest`, `message`, `path` |
 
 Canonical funnel: `landing_view → bias_frame_view → bias_start → bias_blind_complete → bias_labeled_complete → bias_result → bias_debrief_view`.
 **E2E QA 2026-07-16:** full scripted local session — every event above fired in order (dev `[track]` log). **Prod wire verified 2026-07-16:** deployed bundle carries the PostHog key; `landing_view` capture observed returning HTTP 200 from `us.i.posthog.com`.

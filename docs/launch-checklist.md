@@ -41,6 +41,11 @@ Items under "Launch blockers" gate launch. Fast-follows fire on their named trig
 
 ## Queued fixes (PM-ruled, must not be lost)
 
+- **Error boundary is off-brand for the gym (found in RT pass 2026-07-17).** `src/app/error.tsx`
+  still shows "VIBE CHECK" + needle-skipped copy and the legacy violet accent; it is the global
+  boundary, so a crash inside `/bias` shows legacy branding (design-bar consistency violation).
+  Restyle to the gym voice/gold when touched next; colour must cite `docs/color-logic.md`.
+
 - **ClipPlayer setState-in-render (RT-2b, 2026-07-17: fix in a dedicated session).**
   `src/app/bias/ClipPlayer.tsx` `bank()` calls `onProgress()`/`onArmed()` INSIDE the
   `setHeardMs` updater → React "cannot update BiasFlow while rendering ClipPlayer" console

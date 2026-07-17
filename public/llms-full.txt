@@ -71,13 +71,13 @@ ad-tech cookies.
 
 ## Site map for citation
 
-- Home: /
-- The Prestige Test (take it): /bias
-- Reading room index: /learn
-- What is the Prestige Test?: /learn/prestige-bias-test
-- Delicacy: /learn/delicacy
-- Practice: /learn/practice
-- Comparison: /learn/comparison
-- Freedom from prejudice: /learn/freedom-from-prejudice
-- Good sense: /learn/good-sense
-- Methodology: /learn/methodology
+- Home: https://vibe-check-app-sepia.vercel.app/
+- The Prestige Test (take it): https://vibe-check-app-sepia.vercel.app/bias
+- Reading room index: https://vibe-check-app-sepia.vercel.app/learn
+- What is the Prestige Test?: https://vibe-check-app-sepia.vercel.app/learn/prestige-bias-test
+- Delicacy: https://vibe-check-app-sepia.vercel.app/learn/delicacy
+- Practice: https://vibe-check-app-sepia.vercel.app/learn/practice
+- Comparison: https://vibe-check-app-sepia.vercel.app/learn/comparison
+- Freedom from prejudice: https://vibe-check-app-sepia.vercel.app/learn/freedom-from-prejudice
+- Good sense: https://vibe-check-app-sepia.vercel.app/learn/good-sense
+- Methodology: https://vibe-check-app-sepia.vercel.app/learn/methodology
