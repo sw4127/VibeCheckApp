@@ -63,6 +63,16 @@ Items under "Launch blockers" gate launch. Fast-follows fire on their named trig
 
 ## Decisions ledger (paper trail)
 
+- **LAUNCH-FIRST SEQUENCING (PM, 2026-07-17, RT-2a):** post the Prestige Test **before** the
+  delicacy battery is built — target window **~1–2 weeks out (by ~2026-07-31)**; delicacy builds
+  in parallel and ships later as a second "new machine opens" beat. Rationale: Tier-2 needs
+  N≥300 by mid-Sep; the norming window shrinks weekly. The PM presses post; engineering owes
+  the finished post text + all assets before the window opens.
+- **ENGINE FLIP APPROVED (PM, 2026-07-17, RT-3a):** execute publication mechanics next session
+  (standalone repo, tests ported). **Condition of record: nothing goes public until the PM has
+  seen the final repo** — the approval covers the mechanics, the PM presses (or nods to) the
+  final visibility switch.
+
 - **RT-1…8 answered 2026-07-11** — authority: `docs/rt-answers-2026-07-11.md`. PM overrides of
   session defaults: RT-2→(b) 5s min-listen; RT-3→(c) homepage flip; RT-7→(b) pool-version now.
 - **Memo §9.7 RESOLVED via RT-3:** `/bias` = homepage flagship; music quiz = secondary door;

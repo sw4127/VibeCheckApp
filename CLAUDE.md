@@ -38,6 +38,18 @@ See **"Pivot of record (2026-07-11)"** above — the taste gym per memo D1–D6.
 - **Communication.** Keep explanations concise. If you're uncertain about a product or design decision, **ask me — do not guess.**
 - **Version control.** Use git from the start. Commit in small, working increments with clear messages so we can always roll back.
 
+### Standing task loop (owner-approved append 2026-07-17, RT-1a — applies to EVERY task, EVERY session)
+Follow all 7 steps; the PM reviews the git diff after every task, and nothing is "done" until steps 4–6 appear in the reply. If a session's work somehow skipped the loop, run steps 5–6 retroactively before closing.
+1. **NORTH STAR (start):** restate the core advantage in one line — *a measured, honest number about your taste that nothing else can give you* (recast 2026-07-11 with the pivot; carried by the shareable stat card and managed friction) — and say how this task serves it. If it doesn't, flag that before doing it.
+2. **PLAN + ALTERNATIVE:** propose your approach AND one different approach, and argue for the one you'd reject. Wait for PM approval — don't just defend your first instinct.
+3. **BUILD** the smallest slice.
+4. **PROVE IT (no self-report):** paste the actual test run, build output, or real generated outputs for 3 diverse inputs. "Should work" is not acceptable.
+5. **RED-TEAM YOURSELF:** as a hostile reviewer who assumes this is lazy and mediocre, list the 3 worst things about what you just built, then fix them.
+6. **CONFESSION:** list everything stubbed, mocked, hardcoded, skipped, or NOT verified. Hidden shortcuts are worse than admitted ones.
+7. **NORTH STAR (end):** did this measurably improve reading quality, shareability, or friction? If it only added gold-plating, say so and propose cutting it.
+
+Red-team asks surface per `docs/redteam-protocol.md` (the `== DECISIONS NEEDED ==` block); asks outside the block are deemed not asked.
+
 ## Safety & cost guardrails (important — I'm watching the budget)
 - **Never spend real money, deploy to production, incur paid third-party API usage, or run paid build minutes without my explicit approval.**
 - **Secrets live in `.env` and are git-ignored. Never hardcode or commit API keys.** I will paste keys myself when needed.

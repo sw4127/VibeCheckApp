@@ -21,7 +21,8 @@ is an outward-facing action that needs explicit owner approval.**
 
 ## Remaining at flip time (owner-approved publication session)
 
-- [ ] Owner approval recorded (this is the gate — nothing below happens before it).
+- [x] **Owner approval recorded 2026-07-17 (RT-3a):** mechanics approved for the next session —
+      standalone repo, tests ported, PM reviews the final repo BEFORE it turns public.
 - [ ] Decide repo shape: standalone repo (clean history, no app code) vs. monorepo-public.
       Standalone recommended: the app contains the item pool + swap fictions, which should NOT
       be public while the instrument is live (test integrity).
