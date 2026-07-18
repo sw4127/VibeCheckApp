@@ -8,15 +8,25 @@
  *  - placeholder items (pool not yet authored): a synthesized WebAudio triad
  *    seeded by clip index, badged as placeholder in the caption.
  *
+ * RING SEMANTICS (PM ruling 2026-07-19, two facts / two signals):
+ *  - The ring tracks FULL clip playback (0 → clip length). A full ring means
+ *    "the clip is over" — and only that.
+ *  - The min-listen threshold is a NOTCH on the ring at its true position.
+ *    Crossing it is a distinct state change: the notch lights up and the
+ *    rating scale unlocks with a visible transition. "You may rate now" is
+ *    never conflated with "the clip is finished" (the old ring filled at 5s
+ *    and falsely signalled completion).
+ *
  * MIN-LISTEN (RT-2b, PM decision 2026-07-11): the rating scale arms only
- * after min(5s, clip length) of ACTUAL playback has been heard, shown as a
- * progress ring filling around the button. Heard-time is accumulated from
- * real playback progress, never from wall-clock. Per-item listen duration is
- * reported upward regardless of the threshold (D6/N3 raw data).
+ * after min(5s, clip length) of ACTUAL playback has been heard. Heard-time
+ * is accumulated from real playback progress, never from wall-clock. Per-item
+ * listen duration is reported upward regardless of the threshold (D6/N3).
  *
  * PAUSE RESTARTS THE CLIP — ACCEPTED POLICY (rt-answers 2026-07-11,
  * reconfirmed item 1): full re-exposure standardizes the stimulus. Stopping
- * resets to 0:00 by design; heard-time already banked is not forfeited.
+ * resets to 0:00 by design (the ring resets with it — it shows playback
+ * position); heard-time already banked is not forfeited, and the armed
+ * state, once earned, persists.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -49,29 +59,42 @@ export default function ClipPlayer({
   /** Reports accumulated heard milliseconds (rate-time dataset capture). */
   onProgress: (heardMs: number) => void;
 }) {
+  const placeholder = isPlaceholderSrc(src);
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
   const [heardMs, setHeardMs] = useState(0);
-  const [thresholdMs, setThresholdMs] = useState(
-    isPlaceholderSrc(src) ? PLACEHOLDER_TONE_MS : MIN_LISTEN_MS,
+  /** Current playback position — what the ring renders. */
+  const [positionMs, setPositionMs] = useState(0);
+  /** Clip length; null until metadata arrives (ring stays empty till then). */
+  const [durationMs, setDurationMs] = useState<number | null>(
+    placeholder ? PLACEHOLDER_TONE_MS : null,
   );
+  const [thresholdMs, setThresholdMs] = useState(
+    placeholder ? PLACEHOLDER_TONE_MS : MIN_LISTEN_MS,
+  );
+  // Refs mirror state for the media-event/rAF callbacks (created once per
+  // element) so they never read a stale closure — and so banking heard-time
+  // performs its side effects HERE, in the event path, never inside a React
+  // state updater (the old setState-in-updater pattern tripped React's
+  // update-during-render warning).
+  const heardRef = useRef(0);
+  const thresholdRef = useRef(thresholdMs);
   const armedRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCtx = useRef<AudioContext | null>(null);
   const toneTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const toneStop = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const placeholder = isPlaceholderSrc(src);
 
   function bank(ms: number) {
-    setHeardMs((prev) => {
-      const next = Math.max(prev, Math.round(ms));
-      if (next !== prev) onProgress(next);
-      if (!armedRef.current && next >= thresholdMs) {
-        armedRef.current = true;
-        onArmed();
-      }
-      return next;
-    });
+    const next = Math.max(heardRef.current, Math.round(ms));
+    if (next === heardRef.current) return;
+    heardRef.current = next;
+    setHeardMs(next);
+    onProgress(next);
+    if (!armedRef.current && next >= thresholdRef.current) {
+      armedRef.current = true;
+      onArmed();
+    }
   }
 
   // The parent remounts this component per clip/pass (key=...), so state
@@ -91,6 +114,25 @@ export default function ClipPlayer({
     },
     [],
   );
+
+  // Smooth ring: while real audio plays, track the media clock per frame
+  // (ontimeupdate alone fires ~4×/s and makes the ring stutter).
+  useEffect(() => {
+    if (!playing || placeholder) return;
+    let raf = 0;
+    const tick = () => {
+      const el = audioRef.current;
+      if (el) {
+        const ms = el.currentTime * 1000;
+        setPositionMs(ms);
+        bank(ms);
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playing, placeholder]);
 
   function playTone() {
     if (playing) return; // triad is fixed-length; no stop control needed
@@ -116,10 +158,15 @@ export default function ClipPlayer({
     }
     setPlaying(true);
     const startedAt = Date.now();
-    // The tone has no media clock — tick heard-time while it sounds.
-    toneTimer.current = setInterval(() => bank(Date.now() - startedAt), 100);
+    // The tone has no media clock — tick position/heard-time while it sounds.
+    toneTimer.current = setInterval(() => {
+      const ms = Date.now() - startedAt;
+      setPositionMs(Math.min(ms, PLACEHOLDER_TONE_MS));
+      bank(ms);
+    }, 100);
     toneStop.current = setTimeout(() => {
       if (toneTimer.current) clearInterval(toneTimer.current);
+      setPositionMs(PLACEHOLDER_TONE_MS);
       bank(PLACEHOLDER_TONE_MS);
       setPlaying(false);
     }, PLACEHOLDER_TONE_MS);
@@ -132,15 +179,27 @@ export default function ClipPlayer({
       el.preload = "auto";
       el.onloadedmetadata = () => {
         if (el && Number.isFinite(el.duration) && el.duration > 0) {
-          setThresholdMs(Math.min(MIN_LISTEN_MS, Math.round(el.duration * 1000)));
+          const dur = Math.round(el.duration * 1000);
+          setDurationMs(dur);
+          const th = Math.min(MIN_LISTEN_MS, dur);
+          thresholdRef.current = th;
+          setThresholdMs(th);
         }
       };
-      // Heard-time = real media-clock progress, banked monotonically.
+      // Backup for the rAF loop: rAF does not fire at all in throttled or
+      // backgrounded tabs, but media events keep coming — so the ring must
+      // also advance from here (~4×/s; the 120ms CSS transition smooths it).
       el.ontimeupdate = () => {
-        if (el) bank(el.currentTime * 1000);
+        if (el) {
+          setPositionMs(el.currentTime * 1000);
+          bank(el.currentTime * 1000);
+        }
       };
       el.onended = () => {
-        if (el && Number.isFinite(el.duration)) bank(el.duration * 1000);
+        if (el && Number.isFinite(el.duration)) {
+          setPositionMs(el.duration * 1000);
+          bank(el.duration * 1000);
+        }
         setPlaying(false);
       };
       el.onerror = () => {
@@ -153,11 +212,19 @@ export default function ClipPlayer({
       // Accepted policy: stopping restarts the clip (full re-exposure).
       el.pause();
       el.currentTime = 0;
+      setPositionMs(0);
       setPlaying(false);
       return;
     }
     try {
       setFailed(false);
+      // A finished clip replays from the top (don't rely on the browser's
+      // rewind-on-ended behavior — observed inconsistent), and the ring
+      // resets with it: it shows playback position, nothing else.
+      if (el.ended || (Number.isFinite(el.duration) && el.currentTime >= el.duration)) {
+        el.currentTime = 0;
+        setPositionMs(0);
+      }
       await el.play(); // resolves only when playback actually starts
       setPlaying(true);
     } catch {
@@ -166,11 +233,24 @@ export default function ClipPlayer({
     }
   }
 
-  // Arming ring geometry (r=34 fits the 64px button with a 2px inset ring).
+  // Ring geometry (r=34 fits the 64px button with a 2px inset ring).
+  // Ring = full clip progress; notch = the arming threshold's true position.
   const R = 34;
   const CIRC = 2 * Math.PI * R;
-  const progress = Math.min(1, heardMs / thresholdMs);
-  const armed = progress >= 1;
+  const progress = durationMs ? Math.min(1, positionMs / durationMs) : 0;
+  const armed = heardMs >= thresholdMs;
+  const ended = durationMs !== null && positionMs >= durationMs;
+  // Notch angle on the unrotated circle (the svg group is -rotate-90, so 0
+  // rad = 12 o'clock visually). Hidden when arming coincides with clip end.
+  const notchFrac = durationMs ? thresholdMs / durationMs : null;
+  const showNotch = notchFrac !== null && notchFrac < 0.999;
+  const notchAngle = (notchFrac ?? 0) * 2 * Math.PI;
+  const notch = (rIn: number, rOut: number) => ({
+    x1: 36 + Math.cos(notchAngle) * rIn,
+    y1: 36 + Math.sin(notchAngle) * rIn,
+    x2: 36 + Math.cos(notchAngle) * rOut,
+    y2: 36 + Math.sin(notchAngle) * rOut,
+  });
 
   return (
     <div className="mt-8 flex items-center gap-4">
@@ -187,8 +267,23 @@ export default function ClipPlayer({
             strokeLinecap="round"
             strokeDasharray={CIRC}
             strokeDashoffset={CIRC * (1 - progress)}
-            style={{ transition: "stroke-dashoffset 150ms linear", filter: armed ? `drop-shadow(0 0 6px ${GOLD_GLOW})` : undefined }}
+            style={{
+              transition: "stroke-dashoffset 120ms linear",
+              filter: ended ? `drop-shadow(0 0 6px ${GOLD_GLOW})` : undefined,
+            }}
           />
+          {showNotch ? (
+            <line
+              {...notch(R - 5, R + 5)}
+              stroke={armed ? GOLD : "rgba(255,255,255,0.35)"}
+              strokeWidth={armed ? 3 : 2}
+              strokeLinecap="round"
+              style={{
+                transition: "stroke 300ms ease, stroke-width 300ms ease",
+                filter: armed ? `drop-shadow(0 0 5px ${GOLD_GLOW})` : undefined,
+              }}
+            />
+          ) : null}
         </svg>
         <button
           type="button"
