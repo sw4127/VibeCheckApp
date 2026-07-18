@@ -20,12 +20,13 @@ describe(`pool-v${BIAS_POOL_VERSION}.json mirrors items.ts`, () => {
     expect(json.scaleMax).toBe(BIAS_SCALE_MAX);
   });
 
-  it("matches item ids, order, directions, and swap flags", () => {
+  it("matches item ids, order, directions, swap flags, and control flags", () => {
     expect(json.items).toEqual(
       BIAS_CLIPS.map((c) => ({
         id: c.id,
         labelDirection: c.labelDirection,
         labelIsTrue: c.labelIsTrue,
+        ...(c.isControl ? { isControl: true } : {}),
       })),
     );
   });

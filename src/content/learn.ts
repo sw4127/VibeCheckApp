@@ -33,12 +33,12 @@ export const LEARN_PAGES: LearnPage[] = [
     title: "What is the Prestige Test?",
     metaTitle: "What is the Prestige Test? — The Taste Gym",
     description:
-      "Eight clips, rated twice — once blind, once with names attached. Some names are deliberately false. The gap between your two ratings is your prestige-bias number.",
+      "Ten clips, rated twice — once blind, once with names attached. Some names are deliberately false. The gap between your two ratings is your prestige-bias number.",
     teaser: "The flagship machine: how far can a famous name move your ratings?",
     faq: [
       {
         q: "How does the Prestige Test work?",
-        a: "You rate eight short music clips blind, then rate the same eight clips again with artist names and reputations attached. Three of the eight labels are deliberately swapped. Your score is computed from how far your ratings moved toward the labels — a measured gap, not a self-report.",
+        a: "You rate ten short music clips blind, then rate the same ten clips again — eight with artist names and reputations attached, two deliberately left unlabeled as drift controls. Three of the eight labels are deliberately swapped. Your score is computed from how far your ratings moved toward the labels, corrected by your measured drift on the unlabeled controls — a measured gap, not a self-report.",
       },
       {
         q: "Why does the test lie about some labels?",

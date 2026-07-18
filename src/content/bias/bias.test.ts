@@ -9,34 +9,60 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { BIAS_CLIPS, BIAS_POOL_VERSION } from "./items";
 
+/** The sway contract below governs SCORED items; controls have their own. */
+const SCORED = BIAS_CLIPS.filter((c) => !c.isControl);
+const CONTROLS = BIAS_CLIPS.filter((c) => c.isControl);
+
 describe("prestige-bias item pool design constraints", () => {
-  it("has at least 8 items with unique ids", () => {
-    expect(BIAS_CLIPS.length).toBeGreaterThanOrEqual(8);
+  it("has at least 8 scored items with unique ids", () => {
+    expect(SCORED.length).toBeGreaterThanOrEqual(8);
     expect(new Set(BIAS_CLIPS.map((c) => c.id)).size).toBe(BIAS_CLIPS.length);
   });
 
   it("has 2–3 swapped labels (the debrief must have something to disclose)", () => {
-    const swapped = BIAS_CLIPS.filter((c) => !c.labelIsTrue);
+    const swapped = SCORED.filter((c) => !c.labelIsTrue);
     expect(swapped.length).toBeGreaterThanOrEqual(2);
     expect(swapped.length).toBeLessThanOrEqual(3);
   });
 
   it("balances label directions so sway ≠ generic second-pass drift", () => {
-    const up = BIAS_CLIPS.filter((c) => c.labelDirection === "up").length;
-    const down = BIAS_CLIPS.length - up;
+    const up = SCORED.filter((c) => c.labelDirection === "up").length;
+    const down = SCORED.length - up;
     expect(Math.abs(up - down)).toBeLessThanOrEqual(2);
   });
 
   it("swaps exist in both directions", () => {
-    const swapped = BIAS_CLIPS.filter((c) => !c.labelIsTrue);
+    const swapped = SCORED.filter((c) => !c.labelIsTrue);
     expect(swapped.some((c) => c.labelDirection === "up")).toBe(true);
     expect(swapped.some((c) => c.labelDirection === "down")).toBe(true);
   });
 
   it("truthful items show the true artist; swapped items must not", () => {
-    for (const c of BIAS_CLIPS) {
+    for (const c of SCORED) {
       if (c.labelIsTrue) expect(c.shownArtist).toBe(c.trueArtist);
       else expect(c.shownArtist).not.toBe(c.trueArtist);
+    }
+  });
+
+  // v1.1 controls (instrument-defenses §hardening, PM RT-1a 2026-07-19).
+  it("has 1–2 control items — rated twice, labeled never", () => {
+    expect(CONTROLS.length).toBeGreaterThanOrEqual(1);
+    expect(CONTROLS.length).toBeLessThanOrEqual(2);
+  });
+
+  it("controls show nothing: empty shown fields, nothing false to confess", () => {
+    for (const c of CONTROLS) {
+      expect(c.shownArtist).toBe("");
+      expect(c.shownBlurb).toBe("");
+      // labelIsTrue must be true so no swap machinery can ever pick one up.
+      expect(c.labelIsTrue).toBe(true);
+    }
+  });
+
+  it("controls sit apart from each other (drift sampled at distinct positions)", () => {
+    const positions = BIAS_CLIPS.map((c, i) => (c.isControl ? i : -1)).filter((i) => i >= 0);
+    for (let i = 1; i < positions.length; i++) {
+      expect(positions[i] - positions[i - 1]).toBeGreaterThan(1);
     }
   });
 

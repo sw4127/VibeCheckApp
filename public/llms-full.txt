@@ -18,13 +18,16 @@ delicacy battery — selling cultivation, not the reading.
 
 The Prestige Test measures Hume's "freedom from prejudice" criterion as a number.
 
-Design: a within-subject experiment taking about four minutes. The user rates eight short music
-clips blind (no labels), then rates the same eight clips again with artist names and prestige
-framing attached. Three of the eight labels are deliberately false — a modest work presented with
-borrowed acclaim, or a distinguished one presented as unknown. Because the user rates the same
-audio twice, they serve as their own control: the component of rating movement that tracks the
-labels (including the false ones) can only be explained by prestige, not by the music. The
-headline result is the share of rating movement that flowed toward the labels.
+Design: a within-subject experiment taking about five minutes. The user rates ten short music
+clips blind (no labels), then rates the same ten clips again — eight with artist names and
+prestige framing attached, two deliberately unlabeled in both passes (drift controls). Three of
+the eight labels are deliberately false — a modest work presented with borrowed acclaim, or a
+distinguished one presented as unknown. Because the user rates the same audio twice, they serve
+as their own control: the component of rating movement that tracks the labels (including the
+false ones) can only be explained by prestige, not by the music. The unlabeled control clips
+measure each user's plain second-pass drift (memory, familiarity, regression), and the headline
+subtracts the residual that drift would leave in the sway statistic. The headline result is the
+drift-corrected share of rating movement that flowed toward the labels.
 
 The deception is disclosed: the test ends with a mandatory debrief screen that names every swapped
 label, gives the true attribution, and shows what the user's ratings did under each false name.

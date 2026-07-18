@@ -14,7 +14,7 @@ serves as their own control. All scoring is deterministic code — no AI classif
 ## Core pages
 
 - [The Taste Gym (home)](https://vibe-check-app-sepia.vercel.app/): what the gym is; the visible machines, open and locked
-- [The Prestige Test](https://vibe-check-app-sepia.vercel.app/bias): the flagship instrument — takes about four minutes, free, no sign-up
+- [The Prestige Test](https://vibe-check-app-sepia.vercel.app/bias): the flagship instrument — takes about five minutes, free, no sign-up
 - [Reading room](https://vibe-check-app-sepia.vercel.app/learn): all explainers — the five criteria, the instruments, the methodology
 - [What is the Prestige Test?](https://vibe-check-app-sepia.vercel.app/learn/prestige-bias-test): the design, the sanctioned deception, the debrief
 - [Methodology](https://vibe-check-app-sepia.vercel.app/learn/methodology): performance tasks, within-subject control, deterministic scoring, honest-norms policy

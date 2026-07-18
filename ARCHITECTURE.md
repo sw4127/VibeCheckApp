@@ -1,8 +1,9 @@
 # Architecture — The Taste Gym
 
 A web instrument that **measures taste** against David Hume's *Of the Standard of Taste* (1757),
-starting with the Prestige-Bias Test: rate eight clips blind, rate them again with names attached,
-and the gap — computed deterministically from your own taps — is your number.
+starting with the Prestige-Bias Test: rate ten clips blind, rate them again with names attached
+(two stay unlabeled as drift controls), and the gap — computed deterministically from your own
+taps, corrected by your own control drift — is your number.
 
 Product decisions of record: `restructuring_decision_memo_2026-07-11.md` (D1–D6, N1–N3) →
 `docs/rt-answers-2026-07-11.md` → `docs/launch-checklist.md`.
@@ -33,11 +34,13 @@ src/engine/            Pure deterministic instruments (no content, no I/O)
   hash.ts, score.ts…   Cache keying + the legacy quiz engine (shared primitives)
 
 src/content/bias/      The pool of record
-  items.ts             8 clips + labels; POOL_VERSION (bump on ANY pool change)
+  items.ts             8 labeled clips + 2 unlabeled controls; POOL_VERSION
+                       (bump on ANY pool change)
   manifest.json        Sources, SHA-256s, license snapshots, PM rulings, windows
   licenses/            Captured license-proof pages (CI fails if one is missing)
-  bias.test.ts         The pool CONTRACT: ≥8 items, 2–3 swaps both directions,
-                       direction balance, files exist, license gates
+  bias.test.ts         The pool CONTRACT: ≥8 scored items, 2–3 swaps both
+                       directions, direction balance, 1–2 unlabeled controls,
+                       files exist, license gates
 
 src/app/bias/          The 5-beat flow: Hume frame → blind → bridge → labeled →
                        reveal → MANDATORY debrief (swap disclosure + attributions)

@@ -14,7 +14,7 @@ import { worldCup } from "@/content/world-cup";
 export const metadata: Metadata = {
   title: "The Taste Gym — do you hear the music, or the name?",
   description:
-    "Your taste has a number. The Prestige Test measures how far a famous name can move your ratings. Eight clips, rated twice — the gap is your number.",
+    "Your taste has a number. The Prestige Test measures how far a famous name can move your ratings. Ten clips, rated twice — the gap is your number.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "The Taste Gym — do you hear the music, or the name?",
@@ -66,7 +66,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         <p className="mt-5 text-base leading-relaxed text-muted">
           Not a personality. Not a vibe. A measured number — how far a famous name can push your
           ratings before your ears object. Hume called it prejudice in 1757.{" "}
-          <span className="text-foreground">We measure yours in four minutes.</span>
+          <span className="text-foreground">We measure yours in five minutes.</span>
         </p>
 
         <Link
@@ -76,7 +76,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         >
           Take the Prestige Test
         </Link>
-        <p className="mt-4 text-xs text-muted">Free · ~4 minutes · no sign-up · headphones help</p>
+        <p className="mt-4 text-xs text-muted">Free · ~5 minutes · no sign-up · headphones help</p>
 
         {/* The gym floor — every machine visible, locked ones included (D3). */}
         <div className="mt-10 flex flex-col gap-3">

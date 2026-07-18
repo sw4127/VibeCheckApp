@@ -26,7 +26,10 @@ export default function Page() {
         within-subject: your labeled ratings are compared to <em>your</em> blind ratings, your
         retest to your baseline. This removes the need for an external ground truth about which
         music is good — the instrument never has to take a side in that argument to measure your
-        movement within it.
+        movement within it. The Prestige Test additionally carries unlabeled control clips, rated
+        in both passes and labeled in neither: they measure each user&apos;s plain second-pass
+        drift (memory, familiarity, regression), and the headline score subtracts the residual
+        that drift would leave in it.
       </p>
       <p>
         <strong>3. Deterministic scoring, in code.</strong> Every number is computed by a scoring

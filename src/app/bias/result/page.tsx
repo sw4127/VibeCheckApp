@@ -50,7 +50,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
   const data = resultFrom(await searchParams);
   if (!data) return { title: "The Prestige Test" };
   const title = `${data.result.pct > 0 ? "+" : ""}${data.result.pct}% label-driven — The Prestige Test`;
-  const description = "Rate eight clips blind, then with the names attached. The gap is your number.";
+  const description = "Rate ten clips blind, then with the names attached. The gap is your number.";
   const og = `${baseUrl()}${cardUrl("og", data.b, data.l)}`;
   return {
     title,

@@ -21,7 +21,8 @@ const arg = (k) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : nu
 const demo = args.includes("--demo");
 const out = arg("--out") ?? "swapped-shift.svg";
 
-const pool = JSON.parse(readFileSync(join(HERE, "pool-v3.json"), "utf8"));
+// Current pool by default; --pool <file> renders historical versions.
+const pool = JSON.parse(readFileSync(arg("--pool") ?? join(HERE, "pool-v4.json"), "utf8"));
 
 // shifts[itemClass] = flat array of per-item shift-toward-label values.
 const shifts = { swapped: [], truthful: [] };
@@ -47,6 +48,7 @@ if (demo) {
     const labeled = String(row.labeled).split(",").map(Number);
     if (blind.length !== pool.items.length || labeled.length !== pool.items.length) { skipped++; continue; }
     pool.items.forEach((item, i) => {
+      if (item.isControl) return; // controls carry no label — neither class
       if (!Number.isFinite(blind[i]) || !Number.isFinite(labeled[i])) return;
       const toward = item.labelDirection === "up" ? labeled[i] - blind[i] : blind[i] - labeled[i];
       shifts[item.labelIsTrue ? "truthful" : "swapped"].push(toward);

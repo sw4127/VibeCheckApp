@@ -13,6 +13,15 @@
  *   measured sway UNDERSTATES the true effect. Copy may say "at least".
  * - Clips rated at the scale edge blind (no headroom toward the label) are
  *   counted in `edgeCount` so the UI can disclose the ceiling effect.
+ * - v1.1 control items (instrument-defenses §hardening, PM ruling RT-1a/RT-2a
+ *   2026-07-19): items with `isControl` are rated in BOTH passes but never
+ *   labeled. They measure per-user second-pass drift (memory, familiarity,
+ *   regression), and the headline subtracts the RESIDUAL that drift leaves in
+ *   the sway stat. Uniform drift mostly cancels because label directions are
+ *   balance-enforced; what survives is d̄·(nUp−nDown)/n, and that is exactly
+ *   what gets subtracted — never the full d̄ (full subtraction would be wrong
+ *   in both directions: it under-reports sway for upward drifters and
+ *   inflates it for downward drifters).
  */
 
 import { fnv1a } from "./hash";
@@ -40,6 +49,13 @@ export interface BiasItemSpec {
   labelDirection: "up" | "down";
   /** False = the label is deliberately swapped; the debrief MUST disclose it. */
   labelIsTrue: boolean;
+  /**
+   * Control item: rated in both passes, labeled in NEITHER. Excluded from
+   * every sway stat; its second-pass drift is the per-user baseline the
+   * headline is corrected by. For controls `labelDirection` is ignored and
+   * `labelIsTrue` must be true (nothing shown, so nothing can be false).
+   */
+  isControl?: boolean;
 }
 
 /** clipId -> integer rating in [BIAS_SCALE_MIN, BIAS_SCALE_MAX]. */
@@ -61,15 +77,40 @@ export interface BiasReceipt {
 
 export type BiasVerdict = "swayed" | "steady" | "contrarian";
 
+/** Per-control receipt: raw second-pass drift, no label anywhere in sight. */
+export interface BiasControlReceipt {
+  id: string;
+  first: number;
+  second: number;
+  /** second - first (signed, in points) — pure re-exposure drift. */
+  drift: number;
+}
+
 /** The fully computed, deterministic result. UI/card render this verbatim. */
 export interface BiasResult {
   /** Stable hash of (instrument id + both rating passes) — the cache key. */
   hash: string;
-  /** Mean signed shift toward the label, in points (-SPAN..SPAN). */
+  /** RAW mean signed shift toward the label over scored items, in points. */
   meanShiftPts: number;
-  /** Headline: meanShiftPts as a signed % of the scale, rounded. */
+  /** meanShiftPts as a signed % of the scale, rounded — the UNCORRECTED stat. */
+  rawPct: number;
+  /**
+   * THE HEADLINE: drift-corrected mean shift as a signed % of the scale.
+   * Equals rawPct when the item set has no controls. Correction (RT-2a):
+   *   adjusted = raw − controlDriftPts · (nUp − nDown) / nScored
+   * i.e. only the residual that uniform drift leaves after the direction
+   * balance has cancelled most of it. Verdict is computed from THIS.
+   */
   pct: number;
+  /** meanShiftPts after the drift correction, in points. */
+  adjustedMeanShiftPts: number;
+  /** Mean signed second-pass drift on control items; null without controls. */
+  controlDriftPts: number | null;
+  controlCount: number;
+  /** Control receipts for the debrief's full-disclosure list (N3). */
+  controlReceipts: BiasControlReceipt[];
   verdict: BiasVerdict;
+  /** Scored (non-control) items only — controls carry no label to shift toward. */
   receipts: BiasReceipt[];
   /** Items whose shown label was false — the mandatory-debrief list. */
   swappedIds: string[];
@@ -154,21 +195,49 @@ export function computeBiasResult(
   for (const key of [...Object.keys(blind), ...Object.keys(labeled)]) {
     if (!ids.has(key)) throw new Error(`bias: rating for unknown item "${key}"`);
   }
+  const scored = items.filter((i) => !i.isControl);
+  const controls = items.filter((i) => i.isControl);
+  if (scored.length === 0) throw new Error("bias: no scored (non-control) items");
 
-  const receipts: BiasReceipt[] = items.map((item) => {
+  // Every item — control or not — must carry a valid rating in both passes.
+  for (const item of items) {
+    assertRating("blind", item.id, blind[item.id]);
+    assertRating("labeled", item.id, labeled[item.id]);
+  }
+
+  const receipts: BiasReceipt[] = scored.map((item) => {
     const b = blind[item.id];
     const l = labeled[item.id];
-    assertRating("blind", item.id, b);
-    assertRating("labeled", item.id, l);
     const shift = l - b;
     const towardLabel = item.labelDirection === "up" ? shift : -shift;
     const headroom = item.labelDirection === "up" ? BIAS_SCALE_MAX - b : b - BIAS_SCALE_MIN;
     return { id: item.id, blind: b, labeled: l, shift, towardLabel, headroom, labelIsTrue: item.labelIsTrue };
   });
 
+  const controlReceipts: BiasControlReceipt[] = controls.map((item) => ({
+    id: item.id,
+    first: blind[item.id],
+    second: labeled[item.id],
+    drift: labeled[item.id] - blind[item.id],
+  }));
+
   const mean = (rs: BiasReceipt[]) => rs.reduce((sum, r) => sum + r.towardLabel, 0) / rs.length;
   const meanShiftPts = mean(receipts);
-  const pct = Math.round((meanShiftPts / SPAN) * 100);
+
+  // RT-2a residual correction: uniform drift d̄ contributes +d̄ toward-label on
+  // "up" items and −d̄ on "down" items, so its footprint in the mean is
+  // d̄·(nUp−nDown)/n — that residual, and only that, is subtracted.
+  const controlDriftPts =
+    controlReceipts.length > 0
+      ? controlReceipts.reduce((s, r) => s + r.drift, 0) / controlReceipts.length
+      : null;
+  const nUp = scored.filter((i) => i.labelDirection === "up").length;
+  const adjustment =
+    controlDriftPts === null ? 0 : (controlDriftPts * (nUp - (scored.length - nUp))) / scored.length;
+  const adjustedMeanShiftPts = meanShiftPts - adjustment;
+
+  const rawPct = Math.round((meanShiftPts / SPAN) * 100);
+  const pct = Math.round((adjustedMeanShiftPts / SPAN) * 100);
   const verdict: BiasVerdict =
     pct >= BIAS_SWAYED_AT ? "swayed" : pct <= BIAS_CONTRARIAN_AT ? "contrarian" : "steady";
 
@@ -179,10 +248,15 @@ export function computeBiasResult(
   return {
     hash: fnv1a(canonicalBiasInput(instrumentId, items, blind, labeled)),
     meanShiftPts,
+    rawPct,
     pct,
+    adjustedMeanShiftPts,
+    controlDriftPts,
+    controlCount: controls.length,
+    controlReceipts,
     verdict,
     receipts,
-    swappedIds: items.filter((i) => !i.labelIsTrue).map((i) => i.id),
+    swappedIds: scored.filter((i) => !i.labelIsTrue).map((i) => i.id),
     edgeCount: receipts.length - movable.length,
     swappedMeanShiftPts,
     swappedPct: swappedMeanShiftPts === null ? null : Math.round((swappedMeanShiftPts / SPAN) * 100),

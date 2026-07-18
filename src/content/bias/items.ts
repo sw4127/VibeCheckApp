@@ -1,5 +1,6 @@
 /**
- * Prestige-Bias Test item pool — POOL OF RECORD v2 (wired 2026-07-12).
+ * Prestige-Bias Test item pool — POOL OF RECORD (v2 wired 2026-07-12;
+ * v4 adds the two unlabeled control items b3/b1, PM ruling RT-1a 2026-07-19).
  *
  * Authority chain: docs/bias-pool-candidates.md (items + blurb drafts) →
  * docs/bias-pool-gatekeeping.md (per-item checks) → src/content/bias/
@@ -33,7 +34,7 @@ export const BIAS_INSTRUMENT_ID = "prestige-bias-v1";
  * permanently interpretable against the exact pool that produced them (D6).
  * Old-version URLs die gracefully (redirect to /bias), never lie.
  */
-export const BIAS_POOL_VERSION = 3; // v3: pb4 re-windowed 30s->120s (PM veto: spoken credits audible in the 30s cut)
+export const BIAS_POOL_VERSION = 4; // v4: +2 unlabeled control items b3/b1 (v1.1 hardening, PM ruling RT-1a 2026-07-19)
 
 /** One playable, labelable clip. Extends the engine spec with presentation. */
 export interface BiasClip extends BiasItemSpec {
@@ -86,6 +87,25 @@ export const BIAS_CLIPS: BiasClip[] = [
     attribution:
       "“Nocturne Op. 15 No. 3 in G minor” — F. Chopin, perf. Musopen Complete Chopin project · archive.org/details/musopen-chopin-complete-works-flac · CC0 · excerpt (trimmed + loudness-normalized)",
     labelDirection: "down",
+    labelIsTrue: true,
+  },
+  {
+    // CONTROL (v1.1, instrument-defenses §hardening): rated in both passes,
+    // labeled in neither — measures pure re-exposure drift. shownArtist/
+    // shownBlurb are intentionally empty (nothing is ever shown); the UI
+    // renders a neutral no-label frame instead. Clip: backup B3, PM
+    // ear-confirmed 2026-07-12 (own start 7s). labelDirection is ignored by
+    // the engine for controls.
+    id: "b3",
+    isControl: true,
+    audioSrc: "/audio/bias/b3.mp3",
+    trueArtist: "Komiku",
+    shownArtist: "",
+    shownBlurb: "",
+    license: "CC0",
+    attribution:
+      "“The Wind” (Tale on the Late) — Komiku · archive.org/details/Komiku-TaleOnTheLate · CC0 · excerpt (trimmed + loudness-normalized)",
+    labelDirection: "up",
     labelIsTrue: true,
   },
   {
@@ -145,6 +165,23 @@ export const BIAS_CLIPS: BiasClip[] = [
     license: "Public Domain (Musopen Kickstarter release)",
     attribution:
       "“String Quartet Op. 18 No. 6 — IV. La Malinconia (Adagio)” — L. van Beethoven, perf. Musopen Kickstarter ensemble · archive.org/details/MusopenCollectionAsFlac · Public Domain · excerpt (trimmed + loudness-normalized)",
+    labelDirection: "up",
+    labelIsTrue: true,
+  },
+  {
+    // CONTROL (v1.1): see b3 above. Clip: backup B1, previewed in the PM ear
+    // pass of 2026-07-12 (no veto). Piano control balances b3's modern
+    // instrumental so the drift baseline samples both of the pool's
+    // sound-worlds.
+    id: "b1",
+    isControl: true,
+    audioSrc: "/audio/bias/b1.mp3",
+    trueArtist: "J.S. Bach — Kimiko Ishizaka, piano",
+    shownArtist: "",
+    shownBlurb: "",
+    license: "CC0",
+    attribution:
+      "“Well-Tempered Clavier Bk 1 — Prelude No. 4 in C-sharp minor, BWV 849” — J.S. Bach, perf. Kimiko Ishizaka · archive.org/details/bach-well-tempered-clavier-book-1 · CC0 · excerpt (trimmed + loudness-normalized)",
     labelDirection: "up",
     labelIsTrue: true,
   },

@@ -104,6 +104,8 @@ export default function BiasFlow() {
         listen_b: BIAS_CLIPS.map((c) => listenMs.current.blind[c.id] ?? 0).join(","),
         listen_l: BIAS_CLIPS.map((c) => listenMs.current.labeled[c.id] ?? 0).join(","),
         pct: r.pct,
+        rawPct: r.rawPct,
+        controlDrift: r.controlDriftPts,
         swappedPct: r.swappedPct,
         swayShare: r.swayShare,
         edges: r.edgeCount,
@@ -135,7 +137,7 @@ export default function BiasFlow() {
             a famous name can make a mediocre thing sound profound. He called it prejudice.
           </p>
           <p className="mt-3 text-base leading-relaxed text-muted">
-            Eight clips. You rate them twice: once with nothing but your ears, once with the names and
+            Ten clips. You rate them twice: once with nothing but your ears, once with the names and
             the acclaim attached. <span className="text-foreground">The gap is your number.</span>
           </p>
           <button
@@ -149,7 +151,7 @@ export default function BiasFlow() {
           >
             Start the blind pass
           </button>
-          <p className="mt-4 text-xs text-muted">~4 minutes. No sign-up. Headphones help.</p>
+          <p className="mt-4 text-xs text-muted">~5 minutes. No sign-up. Headphones help.</p>
         </div>
       </main>
     );
@@ -164,8 +166,8 @@ export default function BiasFlow() {
           {kicker}
           <h1 className="mt-6 font-display text-4xl font-semibold leading-tight">Round two.</h1>
           <p className="mt-4 text-base leading-relaxed text-muted">
-            Same eight clips — this time the names and the reputations come attached.
-            Rate what you hear.
+            Same ten clips — this time the names and the reputations come attached.
+            A couple stay blank on purpose. Rate what you hear.
           </p>
           <button
             type="button"
@@ -183,9 +185,13 @@ export default function BiasFlow() {
   /* ------------------------------------------------------- rating passes */
   if (phase === "blind" || phase === "labeled") {
     if (!clip) return null;
-    const caption =
-      (isPlaceholderSrc(clip.audioSrc) ? "placeholder tone — real clips pending" : "tap to listen") +
-      (played ? "" : " · rating unlocks as you listen");
+    // Two facts, two signals (PM ruling 2026-07-19): the caption carries the
+    // arming state; the ring carries clip progress. Neither implies the other.
+    const caption = isPlaceholderSrc(clip.audioSrc)
+      ? "placeholder tone — real clips pending"
+      : played
+        ? "you can rate now — the clip plays on"
+        : "tap to listen · rating unlocks at the notch";
     return (
       <main className={shell}>
         <FluidField colors={FLUID} baseColor={BASE} intensity={0.6} scrim={false} vignette />
@@ -211,6 +217,15 @@ export default function BiasFlow() {
 
           {pass === "blind" ? (
             <p className="text-sm text-muted">No names. No context. Just — how good is this?</p>
+          ) : clip.isControl ? (
+            // Control item (v1.1): no label exists for this clip, and saying
+            // anything fancier would itself be a label. Neutral frame only.
+            <div className="rounded-2xl border border-white/10 p-4" style={{ background: "rgba(255,255,255,0.03)" }}>
+              <p className="text-[0.65rem] font-bold tracking-[0.3em] text-muted">NO LABEL ON THIS ONE</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted">
+                Nothing attached. Just — how good is this, on a second listen?
+              </p>
+            </div>
           ) : (
             <div className="rounded-2xl border p-4" style={{ borderColor: "hsl(42 60% 55% / 0.35)", background: "rgba(255,255,255,0.03)" }}>
               <p className="text-[0.65rem] font-bold tracking-[0.3em] text-muted">THE LABEL SAYS</p>
@@ -233,8 +248,12 @@ export default function BiasFlow() {
             }}
           />
 
-          {/* 0–10 scale */}
-          <div className={`mt-8 transition-opacity ${played ? "opacity-100" : "pointer-events-none opacity-35"}`}>
+          {/* 0–10 scale — unlock is a visible state change, not a fade-blink */}
+          <div
+            className={`mt-8 transition-all duration-500 ease-out ${
+              played ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-1.5 opacity-35"
+            }`}
+          >
             <div className="grid grid-cols-6 gap-1.5">
               {Array.from({ length: BIAS_SCALE_MAX + 1 }, (_, v) => (
                 <button
@@ -275,7 +294,10 @@ export default function BiasFlow() {
             {result.pct > 0 ? "+" : ""}
             {result.pct}%
           </p>
-          <p className="mt-3 text-sm text-muted">how far your ratings moved toward the labels</p>
+          <p className="mt-3 text-sm text-muted">
+            how far your ratings moved toward the labels
+            {result.controlDriftPts !== null ? " — corrected for your own re-listen drift" : ""}
+          </p>
           <h1 className="mt-8 font-display text-4xl font-semibold">{v.title}</h1>
           <p className="mt-2 max-w-sm text-base leading-relaxed text-muted">{v.sub}</p>
           {result.swayShare !== null ? (
@@ -314,6 +336,7 @@ export default function BiasFlow() {
   /* -------------------------------------------------------------- debrief */
   if (phase === "debrief" && result) {
     const swapped = BIAS_CLIPS.filter((c) => !c.labelIsTrue);
+    const labeledCount = BIAS_CLIPS.filter((c) => !c.isControl).length;
     const receiptFor = (id: string) => result.receipts.find((r) => r.id === id);
     // Stateless permalink: raw passes in the URL; /bias/result recomputes.
     const b = encodeURIComponent(encodeBiasRatings(BIAS_CLIPS, blind));
@@ -329,7 +352,7 @@ export default function BiasFlow() {
             Some of those names were lies.
           </h1>
           <p className="mt-4 text-base leading-relaxed text-muted">
-            {`${swapped.length} of the ${total} labels were deliberately swapped — it's the only clean way to measure prestige, and you deserve to know which ones. Here's what your ratings did when the name in the room was false:`}
+            {`${swapped.length} of the ${labeledCount} labels were deliberately swapped — it's the only clean way to measure prestige, and you deserve to know which ones. Here's what your ratings did when the name in the room was false:`}
           </p>
 
           <div className="mt-6 flex flex-col gap-3">
@@ -366,16 +389,27 @@ export default function BiasFlow() {
             </p>
           ) : null}
 
-          {/* Full receipts */}
+          {/* Controls disclosure (v1.1, N3: no silent machinery) */}
+          {result.controlDriftPts !== null ? (
+            <p className="mt-5 text-sm leading-relaxed text-muted">
+              {`And ${result.controlCount === 1 ? "one clip" : `${result.controlCount} clips`} never carried a label in either pass — those are controls. They measure how much your ratings drift on a plain second listen (memory, familiarity, fatigue), and that drift — yours ran ${result.controlDriftPts > 0 ? "+" : ""}${result.controlDriftPts} point${Math.abs(result.controlDriftPts) === 1 ? "" : "s"} — is corrected out of your headline number, so "the second pass is just memory" is measured, not assumed.`}
+            </p>
+          ) : null}
+
+          {/* Full receipts — every clip, controls included */}
           <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
             <p className="text-[0.65rem] font-bold tracking-[0.3em] text-muted">FULL RECEIPTS</p>
             <div className="mt-2 flex flex-col gap-1 text-sm text-muted">
-              {result.receipts.map((r, i) => (
-                <p key={r.id}>
-                  Clip {i + 1}: {r.blind} → {r.labeled}
-                  {r.labelIsTrue ? "" : " (swapped)"}
-                </p>
-              ))}
+              {BIAS_CLIPS.map((c, i) => {
+                const r = result.receipts.find((x) => x.id === c.id);
+                const ctrl = result.controlReceipts.find((x) => x.id === c.id);
+                return (
+                  <p key={c.id}>
+                    Clip {i + 1}: {r ? `${r.blind} → ${r.labeled}` : `${ctrl?.first} → ${ctrl?.second}`}
+                    {ctrl ? " (control — never labeled)" : r && !r.labelIsTrue ? " (swapped)" : ""}
+                  </p>
+                );
+              })}
             </div>
           </div>
 

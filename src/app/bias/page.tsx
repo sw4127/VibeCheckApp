@@ -10,12 +10,12 @@ import { baseUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: "The Prestige Test — do you hear the music, or the name?",
   description:
-    "Rate eight clips with just your ears. Rate them again with the names attached. The gap is your number.",
+    "Rate ten clips with just your ears. Rate them again with the names attached. The gap is your number.",
   alternates: { canonical: "/bias" },
   openGraph: {
     title: "The Prestige Test — do you hear the music, or the name?",
     description:
-      "Rate eight clips with just your ears. Rate them again with the names attached. The gap is your number.",
+      "Rate ten clips with just your ears. Rate them again with the names attached. The gap is your number.",
     images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
   },
 };
@@ -35,7 +35,7 @@ export default function BiasPage() {
           operatingSystem: "Web",
           offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
           description:
-            "A four-minute within-subject test of prestige bias in music taste: eight clips rated blind, then labeled — some labels deliberately swapped and disclosed in a mandatory debrief. The blind-vs-labeled gap is the measured result.",
+            "A five-minute within-subject test of prestige bias in music taste: ten clips rated blind, then labeled — some labels deliberately swapped and disclosed in a mandatory debrief, two clips never labeled (drift controls). The blind-vs-labeled gap, corrected by the control drift, is the measured result.",
           isPartOf: { "@type": "WebSite", name: "The Taste Gym", url: baseUrl() },
         }}
       />

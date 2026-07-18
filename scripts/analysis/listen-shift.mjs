@@ -21,7 +21,9 @@ const arg = (k) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : nu
 const demo = args.includes("--demo");
 const out = arg("--out") ?? "listen-shift.svg";
 
-const pool = JSON.parse(readFileSync(join(HERE, "pool-v3.json"), "utf8"));
+// Current pool by default; --pool <file> renders historical versions.
+// Controls stay IN this chart: listen-time vs |shift| is label-agnostic.
+const pool = JSON.parse(readFileSync(arg("--pool") ?? join(HERE, "pool-v4.json"), "utf8"));
 
 const points = []; // { sec, shift }
 let used = 0, skipped = 0;

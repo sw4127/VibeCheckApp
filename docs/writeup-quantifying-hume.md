@@ -21,9 +21,12 @@ Two hundred and sixty-nine years later, we built a machine that measures the fou
 Measuring "taste" usually collapses into self-report — which measures self-image, not taste. We
 wanted a **performance task where you can be wrong**. The Prestige-Bias Test works like this:
 
-1. You rate eight ~20-second clips **blind** (0–10, no names, no context).
-2. You rate the **same eight clips again**, now with attributions and one-line reputations attached.
-3. Your number is the mean signed movement of your ratings *toward* the labels.
+1. You rate ten ~20-second clips **blind** (0–10, no names, no context).
+2. You rate the **same ten clips again** — eight now carry attributions and one-line reputations;
+   two stay unlabeled in both passes (drift controls).
+3. Your number is the mean signed movement of your ratings *toward* the labels, corrected by the
+   residual your control-clip drift would leave in it (pool v4, 2026-07-19; the "second pass is
+   just memory" objection is thereby a published control, not a caveat).
 
 The catch that makes it an experiment rather than a party trick: **three of the eight labels are
 deliberately false.** A canonical Bach recording is presented as "M. Novak — home piano sessions."

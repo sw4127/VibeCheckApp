@@ -14,9 +14,9 @@ export default function Page() {
         changes what your ears report.
       </p>
       <p>
-        The design is a within-subject experiment, four minutes long. You hear eight short clips
-        and rate each one <strong>blind</strong> — no artist, no context, just sound. Then you hear
-        the same eight clips again with names and reputations attached, and rate them again. Your
+        The design is a within-subject experiment, about five minutes long. You hear ten short
+        clips and rate each one <strong>blind</strong> — no artist, no context, just sound. Then
+        you hear the same ten clips again with names and reputations attached, and rate them again. Your
         score is computed from the gap between the two passes: the share of your rating movement
         that flowed <em>toward</em> the labels.
       </p>
@@ -27,6 +27,13 @@ export default function Page() {
         the labels even when the labels lie, the movement can&apos;t be explained by the music —
         only by the prestige. You serve as your own control, which is why the test needs no
         external ground truth about which clip is &quot;objectively better.&quot;
+      </p>
+      <p>
+        Two of the ten clips are <strong>controls</strong>: they carry no label in either pass.
+        They measure how much your ratings drift on a plain second listen — memory, familiarity,
+        fatigue — and that measured drift is corrected out of your headline number. The obvious
+        objection to any re-rating design, &quot;the second pass just tests memory,&quot; is
+        thereby a published control rather than a caveat.
       </p>
       <p>
         Every swap is confessed. The test ends with a <strong>mandatory debrief</strong> that names
